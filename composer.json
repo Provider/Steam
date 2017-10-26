@@ -1,0 +1,31 @@
+{
+  "name": "provider/steam",
+  "description": "Steam data provider for Porter.",
+  "authors": [
+    {
+      "name": "Bilge",
+      "email": "bilge@scriptfusion.com"
+    }
+  ],
+  "require": {
+    "php": "^7.1",
+    "scriptfusion/porter": "4.0.x-dev"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6",
+    "mockery/mockery": "^1"
+  },
+  "autoload": {
+    "psr-4": {
+      "ScriptFUSION\\Porter\\Provider\\Steam\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ScriptFUSIONTest\\Porter\\Provider\\Steam\\": "test"
+    }
+  },
+  "scripts": {
+    "test": "phpunit -c test"
+  }
+}
