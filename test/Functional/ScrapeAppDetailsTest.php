@@ -5,8 +5,8 @@ namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
 use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Porter;
-use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppDetails;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
+use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppDetails;
 use ScriptFUSION\Porter\Specification\ImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
@@ -38,7 +38,7 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * http://store.steampowered.com/app/5/
+     * @see http://store.steampowered.com/app/5/
      */
     public function testHiddenApp()
     {
@@ -46,6 +46,30 @@ final class ScrapeAppDetailsTest extends TestCase
         $this->expectExceptionMessage((string)$appId = 5);
 
         $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+    }
+
+    /**
+     * Tests that age-restricted content can be scraped.
+     *
+     * @see http://store.steampowered.com/app/232770/
+     */
+    public function testAgeRestrictedContent()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(232770)));
+
+        self::assertSame('POSTAL', $app['name']);
+    }
+
+    /**
+     * Tests that mature content can be scraped.
+     *
+     * @see http://store.steampowered.com/app/292030/
+     */
+    public function testMatureContent()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(292030)));
+
+        self::assertSame('The Witcher® 3: Wild Hunt', $app['name']);
     }
 
     /**

@@ -23,8 +23,11 @@ final class ScrapeAppDetails implements ProviderResource
     {
         $this->appId = $appId;
 
-        // We want to capture redirects so do not follow them automatically.
-        $this->options = (new HttpOptions)->setFollowLocation(false);
+        $this->options = (new HttpOptions)
+            // We want to capture redirects so do not follow them automatically.
+            ->setFollowLocation(false)
+            // Enable age-restricted and mature content.
+            ->addHeader('Cookie: birthtime=0; mature_content=1');
     }
 
     public function getProviderClassName(): string
