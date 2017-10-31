@@ -21,7 +21,7 @@ final class GetAppList implements ProviderResource
     public function fetch(ImportConnector $connector, EncapsulatedOptions $options = null)
     {
         return new \ArrayIterator(
-            \json_decode($connector->fetch('/ISteamApps/GetAppList/v2/'), true)['applist']['apps']
+            \json_decode((string)$connector->fetch('/ISteamApps/GetAppList/v2/'), true)['applist']['apps']
         );
     }
 }
