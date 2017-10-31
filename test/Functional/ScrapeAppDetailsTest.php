@@ -38,6 +38,8 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that apps redirecting to another page throw an exception.
+     *
      * @see http://store.steampowered.com/app/5/
      */
     public function testHiddenApp()
@@ -70,6 +72,19 @@ final class ScrapeAppDetailsTest extends TestCase
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(292030)));
 
         self::assertSame('The Witcher® 3: Wild Hunt', $app['name']);
+    }
+
+    /**
+     * Tests that apps with no release date are mapped to null.
+     *
+     * @see http://store.steampowered.com/app/219740/
+     */
+    public function testNoReleaseDate()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(219740)));
+
+        self::assertSame('Don\'t Starve', $app['name']);
+        self::assertNull($app['release_date']);
     }
 
     /**

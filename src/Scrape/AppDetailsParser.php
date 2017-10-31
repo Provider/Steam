@@ -27,8 +27,9 @@ final class AppDetailsParser
                 $crawler->filter('.responsive_apppage_details_right.heading')->text()
             )
         );
-        $date = $crawler->filter('.release_date > .date')->text();
-        $release_date = new \DateTimeImmutable($date);
+
+        $date = $crawler->filter('.release_date > .date');
+        $release_date = $date->count() ? new \DateTimeImmutable($date->text()) : null;
 
         return compact('name', 'type', 'release_date');
     }
