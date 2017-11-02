@@ -29,7 +29,7 @@ final class GetUserReviewsList implements ProviderResource
     public function fetch(ImportConnector $connector, EncapsulatedOptions $options = null)
     {
         $response = \json_decode(
-            (string)$connector->fetch("http://store.steampowered.com/appreviews/$this->appId?json=1&language=all"),
+            (string)$connector->fetch(SteamProvider::buildStoreApiUrl("/appreviews/$this->appId?json=1&language=all")),
             true
         );
 
