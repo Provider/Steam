@@ -12,7 +12,7 @@ use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 /**
  * @see https://partner.steamgames.com/doc/store/getreviews
  */
-final class GetUserReviewsList implements ProviderResource
+final class GetUserReviewsList implements ProviderResource, Url
 {
     private $appId;
 
@@ -28,10 +28,7 @@ final class GetUserReviewsList implements ProviderResource
 
     public function fetch(ImportConnector $connector, EncapsulatedOptions $options = null)
     {
-        $response = \json_decode(
-            (string)$connector->fetch(SteamProvider::buildStoreApiUrl("/appreviews/$this->appId?json=1&language=all")),
-            true
-        );
+        $response = \json_decode((string)$connector->fetch($this->getUrl()), true);
 
         if ($response['success'] !== 1) {
             throw new ApiResponseException('Failed to retrieve reviews.', $response['success']);
@@ -48,5 +45,10 @@ final class GetUserReviewsList implements ProviderResource
             $summary['review_score_desc'],
             $this
         );
+    }
+
+    public function getUrl(): string
+    {
+        return SteamProvider::buildStoreApiUrl("/appreviews/$this->appId?json=1&language=all");
     }
 }

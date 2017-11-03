@@ -13,7 +13,7 @@ use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 /**
  * Scrapes the Steam store page for App details.
  */
-final class ScrapeAppDetails implements ProviderResource
+final class ScrapeAppDetails implements ProviderResource, Url
 {
     private $appId;
 
@@ -38,7 +38,7 @@ final class ScrapeAppDetails implements ProviderResource
     public function fetch(ImportConnector $connector, EncapsulatedOptions $options = null): \Iterator
     {
         // We force the country to US for consistency and easier date parsing using the undocumented cc parameter.
-        $response = $connector->fetch($url = "http://store.steampowered.com/app/$this->appId/?cc=us", $this->options);
+        $response = $connector->fetch($this->getUrl(), $this->options);
 
         // Assume a redirect indicates an invalid ID.
         if ($response->hasHeader('Location')) {
@@ -48,5 +48,10 @@ final class ScrapeAppDetails implements ProviderResource
         }
 
         yield AppDetailsParser::parseStorePage($response->getBody());
+    }
+
+    public function getUrl(): string
+    {
+        return "http://store.steampowered.com/app/$this->appId/?cc=us";
     }
 }
