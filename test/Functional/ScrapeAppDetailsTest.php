@@ -26,6 +26,8 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that all supported fields can be scraped from a game page.
+     *
      * @see http://store.steampowered.com/app/10/
      */
     public function testGame()
@@ -35,6 +37,20 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('Counter-Strike', $app['name']);
         self::assertSame('game', $app['type']);
         self::assertSame('2000-11-01T00:00:00+00:00', $app['release_date']->format('c'));
+
+        foreach ($app['tags'] as $tag) {
+            // Tags should not contain any whitespace
+            self::assertNotContains("\r", $tag);
+            self::assertNotContains("\n", $tag);
+            self::assertNotContains("\t", $tag);
+
+            // Tags should not start or end with spaces.
+            self::assertStringStartsNotWith(' ', $tag);
+            self::assertStringEndsNotWith(' ', $tag);
+
+            // Tags should not include the "add" tag.
+            self::assertNotSame('+', $tag);
+        }
     }
 
     /**
