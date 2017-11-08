@@ -19,10 +19,10 @@ final class GetUserReviewsListTest extends TestCase
      */
     public function testTotals()
     {
-        $porter = FixtureFactory::createPorter();
-
         /** @var UserReviewsCollection $reviews */
-        $reviews = $porter->import(new ImportSpecification(new GetUserReviewsList(10)))->findFirstCollection();
+        $reviews = FixtureFactory::createPorter()->import(
+            new ImportSpecification(new GetUserReviewsList(10))
+        )->findFirstCollection();
 
         self::assertInstanceOf(UserReviewsCollection::class, $reviews);
         self::assertCount($reviews->getTotalPositive() + $reviews->getTotalNegative(), $reviews);
@@ -42,5 +42,19 @@ final class GetUserReviewsListTest extends TestCase
             self::assertArrayHasKey('author', $review);
             self::assertArrayHasKey('review', $review);
         }
+    }
+
+    /**
+     * Tests that reviews for free games are included.
+     */
+    public function testFreeGameReviews()
+    {
+        /** @var UserReviewsCollection $reviews */
+        $reviews = FixtureFactory::createPorter()->import(
+            new ImportSpecification(new GetUserReviewsList(698780))
+        )->findFirstCollection();
+
+        self::assertInstanceOf(UserReviewsCollection::class, $reviews);
+        self::assertGreaterThan(17000, count($reviews));
     }
 }

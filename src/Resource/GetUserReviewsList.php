@@ -49,6 +49,6 @@ final class GetUserReviewsList implements ProviderResource, Url
 
     public function getUrl(): string
     {
-        return SteamProvider::buildStoreApiUrl("/appreviews/$this->appId?json=1&language=all");
+        return SteamProvider::buildStoreApiUrl("/appreviews/$this->appId?json=1&language=all&purchase_type=all");
     }
 }
