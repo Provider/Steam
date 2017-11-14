@@ -18,6 +18,9 @@ final class AppDetailsParser
         if (!in_array('v6', $bodyClasses, true)) {
             throw new ParserException('Unexpected version! Expected: v6.');
         }
+        if (!in_array('app', $bodyClasses, true)) {
+            throw new ParserException('Unexpected content! Expected: app.');
+        }
 
         $name = $crawler->filter('.apphub_AppName')->text();
         $type = mb_strtolower(

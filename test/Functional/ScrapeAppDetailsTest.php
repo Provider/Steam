@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppDetails;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\ParserException;
 use ScriptFUSION\Porter\Specification\ImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
@@ -129,5 +130,18 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('Half-Life Soundtrack', $app['name']);
         self::assertSame('dlc', $app['type']);
         self::assertSame('2014-09-24T00:00:00+00:00', $app['release_date']->format('c'));
+    }
+
+    /**
+     * Dishonored RHCP is region locked to Russia, Hungary, Czech Republic and Poland.
+     *
+     * @see http://store.steampowered.com/app/217980/
+     */
+    public function testRegionLockedApp()
+    {
+        $this->expectException(ParserException::class);
+        $this->expectExceptionMessage('app');
+
+        $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(217980)));
     }
 }
