@@ -34,10 +34,29 @@ final class AppDetailsParser
         $date = $crawler->filter('.release_date > .date');
         $release_date = $date->count() ? new \DateTimeImmutable($date->text()) : null;
 
-        $tags = $crawler->filter('.app_tag:not(.add_button)')->each(function (Crawler $node) {
+        $tags = $crawler->filter('.app_tag:not(.add_button)')->each(function (Crawler $node): string {
             return trim($node->text());
         });
 
-        return compact('name', 'type', 'release_date', 'tags');
+        $positive_reviews = self::filterNumbers(
+            $crawler->filter('[for=review_type_positive] > .user_reviews_count')->text()
+        );
+        $negative_reviews = self::filterNumbers(
+            $crawler->filter('[for=review_type_negative] > .user_reviews_count')->text()
+        );
+
+        return compact('name', 'type', 'release_date', 'tags', 'positive_reviews', 'negative_reviews');
+    }
+
+    /**
+     * Filters the specified input string so only numbers remain and casts to numeric.
+     *
+     * @param string $input Input string.
+     *
+     * @return int Filtered string as numeric value.
+     */
+    private static function filterNumbers(string $input): int
+    {
+        return +preg_replace('[\D]', null, $input);
     }
 }

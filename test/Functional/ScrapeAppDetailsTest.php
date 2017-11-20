@@ -39,6 +39,10 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('game', $app['type']);
         self::assertSame('2000-11-01T00:00:00+00:00', $app['release_date']->format('c'));
 
+        self::assertInternalType('int', $app['positive_reviews']);
+        self::assertInternalType('int', $app['negative_reviews']);
+        self::assertGreaterThan(90000, $app['positive_reviews'] + $app['negative_reviews']);
+
         foreach ($app['tags'] as $tag) {
             // Tags should not contain any whitespace
             self::assertNotContains("\r", $tag);
