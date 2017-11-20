@@ -37,7 +37,11 @@ final class AppDetailsParser
 
         // Release date.
         $date = $crawler->filter('.release_date > .date');
-        $release_date = $date->count() ? new \DateTimeImmutable($date->text()) : null;
+        try {
+            $release_date = $date->count() ? new \DateTimeImmutable($date->text()) : null;
+        } catch (\Exception $exception) {
+            $release_date = null;
+        }
 
         // Tags.
         $tags = $crawler->filter('.app_tag:not(.add_button)')->each(function (Crawler $node): string {

@@ -161,4 +161,17 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame(0, $app['positive_reviews']);
         self::assertSame(0, $app['negative_reviews']);
     }
+
+    /**
+     * Tests that a game with an invalid date, like "coming soon", is treated as null.
+     *
+     * @see http://store.steampowered.com/app/271260/
+     */
+    public function testInvalidDate()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(271260)));
+
+        self::assertArrayHasKey('release_date', $app);
+        self::assertNull($app['release_date']);
+    }
 }
