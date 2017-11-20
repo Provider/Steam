@@ -14,6 +14,7 @@ final class AppDetailsParser
     {
         $crawler = new Crawler($html);
 
+        // Basic validation.
         $bodyClasses = explode(' ', $crawler->filter('body')->attr('class'));
         if (!in_array('v6', $bodyClasses, true)) {
             throw new ParserException('Unexpected version! Expected: v6.');
@@ -22,7 +23,10 @@ final class AppDetailsParser
             throw new ParserException('Unexpected content! Expected: app.');
         }
 
+        // App name.
         $name = $crawler->filter('.apphub_AppName')->text();
+
+        // App type.
         $type = mb_strtolower(
             preg_replace(
                 '[.*Is this (\S+)\b.*]',
@@ -31,19 +35,22 @@ final class AppDetailsParser
             )
         );
 
+        // Release date.
         $date = $crawler->filter('.release_date > .date');
         $release_date = $date->count() ? new \DateTimeImmutable($date->text()) : null;
 
+        // Tags.
         $tags = $crawler->filter('.app_tag:not(.add_button)')->each(function (Crawler $node): string {
             return trim($node->text());
         });
 
-        $positive_reviews = self::filterNumbers(
-            $crawler->filter('[for=review_type_positive] > .user_reviews_count')->text()
-        );
-        $negative_reviews = self::filterNumbers(
+        // Reviews.
+        $positiveReviews = $crawler->filter('[for=review_type_positive] > .user_reviews_count');
+        $hasReviews = $positiveReviews->count() > 0;
+        $positive_reviews = $hasReviews ? self::filterNumbers($positiveReviews->text()) : 0;
+        $negative_reviews = $hasReviews ? self::filterNumbers(
             $crawler->filter('[for=review_type_negative] > .user_reviews_count')->text()
-        );
+        ) : 0;
 
         return compact('name', 'type', 'release_date', 'tags', 'positive_reviews', 'negative_reviews');
     }

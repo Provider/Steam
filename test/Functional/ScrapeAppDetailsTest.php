@@ -148,4 +148,17 @@ final class ScrapeAppDetailsTest extends TestCase
 
         $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(217980)));
     }
+
+    /**
+     * Tests that a game with no reviews parses correctly.
+     *
+     * @see http://store.steampowered.com/app/1620/
+     */
+    public function testNoReviews()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(1620)));
+
+        self::assertSame(0, $app['positive_reviews']);
+        self::assertSame(0, $app['negative_reviews']);
+    }
 }
