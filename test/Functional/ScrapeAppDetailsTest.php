@@ -43,6 +43,10 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertInternalType('int', $app['negative_reviews']);
         self::assertGreaterThan(90000, $app['positive_reviews'] + $app['negative_reviews']);
 
+        self::assertTrue($app['windows']);
+        self::assertTrue($app['linux']);
+        self::assertTrue($app['mac']);
+
         foreach ($app['tags'] as $tag) {
             // Tags should not contain any whitespace
             self::assertNotContains("\r", $tag);
@@ -134,6 +138,34 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('Half-Life Soundtrack', $app['name']);
         self::assertSame('dlc', $app['type']);
         self::assertSame('2014-09-24T00:00:00+00:00', $app['release_date']->format('c'));
+    }
+
+    /**
+     * Tests that an app with only Windows support is identified correctly.
+     *
+     * @see http://store.steampowered.com/app/630/
+     */
+    public function testWindowsOnly()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(630)));
+
+        self::assertTrue($app['windows']);
+        self::assertFalse($app['linux']);
+        self::assertFalse($app['mac']);
+    }
+
+    /**
+     * Tests that an app with only Mac support is identified correctly.
+     *
+     * @see http://store.steampowered.com/app/694180/
+     */
+    public function testMacOnly()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(694180)));
+
+        self::assertFalse($app['windows']);
+        self::assertFalse($app['linux']);
+        self::assertTrue($app['mac']);
     }
 
     /**

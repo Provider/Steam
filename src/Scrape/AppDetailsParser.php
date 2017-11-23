@@ -56,7 +56,22 @@ final class AppDetailsParser
             $crawler->filter('[for=review_type_negative] > .user_reviews_count')->text()
         ) : 0;
 
-        return compact('name', 'type', 'release_date', 'tags', 'positive_reviews', 'negative_reviews');
+        // Platforms.
+        $windows = $crawler->filter('.game_area_purchase_platform')->first()->filter('.win')->count() > 0;
+        $linux = $crawler->filter('.game_area_purchase_platform')->first()->filter('.linux')->count() > 0;
+        $mac = $crawler->filter('.game_area_purchase_platform')->first()->filter('.mac')->count() > 0;
+
+        return compact(
+            'name',
+            'type',
+            'release_date',
+            'tags',
+            'positive_reviews',
+            'negative_reviews',
+            'windows',
+            'linux',
+            'mac'
+        );
     }
 
     /**
