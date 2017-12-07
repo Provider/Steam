@@ -46,6 +46,9 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertTrue($app['windows']);
         self::assertTrue($app['linux']);
         self::assertTrue($app['mac']);
+        self::assertFalse($app['vive']);
+        self::assertFalse($app['occulus']);
+        self::assertFalse($app['wmr']);
 
         foreach ($app['tags'] as $tag) {
             // Tags should not contain any whitespace
@@ -205,5 +208,19 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('release_date', $app);
         self::assertNull($app['release_date']);
+    }
+
+    /**
+     * Tests that a game with all VR platforms is correctly identified.
+     *
+     * @see http://store.steampowered.com/app/552440
+     */
+    public function testVrPlatforms()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(552440)));
+
+        self::assertTrue($app['vive']);
+        self::assertTrue($app['occulus']);
+        self::assertTrue($app['wmr']);
     }
 }
