@@ -38,6 +38,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('Counter-Strike', $app['name']);
         self::assertSame('game', $app['type']);
         self::assertSame('2000-11-01T00:00:00+00:00', $app['release_date']->format('c'));
+        self::assertContains('Action', $app['genres']);
 
         self::assertInternalType('int', $app['positive_reviews']);
         self::assertInternalType('int', $app['negative_reviews']);
@@ -222,5 +223,20 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertTrue($app['vive']);
         self::assertTrue($app['occulus']);
         self::assertTrue($app['wmr']);
+    }
+
+    /**
+     * Tests that a game with multiple genres with spaces and symbols in their names are parsed correctly.
+     *
+     * @see http://store.steampowered.com/app/1840/
+     */
+    public function testGenres()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(1840)));
+
+        self::assertArrayHasKey('genres', $app);
+        self::assertCount(2, $genres = $app['genres']);
+        self::assertContains('Animation & Modeling', $genres);
+        self::assertContains('Video Production', $genres);
     }
 }

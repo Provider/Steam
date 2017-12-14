@@ -14,39 +14,13 @@ final class AppDetailsParser
     {
         $crawler = new Crawler($html);
 
-        // Basic validation.
-        $bodyClasses = explode(' ', $crawler->filter('body')->attr('class'));
-        if (!in_array('v6', $bodyClasses, true)) {
-            throw new ParserException('Unexpected version! Expected: v6.');
-        }
-        if (!in_array('app', $bodyClasses, true)) {
-            throw new ParserException('Unexpected content! Expected: app.');
-        }
+        self::validate($crawler);
 
-        // App name.
-        $name = $crawler->filter('.apphub_AppName')->text();
-
-        // App type.
-        $type = mb_strtolower(
-            preg_replace(
-                '[.*Is this (\S+)\b.*]',
-                '$1',
-                $crawler->filter('.responsive_apppage_details_right.heading')->text()
-            )
-        );
-
-        // Release date.
-        $date = $crawler->filter('.release_date > .date');
-        try {
-            $release_date = $date->count() ? new \DateTimeImmutable($date->text()) : null;
-        } catch (\Exception $exception) {
-            $release_date = null;
-        }
-
-        // Tags.
-        $tags = $crawler->filter('.app_tag:not(.add_button)')->each(function (Crawler $node): string {
-            return trim($node->text());
-        });
+        $name = self::parseAppName($crawler);
+        $type = self::parseAppType($crawler);
+        $release_date = self::parseReleaseDate($crawler);
+        $genres = self::parseGenres($crawler);
+        $tags = self::parseTags($crawler);
 
         // Reviews.
         $positiveReviews = $crawler->filter('[for=review_type_positive] > .user_reviews_count');
@@ -68,6 +42,7 @@ final class AppDetailsParser
             'name',
             'type',
             'release_date',
+            'genres',
             'tags',
             'positive_reviews',
             'negative_reviews',
@@ -78,6 +53,65 @@ final class AppDetailsParser
             'occulus',
             'wmr'
         );
+    }
+
+    private static function validate(Crawler $crawler): void
+    {
+        $bodyClasses = explode(' ', $crawler->filter('body')->attr('class'));
+        if (!\in_array('v6', $bodyClasses, true)) {
+            throw new ParserException('Unexpected version! Expected: v6.');
+        }
+        if (!\in_array('app', $bodyClasses, true)) {
+            throw new ParserException('Unexpected content! Expected: app.');
+        }
+    }
+
+    private static function parseAppName(Crawler $crawler): string
+    {
+        return $crawler->filter('.apphub_AppName')->text();
+    }
+
+    private static function parseAppType(Crawler $crawler)
+    {
+        return mb_strtolower(
+            preg_replace(
+                '[.*Is this (\S+)\b.*]',
+                '$1',
+                $crawler->filter('.responsive_apppage_details_right.heading')->text()
+            )
+        );
+    }
+
+    private static function parseReleaseDate(Crawler $crawler): ?\DateTimeImmutable
+    {
+        $date = $crawler->filter('.release_date > .date');
+
+        try {
+            $release_date = $date->count() ? new \DateTimeImmutable($date->text()) : null;
+        } catch (\Exception $exception) {
+            $release_date = null;
+        }
+
+        return $release_date;
+    }
+
+    private static function parseTags(Crawler $crawler): array
+    {
+        return $crawler->filter('.app_tag:not(.add_button)')->each(
+            \Closure::fromCallable('self::trimNodeText')
+        );
+    }
+
+    private static function parseGenres(Crawler $crawler): array
+    {
+        return $crawler->filter('.details_block a[href*="/genre/"]')->each(
+            \Closure::fromCallable('self::trimNodeText')
+        );
+    }
+
+    private static function trimNodeText(Crawler $crawler): string
+    {
+        return trim($crawler->text());
     }
 
     /**
