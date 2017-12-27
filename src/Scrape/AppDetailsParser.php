@@ -21,6 +21,7 @@ final class AppDetailsParser
         $release_date = self::parseReleaseDate($crawler);
         $genres = self::parseGenres($crawler);
         $tags = self::parseTags($crawler);
+        $discount = self::parseDiscountPercentage($crawler);
 
         // Reviews.
         $positiveReviews = $crawler->filter('[for=review_type_positive] > .user_reviews_count');
@@ -44,6 +45,7 @@ final class AppDetailsParser
             'release_date',
             'genres',
             'tags',
+            'discount',
             'positive_reviews',
             'negative_reviews',
             'windows',
@@ -107,6 +109,13 @@ final class AppDetailsParser
         return $crawler->filter('.details_block a[href*="/genre/"]')->each(
             \Closure::fromCallable('self::trimNodeText')
         );
+    }
+
+    private static function parseDiscountPercentage(Crawler $crawler): int
+    {
+        $element = $crawler->filter('.game_area_purchase_game')->first()->filter('.discount_pct');
+
+        return $element->count() ? self::filterNumbers($element->text()) : 0;
     }
 
     private static function trimNodeText(Crawler $crawler): string

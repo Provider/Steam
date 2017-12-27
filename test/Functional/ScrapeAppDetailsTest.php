@@ -214,7 +214,7 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * Tests that a game with all VR platforms is correctly identified.
      *
-     * @see http://store.steampowered.com/app/552440
+     * @see http://store.steampowered.com/app/552440/
      */
     public function testVrPlatforms()
     {
@@ -238,5 +238,18 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertCount(2, $genres = $app['genres']);
         self::assertContains('Animation & Modeling', $genres);
         self::assertContains('Video Production', $genres);
+    }
+
+    /**
+     * Tests that a game with no discount has a discount percentage of zero.
+     *
+     * @see http://store.steampowered.com/app/698780/
+     */
+    public function testDiscountPercentage()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(698780)));
+
+        self::assertArrayHasKey('discount', $app);
+        self::assertSame(0, $app['discount']);
     }
 }
