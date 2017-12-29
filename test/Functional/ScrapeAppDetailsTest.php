@@ -40,6 +40,16 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('2000-11-01T00:00:00+00:00', $app['release_date']->format('c'));
         self::assertContains('Action', $app['genres']);
 
+        self::assertCount(8, $languages = $app['languages']);
+        self::assertContains('English', $languages);
+        self::assertContains('French', $languages);
+        self::assertContains('German', $languages);
+        self::assertContains('Italian', $languages);
+        self::assertContains('Spanish', $languages);
+        self::assertContains('Simplified Chinese', $languages);
+        self::assertContains('Traditional Chinese', $languages);
+        self::assertContains('Korean', $languages);
+
         self::assertInternalType('int', $app['positive_reviews']);
         self::assertInternalType('int', $app['negative_reviews']);
         self::assertGreaterThan(90000, $app['positive_reviews'] + $app['negative_reviews']);
@@ -238,6 +248,20 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertCount(2, $genres = $app['genres']);
         self::assertContains('Animation & Modeling', $genres);
         self::assertContains('Video Production', $genres);
+    }
+
+    /**
+     * Tests that a game with no English language support, and at least two other languages, is parsed correctly.
+     *
+     * @see http://store.steampowered.com/app/473460/
+     */
+    public function testLanguages()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(473460)));
+
+        self::assertGreaterThanOrEqual(2, \count($languages = $app['languages']));
+        self::assertContains('Simplified Chinese', $languages);
+        self::assertContains('Traditional Chinese', $languages);
     }
 
     /**

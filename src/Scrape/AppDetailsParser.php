@@ -21,6 +21,7 @@ final class AppDetailsParser
         $release_date = self::parseReleaseDate($crawler);
         $genres = self::parseGenres($crawler);
         $tags = self::parseTags($crawler);
+        $languages = self::parseLanguages($crawler);
         $discount = self::parseDiscountPercentage($crawler);
 
         // Reviews.
@@ -45,6 +46,7 @@ final class AppDetailsParser
             'release_date',
             'genres',
             'tags',
+            'languages',
             'discount',
             'positive_reviews',
             'negative_reviews',
@@ -107,6 +109,13 @@ final class AppDetailsParser
     private static function parseGenres(Crawler $crawler): array
     {
         return $crawler->filter('.details_block a[href*="/genre/"]')->each(
+            \Closure::fromCallable('self::trimNodeText')
+        );
+    }
+
+    private static function parseLanguages(Crawler $crawler): array
+    {
+        return $crawler->filter('.game_language_options tr:not(.unsupported) > td:first-child')->each(
             \Closure::fromCallable('self::trimNodeText')
         );
     }
