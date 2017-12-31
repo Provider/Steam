@@ -62,11 +62,13 @@ final class AppDetailsParser
     private static function validate(Crawler $crawler): void
     {
         $bodyClasses = explode(' ', $crawler->filter('body')->attr('class'));
+
         if (!\in_array('v6', $bodyClasses, true)) {
             throw new ParserException('Unexpected version! Expected: v6.');
         }
+
         if (!\in_array('app', $bodyClasses, true)) {
-            throw new ParserException('Unexpected content! Expected: app.');
+            throw new ParserException('Unexpected page type! Expected: app.');
         }
     }
 
