@@ -6,7 +6,7 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Options\EncapsulatedOptions;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
-use ScriptFUSION\Porter\Provider\Steam\Collection\UserReviewsCollection;
+use ScriptFUSION\Porter\Provider\Steam\Collection\UserReviewsRecords;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 /**
@@ -36,7 +36,7 @@ final class GetUserReviewsList implements ProviderResource, Url
 
         $summary = $response['query_summary'];
 
-        return new UserReviewsCollection(
+        return new UserReviewsRecords(
             new \ArrayIterator($response['reviews']),
             $summary['total_positive'],
             $summary['total_negative'],

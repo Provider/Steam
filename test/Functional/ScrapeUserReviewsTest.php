@@ -28,20 +28,26 @@ final class ScrapeUserReviewsTest extends TestCase
     public function testPaginatedReviews(): void
     {
         $reviews = $this->porter->import(new ImportSpecification(
-            new ScrapeUserReviews('http://steamcommunity.com/id/Fluo')
+            new ScrapeUserReviews('http://steamcommunity.com/id/afarnsworth')
         ));
-
-        $reviews = iterator_to_array($reviews, false);
 
         // Page size is 10.
         self::assertGreaterThan(10, \count($reviews));
 
+        $count = 0;
         foreach ($reviews as $review) {
             self::assertArrayHasKey('app_id', $review);
+            self::assertArrayHasKey('url', $review);
             self::assertArrayHasKey('positive', $review);
+
             self::assertInternalType('int', $review['app_id']);
+            self::assertInternalType('string', $review['url']);
             self::assertInternalType('bool', $review['positive']);
+
+            ++$count;
         }
+
+        self::assertCount($count, $reviews);
     }
 
     /**
@@ -49,11 +55,10 @@ final class ScrapeUserReviewsTest extends TestCase
      */
     public function testPrivateProfile(): void
     {
-        $reviews = $this->porter->import(new ImportSpecification(
+        $this->expectException(ParserException::class);
+
+        $this->porter->import(new ImportSpecification(
             new ScrapeUserReviews('http://steamcommunity.com/id/SteamTop250')
         ));
-
-        $this->expectException(ParserException::class);
-        $reviews->current();
     }
 }

@@ -24,6 +24,7 @@ final class UserReviewsParser
 
                 return [
                     'app_id' => +$matches[1],
+                    'url' => $href,
                     'positive' => $a->text() === 'Recommended',
                 ];
             }

@@ -6,7 +6,10 @@ namespace ScriptFUSION\Porter\Provider\Steam\Collection;
 use ScriptFUSION\Porter\Collection\CountableProviderRecords;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 
-final class UserReviewsCollection extends CountableProviderRecords
+/**
+ * Represents a collection of any user reviews.
+ */
+final class UserReviewsRecords extends CountableProviderRecords
 {
     private $totalPositive;
 

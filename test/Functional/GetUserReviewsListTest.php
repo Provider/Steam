@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
 use PHPUnit\Framework\TestCase;
-use ScriptFUSION\Porter\Provider\Steam\Collection\UserReviewsCollection;
+use ScriptFUSION\Porter\Provider\Steam\Collection\UserReviewsRecords;
 use ScriptFUSION\Porter\Provider\Steam\Resource\GetUserReviewsList;
 use ScriptFUSION\Porter\Specification\ImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
@@ -19,12 +19,12 @@ final class GetUserReviewsListTest extends TestCase
      */
     public function testTotals()
     {
-        /** @var UserReviewsCollection $reviews */
+        /** @var UserReviewsRecords $reviews */
         $reviews = FixtureFactory::createPorter()->import(
             new ImportSpecification(new GetUserReviewsList(10))
         )->findFirstCollection();
 
-        self::assertInstanceOf(UserReviewsCollection::class, $reviews);
+        self::assertInstanceOf(UserReviewsRecords::class, $reviews);
         self::assertCount($reviews->getTotalPositive() + $reviews->getTotalNegative(), $reviews);
 
         return $reviews;
@@ -35,7 +35,7 @@ final class GetUserReviewsListTest extends TestCase
      *
      * @depends testTotals
      */
-    public function testReviewFields(UserReviewsCollection $reviews)
+    public function testReviewFields(UserReviewsRecords $reviews)
     {
         foreach ($reviews as $review) {
             self::assertInternalType('array', $review);
@@ -49,12 +49,12 @@ final class GetUserReviewsListTest extends TestCase
      */
     public function testFreeGameReviews()
     {
-        /** @var UserReviewsCollection $reviews */
+        /** @var UserReviewsRecords $reviews */
         $reviews = FixtureFactory::createPorter()->import(
             new ImportSpecification(new GetUserReviewsList(698780))
         )->findFirstCollection();
 
-        self::assertInstanceOf(UserReviewsCollection::class, $reviews);
+        self::assertInstanceOf(UserReviewsRecords::class, $reviews);
         self::assertGreaterThan(17000, count($reviews));
     }
 }
