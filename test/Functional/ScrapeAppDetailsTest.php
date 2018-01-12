@@ -296,6 +296,8 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see http://store.steampowered.com/app/570/
      * @see http://store.steampowered.com/app/1840/
      * @see http://store.steampowered.com/app/323130/
+     * @see http://store.steampowered.com/app/250600/
+     * @see http://store.steampowered.com/app/252150/
      * @see http://store.steampowered.com/app/340/
      */
     public function provideFreeApps(): array
@@ -305,6 +307,8 @@ final class ScrapeAppDetailsTest extends TestCase
             'Free to Play' => [570],
             '"Free" button (no price)' => [1840],
             '"Download" button (no price)' => [323130],
+            '"Play Game" button (no price)' => [250600],
+            '"Install Game" button (no price)' => [252150],
             'No purchase area (discontinued)' => [340],
         ];
     }

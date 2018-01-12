@@ -142,7 +142,16 @@ final class AppDetailsParser
             if (\count($button)) {
                 $buttonText = self::trimNodeText($button);
 
-                return $buttonText === 'Free' || $buttonText === 'Download';
+                return \in_array(
+                    $buttonText,
+                    [
+                        'Free',
+                        'Download',
+                        'Play Game',
+                        'Install Game',
+                    ],
+                    true
+                );
             }
 
             return true;
