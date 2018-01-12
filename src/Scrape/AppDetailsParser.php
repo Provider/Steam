@@ -155,7 +155,7 @@ final class AppDetailsParser
             }
 
             return true;
-        };
+        }
 
         return StringType::startsWith(self::trimNodeText($price), 'Free');
     }

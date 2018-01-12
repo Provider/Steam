@@ -284,7 +284,7 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @dataProvider provideFreeApps
      */
-    public function testIsFree($appId)
+    public function testIsFree(int $appId)
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
         self::assertArrayHasKey('is_free', $app);

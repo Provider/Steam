@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Collection;
+
 use ScriptFUSION\Porter\Collection\CountableProviderRecords;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 
