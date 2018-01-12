@@ -50,6 +50,8 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertContains('Traditional Chinese', $languages);
         self::assertContains('Korean', $languages);
 
+        self::assertFalse($app['is_free']);
+
         self::assertInternalType('int', $app['positive_reviews']);
         self::assertInternalType('int', $app['negative_reviews']);
         self::assertGreaterThan(90000, $app['positive_reviews'] + $app['negative_reviews']);
@@ -275,5 +277,35 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('discount', $app);
         self::assertSame(0, $app['discount']);
+    }
+
+    /**
+     * Tests that games marked as 'Free', 'Free to Play' or having no price are detected as being cost-free.
+     *
+     * @dataProvider provideFreeApps
+     */
+    public function testIsFree($appId)
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+        self::assertArrayHasKey('is_free', $app);
+        self::assertTrue($app['is_free']);
+    }
+
+    /**
+     * @see http://store.steampowered.com/app/630/
+     * @see http://store.steampowered.com/app/570/
+     * @see http://store.steampowered.com/app/1840/
+     * @see http://store.steampowered.com/app/323130/
+     * @see http://store.steampowered.com/app/340/
+     */
+    public function provideFreeApps(): array
+    {
+        return [
+            'Free' => [630],
+            'Free to Play' => [570],
+            '"Free" button (no price)' => [1840],
+            '"Download" button (no price)' => [323130],
+            'No purchase area (discontinued)' => [340],
+        ];
     }
 }

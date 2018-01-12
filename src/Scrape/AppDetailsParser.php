@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Scrape;
 
+use ScriptFUSION\Porter\Type\StringType;
 use ScriptFUSION\StaticClass;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -23,6 +24,7 @@ final class AppDetailsParser
         $tags = self::parseTags($crawler);
         $languages = self::parseLanguages($crawler);
         $discount = self::parseDiscountPercentage($crawler);
+        $is_free = self::parseIsFree($crawler);
 
         // Reviews.
         $positiveReviews = $crawler->filter('[for=review_type_positive] > .user_reviews_count');
@@ -48,6 +50,7 @@ final class AppDetailsParser
             'tags',
             'languages',
             'discount',
+            'is_free',
             'positive_reviews',
             'negative_reviews',
             'windows',
@@ -127,6 +130,18 @@ final class AppDetailsParser
         $element = $crawler->filter('.game_area_purchase_game')->first()->filter('.discount_pct');
 
         return $element->count() ? self::filterNumbers($element->text()) : 0;
+    }
+
+    private static function parseIsFree(Crawler $crawler): bool
+    {
+        $element = $crawler->filter('.game_area_purchase_game')->first()->filter('.game_purchase_price');
+
+        // Assume games without a purchase price are free.
+        if (!\count($element)) {
+            return true;
+        };
+
+        return StringType::startsWith(self::trimNodeText($element), 'Free');
     }
 
     private static function trimNodeText(Crawler $crawler): string
