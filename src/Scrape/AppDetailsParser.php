@@ -134,14 +134,21 @@ final class AppDetailsParser
 
     private static function parseIsFree(Crawler $crawler): bool
     {
-        $element = $crawler->filter('.game_area_purchase_game')->first()->filter('.game_purchase_price');
+        $purchaseArea = $crawler->filter('.game_area_purchase_game')->first();
+        $price = $purchaseArea->filter('.game_purchase_price');
+        $button = $purchaseArea->filter('.btn_addtocart');
 
-        // Assume games without a purchase price are free.
-        if (!\count($element)) {
+        if (!\count($price)) {
+            if (\count($button)) {
+                $buttonText = self::trimNodeText($button);
+
+                return $buttonText === 'Free' || $buttonText === 'Download';
+            }
+
             return true;
         };
 
-        return StringType::startsWith(self::trimNodeText($element), 'Free');
+        return StringType::startsWith(self::trimNodeText($price), 'Free');
     }
 
     private static function trimNodeText(Crawler $crawler): string
