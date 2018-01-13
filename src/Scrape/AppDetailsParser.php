@@ -23,8 +23,9 @@ final class AppDetailsParser
         $genres = self::parseGenres($crawler);
         $tags = self::parseTags($crawler);
         $languages = self::parseLanguages($crawler);
+        $price = self::parsePrice($crawler);
+        $discount_price = self::parseDiscountPrice($crawler);
         $discount = self::parseDiscountPercentage($crawler);
-        $is_free = self::parseIsFree($crawler);
 
         // Reviews.
         $positiveReviews = $crawler->filter('[for=review_type_positive] > .user_reviews_count');
@@ -49,8 +50,9 @@ final class AppDetailsParser
             'genres',
             'tags',
             'languages',
+            'price',
+            'discount_price',
             'discount',
-            'is_free',
             'positive_reviews',
             'negative_reviews',
             'windows',
@@ -123,6 +125,35 @@ final class AppDetailsParser
         return $crawler->filter('.game_language_options tr:not(.unsupported) > td:first-child')->each(
             \Closure::fromCallable('self::trimNodeText')
         );
+    }
+
+    private static function parsePrice(Crawler $crawler): int
+    {
+        $purchaseArea = $crawler->filter('.game_area_purchase_game')->first();
+        $priceElement = $purchaseArea->filter('.game_purchase_price');
+        $discountElement = $purchaseArea->filter('.discount_original_price');
+
+        if (\count($priceElement) || \count($discountElement)) {
+            $price = self::trimNodeText(\count($priceElement) ? $priceElement: $discountElement);
+
+            if (preg_match('[^\$\d+\.\d\d$]', $price)) {
+                return self::filterNumbers($price);
+            }
+        }
+
+        return 0;
+    }
+
+    private static function parseDiscountPrice(Crawler $crawler): ?int
+    {
+        $purchaseArea = $crawler->filter('.game_area_purchase_game')->first();
+        $discountPriceElement = $purchaseArea->filter('.discount_final_price');
+
+        if (\count($discountPriceElement)) {
+            return self::filterNumbers($discountPriceElement->text());
+        }
+
+        return null;
     }
 
     private static function parseDiscountPercentage(Crawler $crawler): int

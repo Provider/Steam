@@ -9,6 +9,7 @@ use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppDetails;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\ParserException;
 use ScriptFUSION\Porter\Specification\ImportSpecification;
+use ScriptFUSIONTest\Porter\Provider\Steam\Fixture\ScrapeDiscountApp;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 /**
@@ -50,7 +51,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertContains('Traditional Chinese', $languages);
         self::assertContains('Korean', $languages);
 
-        self::assertFalse($app['is_free']);
+        self::assertSame($app['price'], 999);
 
         self::assertInternalType('int', $app['positive_reviews']);
         self::assertInternalType('int', $app['negative_reviews']);
@@ -267,13 +268,33 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that a game with no discount has a discount percentage of zero.
+     * Tests that a game with a discount is parsed correctly.
+     */
+    public function testDiscountedGame()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeDiscountApp));
+
+        self::assertArrayHasKey('price', $app);
+        self::assertSame(999, $app['price']);
+
+        self::assertArrayHasKey('discount_price', $app);
+        self::assertSame(249, $app['discount_price']);
+
+        self::assertArrayHasKey('discount', $app);
+        self::assertSame(75, $app['discount']);
+    }
+
+    /**
+     * Tests that a game with no discount has a null discount price and a discount percentage of zero.
      *
      * @see http://store.steampowered.com/app/698780/
      */
-    public function testDiscountPercentage()
+    public function testZeroDiscount()
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(698780)));
+
+        self::assertArrayHasKey('discount_price', $app);
+        self::assertNull($app['discount_price']);
 
         self::assertArrayHasKey('discount', $app);
         self::assertSame(0, $app['discount']);
@@ -284,11 +305,15 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @dataProvider provideFreeApps
      */
-    public function testIsFree(int $appId)
+    public function testFreeGames(int $appId)
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
-        self::assertArrayHasKey('is_free', $app);
-        self::assertTrue($app['is_free']);
+
+        self::assertArrayHasKey('discount_price', $app);
+        self::assertNull($app['discount_price']);
+
+        self::assertArrayHasKey('discount', $app);
+        self::assertSame(0, $app['discount']);
     }
 
     /**
