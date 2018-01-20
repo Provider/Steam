@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Scrape;
 
-use ScriptFUSION\Porter\Type\StringType;
 use ScriptFUSION\StaticClass;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -108,9 +107,11 @@ final class AppDetailsParser
 
     private static function parseTags(Crawler $crawler): array
     {
-        return $crawler->filter('.app_tag:not(.add_button)')->each(
-            \Closure::fromCallable('self::trimNodeText')
-        );
+        if (preg_match('[InitAppTagModal\(\h*\d+,\s*([^\v]+),\v]', $crawler->html(), $matches)) {
+            return \json_decode($matches[1], true);
+        }
+
+        return [];
     }
 
     private static function parseGenres(Crawler $crawler): array
@@ -166,34 +167,6 @@ final class AppDetailsParser
         $element = $crawler->filter('.game_area_purchase_game')->first()->filter('.discount_pct');
 
         return $element->count() ? self::filterNumbers($element->text()) : 0;
-    }
-
-    private static function parseIsFree(Crawler $crawler): bool
-    {
-        $purchaseArea = $crawler->filter('.game_area_purchase_game')->first();
-        $price = $purchaseArea->filter('.game_purchase_price');
-        $button = $purchaseArea->filter('.btn_addtocart');
-
-        if (!\count($price)) {
-            if (\count($button)) {
-                $buttonText = self::trimNodeText($button);
-
-                return \in_array(
-                    $buttonText,
-                    [
-                        'Free',
-                        'Download',
-                        'Play Game',
-                        'Install Game',
-                    ],
-                    true
-                );
-            }
-
-            return true;
-        }
-
-        return StringType::startsWith(self::trimNodeText($price), 'Free');
     }
 
     private static function trimNodeText(Crawler $crawler): string

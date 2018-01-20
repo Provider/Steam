@@ -9,8 +9,15 @@ use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\StaticDataProvider;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\AppDetailsParser;
 
-class ScrapeDiscountApp implements ProviderResource
+class ScrapeAppFixture implements ProviderResource
 {
+    private $fixture;
+
+    public function __construct(string $fixture)
+    {
+        $this->fixture = $fixture;
+    }
+
     public function getProviderClassName(): string
     {
         return StaticDataProvider::class;
@@ -18,6 +25,6 @@ class ScrapeDiscountApp implements ProviderResource
 
     public function fetch(ImportConnector $connector, EncapsulatedOptions $options = null): \Iterator
     {
-        yield AppDetailsParser::parseStorePage(file_get_contents(__DIR__ . '/discounted.html'));
+        yield AppDetailsParser::parseStorePage(file_get_contents(__DIR__ . "/$this->fixture"));
     }
 }

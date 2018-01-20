@@ -9,7 +9,7 @@ use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppDetails;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\ParserException;
 use ScriptFUSION\Porter\Specification\ImportSpecification;
-use ScriptFUSIONTest\Porter\Provider\Steam\Fixture\ScrapeDiscountApp;
+use ScriptFUSIONTest\Porter\Provider\Steam\Fixture\ScrapeAppFixture;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 /**
@@ -65,17 +65,20 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertFalse($app['wmr']);
 
         foreach ($app['tags'] as $tag) {
+            self::assertArrayHasKey('name', $tag);
+            self::assertInternalType('string', $tagName = $tag['name']);
+
             // Tags should not contain any whitespace
-            self::assertNotContains("\r", $tag);
-            self::assertNotContains("\n", $tag);
-            self::assertNotContains("\t", $tag);
+            self::assertNotContains("\r", $tagName);
+            self::assertNotContains("\n", $tagName);
+            self::assertNotContains("\t", $tagName);
 
             // Tags should not start or end with spaces.
-            self::assertStringStartsNotWith(' ', $tag);
-            self::assertStringEndsNotWith(' ', $tag);
+            self::assertStringStartsNotWith(' ', $tagName);
+            self::assertStringEndsNotWith(' ', $tagName);
 
             // Tags should not include the "add" tag.
-            self::assertNotSame('+', $tag);
+            self::assertNotSame('+', $tagName);
         }
     }
 
@@ -239,6 +242,31 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a game with multiple tags has tag names and vote counts parsed correctly.
+     */
+    public function testTags()
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('tags.html')));
+
+        self::assertArrayHasKey('tags', $app);
+        self::assertCount(5, $tags = $app['tags']);
+
+        foreach ($tags as $tag) {
+            self::assertArrayHasKey('tagid', $tag);
+            self::assertArrayHasKey('name', $tag);
+            self::assertArrayHasKey('count', $tag);
+        }
+
+        self::assertSame(493, $tags[0]['tagid']);
+        self::assertSame('Early Access', $tags[0]['name']);
+        self::assertSame(24, $tags[0]['count']);
+        self::assertArrayNotHasKey('browseable', $tags[0]);
+
+        self::assertArrayHasKey('browseable', $tags[1]);
+        self::assertTrue($tags[1]['browseable']);
+    }
+
+    /**
      * Tests that a game with multiple genres with spaces and symbols in their names are parsed correctly.
      *
      * @see http://store.steampowered.com/app/1840/
@@ -272,7 +300,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testDiscountedGame()
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeDiscountApp));
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('discounted.html')));
 
         self::assertArrayHasKey('price', $app);
         self::assertSame(999, $app['price']);
