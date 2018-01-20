@@ -127,7 +127,12 @@ final class AppDetailsParser
         );
     }
 
-    private static function parsePrice(Crawler $crawler): int
+    /**
+     * @param Crawler $crawler
+     *
+     * @return int|null Price if integer, 0 if app is free and null if app has no price (i.e. not for sale).
+     */
+    private static function parsePrice(Crawler $crawler): ?int
     {
         $purchaseArea = $crawler->filter('.game_area_purchase_game')->first();
         $priceElement = $purchaseArea->filter('.game_purchase_price');
@@ -141,7 +146,7 @@ final class AppDetailsParser
             }
         }
 
-        return 0;
+        return $purchaseArea->filter('.game_purchase_action')->count() ? 0 : null;
     }
 
     private static function parseDiscountPrice(Crawler $crawler): ?int

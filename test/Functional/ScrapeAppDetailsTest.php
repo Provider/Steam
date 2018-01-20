@@ -301,6 +301,31 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that discontinued games with and without pricing areas are parsed as having no price instead of 0 price.
+     *
+     * @dataProvider provideDiscontinuedGames
+     */
+    public function testDiscontinuedGames(int $appId): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+
+        self::assertArrayHasKey('price', $app);
+        self::assertNull($app['price']);
+    }
+
+    /**
+     * @see http://store.steampowered.com/app/340/
+     * @see http://store.steampowered.com/app/261570/
+     */
+    public function provideDiscontinuedGames(): array
+    {
+        return [
+            'No purchase area' => [340],
+            'Purchase area' => [261570],
+        ];
+    }
+
+    /**
      * Tests that games marked as 'Free', 'Free to Play' or having no price are detected as being cost-free.
      *
      * @dataProvider provideFreeApps
@@ -323,7 +348,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see http://store.steampowered.com/app/323130/
      * @see http://store.steampowered.com/app/250600/
      * @see http://store.steampowered.com/app/252150/
-     * @see http://store.steampowered.com/app/340/
      */
     public function provideFreeApps(): array
     {
@@ -334,7 +358,6 @@ final class ScrapeAppDetailsTest extends TestCase
             '"Download" button (no price)' => [323130],
             '"Play Game" button (no price)' => [250600],
             '"Install Game" button (no price)' => [252150],
-            'No purchase area (discontinued)' => [340],
         ];
     }
 }
