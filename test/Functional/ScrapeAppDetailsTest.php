@@ -52,6 +52,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertContains('Korean', $languages);
 
         self::assertSame($app['price'], 999);
+        self::assertFalse($app['vrx']);
 
         self::assertInternalType('int', $app['positive_reviews']);
         self::assertInternalType('int', $app['negative_reviews']);
@@ -326,6 +327,33 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('discount', $app);
         self::assertSame(0, $app['discount']);
+    }
+
+    /**
+     * Tests that games marked as VR exclusive are correctly detected.
+     *
+     * @dataProvider provideVrExclusiveApps
+     */
+    public function testVrExclusive(int $appId): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+
+        self::assertArrayHasKey('vrx', $app);
+        self::assertTrue($app['vrx']);
+    }
+
+    /**
+     * @see http://store.steampowered.com/app/450390/
+     * @see http://store.steampowered.com/app/518580/
+     * @see http://store.steampowered.com/app/348250/
+     */
+    public function provideVrExclusiveApps(): array
+    {
+        return [
+            'Requires a virtual reality headset.' => [450390],
+            'Requires the HTC Vive virtual reality headset.' => [518580],
+            'Requires one of the following virtual reality headsets' => [348250],
+        ];
     }
 
     /**

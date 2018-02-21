@@ -25,6 +25,7 @@ final class AppDetailsParser
         $price = self::parsePrice($crawler);
         $discount_price = self::parseDiscountPrice($crawler);
         $discount = self::parseDiscountPercentage($crawler);
+        $vrx = self::parseVrExclusive($crawler);
 
         // Reviews.
         $positiveReviews = $crawler->filter('[for=review_type_positive] > .user_reviews_count');
@@ -52,6 +53,7 @@ final class AppDetailsParser
             'price',
             'discount_price',
             'discount',
+            'vrx',
             'positive_reviews',
             'negative_reviews',
             'windows',
@@ -140,7 +142,7 @@ final class AppDetailsParser
         $discountElement = $purchaseArea->filter('.discount_original_price');
 
         if (\count($priceElement) || \count($discountElement)) {
-            $price = self::trimNodeText(\count($priceElement) ? $priceElement: $discountElement);
+            $price = self::trimNodeText(\count($priceElement) ? $priceElement : $discountElement);
 
             if (preg_match('[^\$\d+\.\d\d$]', $price)) {
                 return self::filterNumbers($price);
@@ -167,6 +169,17 @@ final class AppDetailsParser
         $element = $crawler->filter('.game_area_purchase_game')->first()->filter('.discount_pct');
 
         return $element->count() ? self::filterNumbers($element->text()) : 0;
+    }
+
+    private static function parseVrExclusive(Crawler $crawler): bool
+    {
+        foreach ($crawler->filter('.notice_box_content') as $element) {
+            if (preg_match('[Requires.+virtual reality headset]', $element->textContent)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static function trimNodeText(Crawler $crawler): string
