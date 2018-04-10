@@ -9,8 +9,8 @@
   ],
   "require": {
     "php": "^7.1",
-    "scriptfusion/porter": "4.0.x-dev",
-    "connectors/http": "4.0.x-dev",
+    "scriptfusion/porter": "^4",
+    "connectors/http": "^2",
     "symfony/dom-crawler": "^3",
     "symfony/css-selector": "^3"
   },
