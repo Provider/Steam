@@ -26,7 +26,7 @@ final class GetUserReviewsList implements ProviderResource, Url
         return SteamProvider::class;
     }
 
-    public function fetch(ImportConnector $connector, EncapsulatedOptions $options = null)
+    public function fetch(ImportConnector $connector, EncapsulatedOptions $options = null): \Iterator
     {
         $response = \json_decode((string)$connector->fetch($this->getUrl()), true);
 

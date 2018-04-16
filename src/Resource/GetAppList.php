@@ -20,7 +20,7 @@ final class GetAppList implements ProviderResource, StaticUrl
         return SteamProvider::class;
     }
 
-    public function fetch(ImportConnector $connector, EncapsulatedOptions $options = null)
+    public function fetch(ImportConnector $connector, EncapsulatedOptions $options = null): \Iterator
     {
         return new \ArrayIterator(\json_decode((string)$connector->fetch(self::getUrl()), true)['applist']['apps']);
     }
