@@ -22,10 +22,13 @@ final class AppDetailsParser
         $genres = self::parseGenres($crawler);
         $tags = self::parseTags($crawler);
         $languages = self::parseLanguages($crawler);
-        $price = self::parsePrice($crawler);
-        $discount_price = self::parseDiscountPrice($crawler);
-        $discount = self::parseDiscountPercentage($crawler);
         $vrx = self::parseVrExclusive($crawler);
+
+        // Purchase area.
+        $purchaseArea = $crawler->filter('.game_area_purchase_game')->first();
+        $price = self::parsePrice($purchaseArea);
+        $discount_price = self::parseDiscountPrice($purchaseArea);
+        $discount = self::parseDiscountPercentage($purchaseArea);
 
         // Reviews.
         $positiveReviews = $crawler->filter('[for=review_type_positive] > .user_reviews_count');
@@ -36,12 +39,13 @@ final class AppDetailsParser
         ) : 0;
 
         // Platforms.
-        $windows = $crawler->filter('.game_area_purchase_platform')->first()->filter('.win')->count() > 0;
-        $linux = $crawler->filter('.game_area_purchase_platform')->first()->filter('.linux')->count() > 0;
-        $mac = $crawler->filter('.game_area_purchase_platform')->first()->filter('.mac')->count() > 0;
-        $vive = $crawler->filter('.game_area_purchase_platform')->first()->filter('.htcvive')->count() > 0;
-        $occulus = $crawler->filter('.game_area_purchase_platform')->first()->filter('.oculusrift')->count() > 0;
-        $wmr = $crawler->filter('.game_area_purchase_platform')->first()->filter('.windowsmr')->count() > 0;
+        $platforms = $crawler->filter('.game_area_purchase_platform')->first();
+        $windows = $platforms->filter('.win')->count() > 0;
+        $linux = $platforms->filter('.linux')->count() > 0;
+        $mac = $platforms->filter('.mac')->count() > 0;
+        $vive = $platforms->filter('.htcvive')->count() > 0;
+        $occulus = $platforms->filter('.oculusrift')->count() > 0;
+        $wmr = $platforms->filter('.windowsmr')->count() > 0;
 
         return compact(
             'name',
@@ -131,13 +135,12 @@ final class AppDetailsParser
     }
 
     /**
-     * @param Crawler $crawler
+     * @param Crawler $purchaseArea
      *
      * @return int|null Price if integer, 0 if app is free and null if app has no price (i.e. not for sale).
      */
-    private static function parsePrice(Crawler $crawler): ?int
+    private static function parsePrice(Crawler $purchaseArea): ?int
     {
-        $purchaseArea = $crawler->filter('.game_area_purchase_game')->first();
         $priceElement = $purchaseArea->filter('.game_purchase_price');
         $discountElement = $purchaseArea->filter('.discount_original_price');
 
@@ -152,9 +155,8 @@ final class AppDetailsParser
         return $purchaseArea->filter('.game_purchase_action')->count() ? 0 : null;
     }
 
-    private static function parseDiscountPrice(Crawler $crawler): ?int
+    private static function parseDiscountPrice(Crawler $purchaseArea): ?int
     {
-        $purchaseArea = $crawler->filter('.game_area_purchase_game')->first();
         $discountPriceElement = $purchaseArea->filter('.discount_final_price');
 
         if (\count($discountPriceElement)) {
@@ -164,9 +166,9 @@ final class AppDetailsParser
         return null;
     }
 
-    private static function parseDiscountPercentage(Crawler $crawler): int
+    private static function parseDiscountPercentage(Crawler $purchaseArea): int
     {
-        $element = $crawler->filter('.game_area_purchase_game')->first()->filter('.discount_pct');
+        $element = $purchaseArea->filter('.discount_pct');
 
         return $element->count() ? self::filterNumbers($element->text()) : 0;
     }
