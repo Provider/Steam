@@ -14,7 +14,7 @@ final class AppDetailsParser
     {
         $crawler = new Crawler($html);
 
-        self::validate($crawler);
+        self::validate($crawler, $html);
 
         $name = self::parseAppName($crawler);
         $type = self::parseAppType($crawler);
@@ -69,9 +69,17 @@ final class AppDetailsParser
         );
     }
 
-    private static function validate(Crawler $crawler): void
+    private static function validate(Crawler $crawler, string $html): void
     {
-        $bodyClasses = explode(' ', $crawler->filter('body')->attr('class'));
+        try {
+            if (!$bodyClassesElement = $crawler->filter('body')->attr('class')) {
+                throw new InvalidMarkupException('Cannot parse body tag\'s class attribute: ' . $html);
+            }
+        } catch (\InvalidArgumentException $exception) {
+            throw new InvalidMarkupException('Cannot parse document: ' . $html, 0, $exception);
+        }
+
+        $bodyClasses = explode(' ', $bodyClassesElement);
 
         if (!\in_array('v6', $bodyClasses, true)) {
             throw new ParserException('Unexpected version! Expected: v6.');

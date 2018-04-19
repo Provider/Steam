@@ -12,6 +12,7 @@ use ScriptFUSION\Porter\Net\Http\HttpConnector;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
+use ScriptFUSION\Porter\Provider\Steam\Connector\ScrapeAppDetailsFetchExceptionHandler;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\AppDetailsParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 

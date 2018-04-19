@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppDetails;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\InvalidMarkupException;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\ParserException;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSION\Porter\Specification\ImportSpecification;
@@ -113,9 +114,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see http://store.steampowered.com/app/5/
      *
      * @dataProvider provideHiddenAppBisync
-     *
-     * @param \Closure $import
-     * @param int $appId
      */
     public function testHiddenApp(\Closure $import, int $appId): void
     {
@@ -465,5 +463,15 @@ final class ScrapeAppDetailsTest extends TestCase
             '"Play Game" button (no price)' => [250600],
             '"Install Game" button (no price)' => [252150],
         ];
+    }
+
+    /**
+     * Tests that when non-HTML markup is returned, InvalidMarkupException is thrown.
+     */
+    public function testInvalidMarkup(): void
+    {
+        $this->expectException(InvalidMarkupException::class);
+
+        $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('scuffed.xml')));
     }
 }
