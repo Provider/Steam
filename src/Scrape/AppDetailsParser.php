@@ -10,7 +10,21 @@ final class AppDetailsParser
 {
     use StaticClass;
 
-    public static function parseStorePage(string $html): array
+    public static function tryParseStorePage(string $html): array
+    {
+        try {
+            return self::parseStorePage($html);
+        } catch (\InvalidArgumentException $exception) {
+            // Promote empty node list to recoverable exception type.
+            if ($exception->getMessage() === 'The current node list is empty.') {
+                throw new InvalidMarkupException($exception->getMessage(), $exception->getCode(), $exception);
+            }
+
+            throw $exception;
+        }
+    }
+
+    private static function parseStorePage(string $html): array
     {
         $crawler = new Crawler($html);
 
@@ -71,12 +85,8 @@ final class AppDetailsParser
 
     private static function validate(Crawler $crawler, string $html): void
     {
-        try {
-            if (!$bodyClassesElement = $crawler->filter('body')->attr('class')) {
-                throw new InvalidMarkupException('Cannot parse body tag\'s class attribute: ' . $html);
-            }
-        } catch (\InvalidArgumentException $exception) {
-            throw new InvalidMarkupException('Cannot parse document: ' . $html, 0, $exception);
+        if (!$bodyClassesElement = $crawler->filter('body')->attr('class')) {
+            throw new InvalidMarkupException('Cannot parse body tag\'s class attribute: ' . $html);
         }
 
         $bodyClasses = explode(' ', $bodyClassesElement);

@@ -12,8 +12,8 @@ use ScriptFUSION\Porter\Net\Http\HttpConnector;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
-use ScriptFUSION\Porter\Provider\Steam\Connector\ScrapeAppDetailsFetchExceptionHandler;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\AppDetailsParser;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\InvalidMarkupException;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 /**
@@ -41,7 +41,7 @@ final class ScrapeAppDetails implements ProviderResource, AsyncResource, Url
 
         $this->validateResponse($response = $connector->fetch($this->getUrl()));
 
-        yield AppDetailsParser::parseStorePage($response->getBody());
+        yield AppDetailsParser::tryParseStorePage($response->getBody());
     }
 
     public function fetchAsync(ImportConnector $connector): Iterator
@@ -49,9 +49,10 @@ final class ScrapeAppDetails implements ProviderResource, AsyncResource, Url
         $this->configureAsyncOptions($connector->findBaseConnector());
 
         return new Producer(function (\Closure $emit) use ($connector) {
+            /** @var HttpResponse $response */
             $this->validateResponse($response = yield $connector->fetchAsync($this->getUrl()));
 
-            yield $emit(AppDetailsParser::parseStorePage($response->getBody()));
+            yield $emit(AppDetailsParser::tryParseStorePage($response->getBody()));
         });
     }
 
