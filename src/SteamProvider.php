@@ -13,7 +13,7 @@ use ScriptFUSION\Porter\Provider\Provider;
 final class SteamProvider implements Provider, AsyncProvider
 {
     private const STEAMWORKS_API_URL = 'https://api.steampowered.com';
-    private const STORE_API_URL = 'http://store.steampowered.com';
+    private const STORE_API_URL = 'https://store.steampowered.com';
 
     private $connector;
 

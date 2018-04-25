@@ -69,7 +69,7 @@ final class ScrapeAppDetails implements ProviderResource, AsyncResource, Url
     public function getUrl(): string
     {
         // Force the country to US, for consistency and easier date parsing, with the undocumented 'cc' parameter.
-        return "http://store.steampowered.com/app/$this->appId/?cc=us";
+        return SteamProvider::buildStoreApiUrl("/app/$this->appId/?cc=us");
     }
 
     private function configureOptions(HttpConnector $connector): void
