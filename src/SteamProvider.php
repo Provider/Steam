@@ -12,8 +12,9 @@ use ScriptFUSION\Porter\Provider\Provider;
 
 final class SteamProvider implements Provider, AsyncProvider
 {
+    public const STORE_DOMAIN = 'store.steampowered.com';
     private const STEAMWORKS_API_URL = 'https://api.steampowered.com';
-    private const STORE_API_URL = 'https://store.steampowered.com';
+    private const STORE_API_URL = 'https://' . self::STORE_DOMAIN;
 
     private $connector;
 

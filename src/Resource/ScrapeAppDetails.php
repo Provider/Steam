@@ -13,7 +13,6 @@ use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\AppDetailsParser;
-use ScriptFUSION\Porter\Provider\Steam\Scrape\InvalidMarkupException;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 /**
@@ -21,8 +20,6 @@ use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
  */
 final class ScrapeAppDetails implements ProviderResource, AsyncResource, Url
 {
-    private const DOMAIN = 'store.steampowered.com';
-
     private $appId;
 
     public function __construct(int $appId)
@@ -91,8 +88,8 @@ final class ScrapeAppDetails implements ProviderResource, AsyncResource, Url
 
         $cookies = $options->getCookieJar();
         // Enable age-restricted content.
-        $cookies->store(new Cookie('birthtime', '0', null, null, self::DOMAIN));
+        $cookies->store(new Cookie('birthtime', '0', null, null, SteamProvider::STORE_DOMAIN));
         // Enable mature content.
-        $cookies->store(new Cookie('mature_content', '1', null, null, self::DOMAIN));
+        $cookies->store(new Cookie('mature_content', '1', null, null, SteamProvider::STORE_DOMAIN));
     }
 }
