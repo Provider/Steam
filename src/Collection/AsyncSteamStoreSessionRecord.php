@@ -8,19 +8,19 @@ use Amp\Promise;
 use ScriptFUSION\Porter\Collection\AsyncProviderRecords;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 
-class AsyncLoginRecord extends AsyncProviderRecords
+class AsyncSteamStoreSessionRecord extends AsyncProviderRecords
 {
-    private $secureLoginCookie;
+    private $sessionCookie;
 
     public function __construct(Iterator $records, Promise $sessionCookie, AsyncResource $resource)
     {
         parent::__construct($records, $resource);
 
-        $this->secureLoginCookie = $sessionCookie;
+        $this->sessionCookie = $sessionCookie;
     }
 
-    public function getSecureLoginCookie(): Promise
+    public function getSessionCookie(): Promise
     {
-        return $this->secureLoginCookie;
+        return $this->sessionCookie;
     }
 }

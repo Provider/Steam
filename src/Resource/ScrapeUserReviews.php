@@ -11,7 +11,7 @@ use ScriptFUSION\Porter\Provider\Steam\Scrape\UserReviewsParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 use Symfony\Component\DomCrawler\Crawler;
 
-class ScrapeUserReviews implements ProviderResource, Url
+final class ScrapeUserReviews implements ProviderResource, Url
 {
     private $profileUrl;
 

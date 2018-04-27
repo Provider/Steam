@@ -6,6 +6,7 @@ namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 use Amp\Artax\Cookie\Cookie;
 use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncLoginRecord;
+use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
 use ScriptFUSION\Porter\Provider\Steam\Resource\SteamLogin;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
@@ -26,7 +27,8 @@ final class SteamLoginTest extends TestCase
 
         $secureLoginCookie = \Amp\Promise\wait($steamLogin->getSecureLoginCookie());
 
-        self::assertInstanceOf(Cookie::class, $secureLoginCookie);
-        self::assertNotEmpty($secureLoginCookie->getValue());
+        self::assertInstanceOf(SecureLoginCookie::class, $secureLoginCookie);
+        self::assertInstanceOf(Cookie::class, $cookie = $secureLoginCookie->getCookie());
+        self::assertNotEmpty($cookie->getValue());
     }
 }

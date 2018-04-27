@@ -1,0 +1,58 @@
+<?php
+declare(strict_types=1);
+
+namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
+
+use Amp\Artax\Cookie\Cookie;
+use Amp\Promise;
+use ScriptFUSION\Porter\Porter;
+use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncLoginRecord;
+use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncSteamStoreSessionRecord;
+use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
+use ScriptFUSION\Porter\Provider\Steam\Cookie\StoreSessionCookie;
+use ScriptFUSION\Porter\Provider\Steam\Resource\CreateSteamStoreSession;
+use ScriptFUSION\Porter\Provider\Steam\Resource\SteamLogin;
+use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
+
+final class CuratorSession
+{
+    private $secureLoginCookie;
+
+    private $storeSessionCookie;
+
+    public function __construct(SecureLoginCookie $secureLoginCookie, StoreSessionCookie $storeSessionCookie)
+    {
+        $this->secureLoginCookie = $secureLoginCookie;
+        $this->storeSessionCookie = $storeSessionCookie;
+    }
+
+    public static function create(Porter $porter, string $username, string $password): Promise
+    {
+        return \Amp\call(static function () use ($porter, $username, $password): \Generator {
+            /** @var AsyncLoginRecord $steamLogin */
+            $steamLogin = $porter->importAsync(new AsyncImportSpecification(
+                new SteamLogin($username, $password)
+            ))->findFirstCollection();
+
+            /** @var AsyncSteamStoreSessionRecord $storeSession */
+            $storeSession = $porter->importAsync(new AsyncImportSpecification(
+                new CreateSteamStoreSession
+            ))->findFirstCollection();
+
+            $secureLoginCookie = yield $steamLogin->getSecureLoginCookie();
+            $storeSessionCookie = yield $storeSession->getSessionCookie();
+
+            return new self($secureLoginCookie, $storeSessionCookie);
+        });
+    }
+
+    public function getSecureLoginCookie(): Cookie
+    {
+        return $this->secureLoginCookie->getCookie();
+    }
+
+    public function getStoreSessionCookie(): Cookie
+    {
+        return $this->storeSessionCookie->getCookie();
+    }
+}
