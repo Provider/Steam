@@ -19,7 +19,7 @@ final class PutCuratorReviewTest extends TestCase
         $porter = FixtureFactory::createPorter();
 
         $session = \Amp\Promise\wait(
-            CuratorSession::createFromCookie(FixtureFactory::createSecureLoginCookie(), $porter)
+            CuratorSession::create($porter, $_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD'])
         );
 
         $response = \Amp\Promise\wait($porter->importOneAsync(new AsyncImportSpecification(new PutCuratorReview(
