@@ -34,12 +34,23 @@ final class CuratorSession
                 new SteamLogin($username, $password)
             ))->findFirstCollection();
 
+            $secureLoginCookie = yield $steamLogin->getSecureLoginCookie();
+
+            return yield self::createFromCookie($secureLoginCookie, $porter);
+        });
+    }
+
+    /**
+     * Create session from existing login cookie. This can be an effective way to avoid login captcha.
+     */
+    public static function createFromCookie(SecureLoginCookie $secureLoginCookie, Porter $porter): Promise
+    {
+        return \Amp\call(static function () use ($secureLoginCookie, $porter): \Generator {
             /** @var AsyncSteamStoreSessionRecord $storeSession */
             $storeSession = $porter->importAsync(new AsyncImportSpecification(
                 new CreateSteamStoreSession
             ))->findFirstCollection();
 
-            $secureLoginCookie = yield $steamLogin->getSecureLoginCookie();
             $storeSessionCookie = yield $storeSession->getSessionCookie();
 
             return new self($secureLoginCookie, $storeSessionCookie);

@@ -17,7 +17,7 @@ final class GetUserReviewsListTest extends TestCase
     /**
      * Tests that when downloading reviews for game #10 (Counter-Strike), review totals add up.
      */
-    public function testTotals()
+    public function testTotals(): UserReviewsRecords
     {
         /** @var UserReviewsRecords $reviews */
         $reviews = FixtureFactory::createPorter()->import(
@@ -35,7 +35,7 @@ final class GetUserReviewsListTest extends TestCase
      *
      * @depends testTotals
      */
-    public function testReviewFields(UserReviewsRecords $reviews)
+    public function testReviewFields(UserReviewsRecords $reviews): void
     {
         foreach ($reviews as $review) {
             self::assertInternalType('array', $review);
@@ -47,7 +47,7 @@ final class GetUserReviewsListTest extends TestCase
     /**
      * Tests that reviews for free games are included.
      */
-    public function testFreeGameReviews()
+    public function testFreeGameReviews(): void
     {
         /** @var UserReviewsRecords $reviews */
         $reviews = FixtureFactory::createPorter()->import(

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
+namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional\Curator;
 
 use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
@@ -19,7 +19,7 @@ final class PutCuratorReviewTest extends TestCase
         $porter = FixtureFactory::createPorter();
 
         $session = \Amp\Promise\wait(
-            CuratorSession::create($porter, $_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD'])
+            CuratorSession::createFromCookie(FixtureFactory::createSecureLoginCookie(), $porter)
         );
 
         $response = \Amp\Promise\wait($porter->importOneAsync(new AsyncImportSpecification(new PutCuratorReview(
