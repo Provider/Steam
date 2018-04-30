@@ -37,6 +37,8 @@ final class CreateSteamStoreSession implements AsyncResource
                     yield $connector->fetchAsync(SteamProvider::buildStoreApiUrl('/'));
                 } catch (\Throwable $throwable) {
                     $sessionCookie->fail($throwable);
+
+                    throw $throwable;
                 }
 
                 $sessionCookie->resolve(

@@ -47,6 +47,8 @@ final class SteamLogin implements AsyncResource
                     [$json, $cookie] = yield $this->login($connector);
                 } catch (\Throwable $throwable) {
                     $loginCookie->fail($throwable);
+
+                    throw $throwable;
                 }
 
                 $loginCookie->resolve($cookie);
