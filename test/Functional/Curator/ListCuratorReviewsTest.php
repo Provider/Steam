@@ -8,6 +8,7 @@ use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\ListCuratorReviews;
 use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\PutCuratorReview;
+use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\RecommendationState;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
@@ -25,7 +26,8 @@ final class ListCuratorReviewsTest extends TestCase
             $session,
             $curatorId = '31457321',
             $appId = '130',
-            'foo'
+            'foo',
+            $state = RecommendationState::NOT_RECOMMENDED()
         ))));
 
         self::assertInternalType('array', $response);
@@ -34,7 +36,7 @@ final class ListCuratorReviewsTest extends TestCase
 
         $reviews = $porter->importAsync(new AsyncImportSpecification(new ListCuratorReviews($session, $curatorId)));
 
-        Loop::run(static function () use ($reviews, $appId): \Generator {
+        Loop::run(static function () use ($reviews, $appId, $state): \Generator {
             $foundAppId = false;
 
             while (yield $reviews->advance()) {
@@ -44,17 +46,19 @@ final class ListCuratorReviewsTest extends TestCase
                 self::assertInternalType('int', $review['appid']);
                 self::assertNotEmpty($review['appid']);
 
-                if ($review['appid'] === (int)$appId) {
-                    $foundAppId = true;
-                }
-
                 self::assertArrayHasKey('app_name', $review);
                 self::assertInternalType('string', $review['app_name']);
                 self::assertNotEmpty($review['app_name']);
 
                 self::assertArrayHasKey('recommendation', $review);
                 self::assertInternalType('array', $review['recommendation']);
-                self::assertNotEmpty($review['recommendation']);
+                self::assertNotEmpty($recommendation = $review['recommendation']);
+
+                if ($review['appid'] === (int)$appId) {
+                    $foundAppId = true;
+
+                    self::assertSame($state->toInt(), $recommendation['recommendation_state']);
+                }
             }
 
             self::assertTrue(isset($review), 'At least one review was imported.');

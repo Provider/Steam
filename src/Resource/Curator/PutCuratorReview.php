@@ -20,6 +20,7 @@ final class PutCuratorReview implements AsyncResource
     private $curatorId;
     private $appId;
     private $reviewBody;
+    private $recommendationState;
     private $linkUrl;
 
     public function __construct(
@@ -27,12 +28,14 @@ final class PutCuratorReview implements AsyncResource
         string $curatorId,
         string $appId,
         string $reviewBody,
+        RecommendationState $recommendationState,
         string $linkUrl = ''
     ) {
         $this->session = $session;
         $this->curatorId = $curatorId;
         $this->appId = $appId;
         $this->reviewBody = $reviewBody;
+        $this->recommendationState = $recommendationState;
         $this->linkUrl = $linkUrl;
     }
 
@@ -61,7 +64,7 @@ final class PutCuratorReview implements AsyncResource
                 'appid' => $this->appId,
                 'blurb' => $this->reviewBody,
                 'link_url' => $this->linkUrl,
-                'recommendation_state' => 0,
+                'recommendation_state' => $this->recommendationState->toInt(),
                 'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
             ]);
 

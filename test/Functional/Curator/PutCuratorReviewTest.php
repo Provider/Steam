@@ -6,6 +6,7 @@ namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional\Curator;
 use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\PutCuratorReview;
+use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\RecommendationState;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
@@ -27,6 +28,7 @@ final class PutCuratorReviewTest extends TestCase
             $curatorId = '31457321',
             '60',
             'foo',
+            RecommendationState::RECOMMENDED(),
             'http://example.com'
         ))));
 
