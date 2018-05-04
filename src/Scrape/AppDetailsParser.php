@@ -32,11 +32,16 @@ final class AppDetailsParser
 
         $name = self::parseAppName($crawler);
         $type = self::parseAppType($crawler);
-        $release_date = self::parseReleaseDate($crawler);
         $genres = self::parseGenres($crawler);
         $tags = self::parseTags($crawler);
         $languages = self::parseLanguages($crawler);
         $vrx = self::parseVrExclusive($crawler);
+
+        // Reviews area.
+        $reviewsArea = $crawler->filter('.user_reviews')->first();
+        $release_date = self::parseReleaseDate($reviewsArea);
+        $developers =  self::parseDevelopers($reviewsArea);
+        $publishers = self::parsePublishers($reviewsArea);
 
         // Purchase area.
         $purchaseArea = $crawler->filter('.game_area_purchase_game')->first();
@@ -65,6 +70,8 @@ final class AppDetailsParser
             'name',
             'type',
             'release_date',
+            'developers',
+            'publishers',
             'genres',
             'tags',
             'languages',
@@ -127,6 +134,17 @@ final class AppDetailsParser
         }
 
         return $release_date;
+    }
+
+    private static function parseDevelopers(Crawler $crawler): array
+    {
+        return $crawler->filter('#developers_list > a')->each(\Closure::fromCallable('self::trimNodeText'));
+    }
+
+    private static function parsePublishers(Crawler $crawler): array
+    {
+        return $crawler->filter('.dev_row + .dev_row > .summary.column > a')
+            ->each(\Closure::fromCallable('self::trimNodeText'));
     }
 
     private static function parseTags(Crawler $crawler): array

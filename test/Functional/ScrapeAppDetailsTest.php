@@ -43,6 +43,10 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('Counter-Strike', $app['name']);
         self::assertSame('game', $app['type']);
         self::assertSame('2000-11-01T00:00:00+00:00', $app['release_date']->format('c'));
+        self::assertCount(1, $app['developers']);
+        self::assertSame('Valve', $app['developers'][0]);
+        self::assertCount(1, $app['publishers']);
+        self::assertSame('Valve', $app['publishers'][0]);
         self::assertContains('Action', $app['genres']);
 
         self::assertCount(8, $languages = $app['languages']);
@@ -274,6 +278,37 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('release_date', $app);
         self::assertNull($app['release_date']);
+    }
+
+    /**
+     * Tests that a game with multiple publishers is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/632350/
+     */
+    public function testDevelopers(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(632350)));
+
+        self::assertArrayHasKey('developers', $app);
+        self::assertCount(3, $developers = $app['developers']);
+        self::assertSame('IDEA FACTORY', $developers[0]);
+        self::assertSame('COMPILE HEART', $developers[1]);
+        self::assertSame('TAMSOFT', $developers[2]);
+    }
+
+    /**
+     * Tests that a game with multiple developers is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/748490/
+     */
+    public function testPublishers(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(748490)));
+
+        self::assertArrayHasKey('publishers', $app);
+        self::assertCount(2, $publishers = $app['publishers']);
+        self::assertSame('XSEED Games', $publishers[0]);
+        self::assertSame('Marvelous USA, Inc.', $publishers[1]);
     }
 
     /**
