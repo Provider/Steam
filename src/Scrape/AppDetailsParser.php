@@ -143,7 +143,7 @@ final class AppDetailsParser
 
     private static function parsePublishers(Crawler $crawler): array
     {
-        return $crawler->filter('.dev_row + .dev_row > .summary.column > a')
+        return $crawler->filter('.dev_row > .summary.column:not([id]) > a')
             ->each(\Closure::fromCallable('self::trimNodeText'));
     }
 

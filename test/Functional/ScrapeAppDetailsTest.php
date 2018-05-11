@@ -297,6 +297,23 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a game with no developer is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/211202/
+     */
+    public function testNoDeveloper(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(211202)));
+
+        self::assertArrayHasKey('developers', $app);
+        self::assertCount(0, $app['developers']);
+
+        self::assertArrayHasKey('publishers', $app);
+        self::assertCount(1, $publishers = $app['publishers']);
+        self::assertSame('SEGA', $publishers[0]);
+    }
+
+    /**
      * Tests that a game with multiple developers is parsed correctly.
      *
      * @see https://store.steampowered.com/app/748490/
@@ -309,6 +326,23 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertCount(2, $publishers = $app['publishers']);
         self::assertSame('XSEED Games', $publishers[0]);
         self::assertSame('Marvelous USA, Inc.', $publishers[1]);
+    }
+
+    /**
+     * Tests that a game with no publisher is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/253630/
+     */
+    public function testNoPublisher(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(253630)));
+
+        self::assertArrayHasKey('developers', $app);
+        self::assertCount(1, $developers = $app['developers']);
+        self::assertSame('Worthless Bums', $developers[0]);
+
+        self::assertArrayHasKey('publishers', $app);
+        self::assertCount(0, $app['publishers']);
     }
 
     /**
