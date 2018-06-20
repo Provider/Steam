@@ -44,7 +44,7 @@ final class AppDetailsParser
         $publishers = self::parsePublishers($reviewsArea);
 
         // Purchase area.
-        $purchaseArea = $crawler->filter('.game_area_purchase_game')->first();
+        $purchaseArea = $crawler->filter('.game_area_purchase_game_wrapper > .game_area_purchase_game')->first();
         $price = self::parsePrice($purchaseArea);
         $discount_price = self::parseDiscountPrice($purchaseArea);
         $discount = self::parseDiscountPercentage($purchaseArea);

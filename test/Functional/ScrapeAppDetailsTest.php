@@ -268,13 +268,12 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * Tests that a game with an invalid date, like "coming soon", is treated as null.
-     * TODO: Local snapshot.
      *
      * @see http://store.steampowered.com/app/271260/
      */
     public function testInvalidDate(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(271260)));
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('invalid date.html')));
 
         self::assertArrayHasKey('release_date', $app);
         self::assertNull($app['release_date']);
@@ -532,6 +531,19 @@ final class ScrapeAppDetailsTest extends TestCase
             '"Play Game" button (no price)' => [250600],
             '"Install Game" button (no price)' => [252150],
         ];
+    }
+
+    /**
+     * Tests that a game with a demo area as the first "purchase" area is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/766280/
+     */
+    public function testGameDemo(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(766280)));
+
+        self::assertArrayHasKey('price', $app);
+        self::assertGreaterThan(0, $app['price']);
     }
 
     /**
