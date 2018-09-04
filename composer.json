@@ -9,6 +9,7 @@
   ],
   "require": {
     "php": "^7.1",
+    "ext-json": "*",
     "scriptfusion/porter": "5.0.x-dev",
     "connectors/http": "5.0.x-dev",
     "connectors/ssl": "@dev",

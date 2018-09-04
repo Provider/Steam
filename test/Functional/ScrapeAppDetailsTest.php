@@ -498,13 +498,17 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that games marked as 'Free', 'Free to Play' or having no price are detected as being cost-free.
+     * Tests that games marked as 'Free', 'Free to Play' or having no price are detected as being cost-free,
+     * where cost-free is defined as having a price of 0.
      *
      * @dataProvider provideFreeApps
      */
     public function testFreeGames(int $appId): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+
+        self::assertArrayHasKey('price', $app);
+        self::assertSame(0, $app['price']);
 
         self::assertArrayHasKey('discount_price', $app);
         self::assertNull($app['discount_price']);
