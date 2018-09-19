@@ -13,7 +13,7 @@
     "scriptfusion/porter": "5.0.x-dev",
     "connectors/http": "5.0.x-dev",
     "connectors/ssl": "@dev",
-    "symfony/dom-crawler": "^3",
+    "symfony/dom-crawler": "^3|^4",
     "symfony/css-selector": "^3|^4",
     "eloquent/enumeration": "^5",
     "phpseclib/phpseclib": "^2"
