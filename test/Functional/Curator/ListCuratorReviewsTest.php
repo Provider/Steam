@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional\Curator;
 
 use Amp\Loop;
+use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\ListCuratorReviews;
-use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\PutCuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\RecommendationState;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;

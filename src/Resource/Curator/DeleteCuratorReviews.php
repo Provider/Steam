@@ -64,5 +64,4 @@ final class DeleteCuratorReviews implements AsyncResource
             yield $emit(\json_decode((string)$response, true));
         });
     }
-
 }
