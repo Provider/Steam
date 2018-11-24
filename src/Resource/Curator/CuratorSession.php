@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
 use Amp\Artax\Cookie\Cookie;
+use Amp\Artax\Cookie\CookieJar;
 use Amp\Promise;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncLoginRecord;
@@ -42,6 +43,7 @@ final class CuratorSession
 
     /**
      * Create session from existing login cookie. This can be an effective way to avoid login captcha.
+     * However, the session will eventually expire.
      */
     public static function createFromCookie(SecureLoginCookie $secureLoginCookie, Porter $porter): Promise
     {
@@ -55,6 +57,12 @@ final class CuratorSession
 
             return new self($secureLoginCookie, $storeSessionCookie);
         });
+    }
+
+    public function apply(CookieJar $cookieJar): void
+    {
+        $cookieJar->store($this->getSecureLoginCookie());
+        $cookieJar->store($this->getStoreSessionCookie());
     }
 
     public function getSecureLoginCookie(): Cookie

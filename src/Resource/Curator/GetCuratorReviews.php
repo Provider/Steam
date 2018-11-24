@@ -10,7 +10,7 @@ use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
-final class ListCuratorReviews implements AsyncResource
+final class GetCuratorReviews implements AsyncResource
 {
     private $session;
 
@@ -35,10 +35,7 @@ final class ListCuratorReviews implements AsyncResource
                 throw new \InvalidArgumentException('Unexpected connector type.');
             }
 
-            $cookies = $baseConnector->getOptions()->getCookieJar();
-
-            $cookies->store($this->session->getSecureLoginCookie());
-            $cookies->store($this->session->getStoreSessionCookie());
+            $this->session->apply($baseConnector->getOptions()->getCookieJar());
 
             $response = yield $connector->fetchAsync(SteamProvider::buildStoreApiUrl(
                 "/curator/$this->curatorId/admin/ajaxgetrecommendations/?count=0x7FFFFFFF"

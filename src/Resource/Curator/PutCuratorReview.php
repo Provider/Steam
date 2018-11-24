@@ -52,13 +52,12 @@ final class PutCuratorReview implements AsyncResource
                 throw new \InvalidArgumentException('Unexpected connector type.');
             }
 
-            $cookies = $baseConnector->getOptions()
-                ->setMethod('POST')
-                ->setBody($body = new FormBody)
-                ->getCookieJar()
-            ;
-            $cookies->store($this->session->getSecureLoginCookie());
-            $cookies->store($this->session->getStoreSessionCookie());
+            $this->session->apply(
+                $baseConnector->getOptions()
+                    ->setMethod('POST')
+                    ->setBody($body = new FormBody)
+                    ->getCookieJar()
+            );
 
             $body->addFields([
                 'appid' => $this->appId,
