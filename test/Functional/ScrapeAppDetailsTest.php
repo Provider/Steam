@@ -54,7 +54,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertContains('French', $languages);
         self::assertContains('German', $languages);
         self::assertContains('Italian', $languages);
-        self::assertContains('Spanish', $languages);
+        self::assertContains('Spanish - Spain', $languages);
         self::assertContains('Simplified Chinese', $languages);
         self::assertContains('Traditional Chinese', $languages);
         self::assertContains('Korean', $languages);

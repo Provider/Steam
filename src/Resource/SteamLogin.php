@@ -80,7 +80,7 @@ final class SteamLogin implements AsyncResource
                 true
             );
 
-            if (!$json['success'] ?? false) {
+            if (!($json['success'] ?? false)) {
                 throw new SteamLoginException('Unable to fetch RSA key.');
             }
 
@@ -101,7 +101,7 @@ final class SteamLogin implements AsyncResource
                 true
             );
 
-            if (!$json['success'] ?? false) {
+            if (!($json['success'] ?? false)) {
                 $message = $json['message'] ?? '';
                 throw new SteamLoginException("Unable to log in using supplied credentials.\n$message");
             }
