@@ -15,6 +15,8 @@ final class FixtureFactory
 {
     use StaticClass;
 
+    private static $savedSession;
+
     public static function createPorter(): Porter
     {
         return new Porter(
@@ -34,7 +36,11 @@ final class FixtureFactory
 
     public static function createSession(Porter $porter): Promise
     {
-        return \Amp\call(static function () use ($porter): \Generator {
+        if (self::$savedSession) {
+            return self::$savedSession;
+        }
+
+        return self::$savedSession = \Amp\call(static function () use ($porter): \Generator {
             if (isset($_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD'])) {
                 return yield CuratorSession::create($porter, $_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD']);
             }
