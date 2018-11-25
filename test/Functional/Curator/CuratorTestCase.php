@@ -10,6 +10,8 @@ use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 abstract class CuratorTestCase extends TestCase
 {
+    protected const CURATOR_ID = '31457321';
+
     /**
      * @var Porter
      */

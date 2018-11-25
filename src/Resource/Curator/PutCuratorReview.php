@@ -4,20 +4,14 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
 use Amp\Artax\FormBody;
-use Amp\Iterator;
-use Amp\Producer;
-use ScriptFUSION\Porter\Connector\ImportConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
-use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
+use ScriptFUSION\Porter\Net\Http\AsyncHttpOptions;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 /**
  * Creates or updates an existing app review.
  */
-final class PutCuratorReview implements AsyncResource
+final class PutCuratorReview extends CuratorResource
 {
-    private $session;
-    private $curatorId;
     private $appId;
     private $reviewBody;
     private $recommendationState;
@@ -31,47 +25,35 @@ final class PutCuratorReview implements AsyncResource
         RecommendationState $recommendationState,
         string $linkUrl = ''
     ) {
-        $this->session = $session;
-        $this->curatorId = $curatorId;
+        parent::__construct($session, $curatorId);
+
         $this->appId = $appId;
         $this->reviewBody = $reviewBody;
         $this->recommendationState = $recommendationState;
         $this->linkUrl = $linkUrl;
     }
 
-    public function getProviderClassName(): string
+    protected function getUrl(): string
     {
-        return SteamProvider::class;
+        return SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxcreatereview/");
     }
 
-    public function fetchAsync(ImportConnector $connector): Iterator
+    protected function augmentOptions(AsyncHttpOptions $options): void
     {
-        return new Producer(function (\Closure $emit) use ($connector): \Generator {
-            $baseConnector = $connector->findBaseConnector();
-            if (!$baseConnector instanceof AsyncHttpConnector) {
-                throw new \InvalidArgumentException('Unexpected connector type.');
-            }
+        parent::augmentOptions($options);
 
-            $this->session->apply(
-                $baseConnector->getOptions()
-                    ->setMethod('POST')
-                    ->setBody($body = new FormBody)
-                    ->getCookieJar()
-            );
+        $options
+            ->setMethod('POST')
+            ->setBody($body = new FormBody)
+            ->getCookieJar()
+        ;
 
-            $body->addFields([
-                'appid' => $this->appId,
-                'blurb' => $this->reviewBody,
-                'link_url' => $this->linkUrl,
-                'recommendation_state' => $this->recommendationState->toInt(),
-                'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
-            ]);
-
-            $response = yield $connector->fetchAsync(SteamProvider::buildStoreApiUrl(
-                "/curator/$this->curatorId/admin/ajaxcreatereview/"
-            ));
-
-            yield $emit(\json_decode((string)$response, true));
-        });
+        $body->addFields([
+            'appid' => $this->appId,
+            'blurb' => $this->reviewBody,
+            'link_url' => $this->linkUrl,
+            'recommendation_state' => $this->recommendationState->toInt(),
+            'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
+        ]);
     }
 }

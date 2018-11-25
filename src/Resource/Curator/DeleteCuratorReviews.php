@@ -4,62 +4,42 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
 use Amp\Artax\FormBody;
-use Amp\Iterator;
-use Amp\Producer;
-use ScriptFUSION\Porter\Connector\ImportConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
-use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
+use ScriptFUSION\Porter\Net\Http\AsyncHttpOptions;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
-final class DeleteCuratorReviews implements AsyncResource
+final class DeleteCuratorReviews extends CuratorResource
 {
-    private $session;
-
-    private $curatorId;
-
     private $appIds;
 
     public function __construct(CuratorSession $session, string $curatorId, array $appIds)
     {
-        $this->session = $session;
-        $this->curatorId = $curatorId;
+        parent::__construct($session, $curatorId);
+
         $this->appIds = $appIds;
     }
 
-    public function getProviderClassName(): string
+    protected function getUrl(): string
     {
-        return SteamProvider::class;
+        return SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxupdatemultiplecurations/");
     }
 
-    public function fetchAsync(ImportConnector $connector): Iterator
+    protected function augmentOptions(AsyncHttpOptions $options): void
     {
-        return new Producer(function (\Closure $emit) use ($connector): \Generator {
-            $baseConnector = $connector->findBaseConnector();
-            if (!$baseConnector instanceof AsyncHttpConnector) {
-                throw new \InvalidArgumentException('Unexpected connector type.');
-            }
+        parent::augmentOptions($options);
 
-            $this->session->apply(
-                $baseConnector->getOptions()
-                    ->setMethod('POST')
-                    ->setBody($body = new FormBody)
-                    ->getCookieJar()
-            );
+        $options
+            ->setMethod('POST')
+            ->setBody($body = new FormBody)
+            ->getCookieJar()
+        ;
 
-            $body->addFields([
-                'delete' => 1,
-                'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
-            ]);
+        $body->addFields([
+            'delete' => 1,
+            'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
+        ]);
 
-            foreach ($this->appIds as $appId) {
-                $body->addField('appids', $appId);
-            }
-
-            $response = yield $connector->fetchAsync(SteamProvider::buildStoreApiUrl(
-                "/curator/$this->curatorId/admin/ajaxupdatemultiplecurations/"
-            ));
-
-            yield $emit(\json_decode((string)$response, true));
-        });
+        foreach ($this->appIds as $appId) {
+            $body->addField('appids', $appId);
+        }
     }
 }

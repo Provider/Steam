@@ -16,7 +16,7 @@ final class PutCuratorReviewTest extends CuratorTestCase
     {
         $response = \Amp\Promise\wait(self::$porter->importOneAsync(new AsyncImportSpecification(new PutCuratorReview(
             self::$session,
-            $curatorId = '31457321',
+            self::CURATOR_ID,
             '60',
             'foo',
             RecommendationState::RECOMMENDED(),
@@ -27,6 +27,6 @@ final class PutCuratorReviewTest extends CuratorTestCase
         self::assertArrayHasKey('success', $response);
         self::assertSame(1, $response['success']);
         self::assertArrayHasKey('clanid', $response);
-        self::assertSame($curatorId, (string)$response['clanid']);
+        self::assertSame(self::CURATOR_ID, (string)$response['clanid']);
     }
 }

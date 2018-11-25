@@ -15,7 +15,7 @@ final class GetCuratorReviewsTest extends CuratorTestCase
     {
         $response = \Amp\Promise\wait(self::$porter->importOneAsync(new AsyncImportSpecification(new PutCuratorReview(
             self::$session,
-            $curatorId = '31457321',
+            self::CURATOR_ID,
             $appId = '130',
             'foo',
             $state = RecommendationState::NOT_RECOMMENDED()
@@ -26,7 +26,7 @@ final class GetCuratorReviewsTest extends CuratorTestCase
         self::assertSame(1, $response['success']);
 
         $reviews = self::$porter->importAsync(new AsyncImportSpecification(
-            new GetCuratorReviews(self::$session, $curatorId)
+            new GetCuratorReviews(self::$session, self::CURATOR_ID)
         ));
 
         Loop::run(static function () use ($reviews, $appId, $state): \Generator {
