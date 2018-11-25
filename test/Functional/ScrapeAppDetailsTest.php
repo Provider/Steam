@@ -46,7 +46,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertContains('French', $languages);
         self::assertContains('German', $languages);
         self::assertContains('Italian', $languages);
-        self::assertContains('Spanish', $languages);
+        self::assertContains('Spanish - Spain', $languages);
         self::assertContains('Simplified Chinese', $languages);
         self::assertContains('Traditional Chinese', $languages);
         self::assertContains('Korean', $languages);
@@ -222,7 +222,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testInvalidDate()
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(271260)));
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('invalid date.html')));
 
         self::assertArrayHasKey('release_date', $app);
         self::assertNull($app['release_date']);
