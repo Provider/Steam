@@ -17,7 +17,7 @@ final class PutCuratorReviewTest extends CuratorTestCase
         $response = \Amp\Promise\wait(self::$porter->importOneAsync(new AsyncImportSpecification(new PutCuratorReview(
             self::$session,
             self::CURATOR_ID,
-            '60',
+            60,
             'foo',
             RecommendationState::RECOMMENDED(),
             'http://example.com'

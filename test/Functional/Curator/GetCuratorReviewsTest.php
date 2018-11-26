@@ -16,7 +16,7 @@ final class GetCuratorReviewsTest extends CuratorTestCase
         $response = \Amp\Promise\wait(self::$porter->importOneAsync(new AsyncImportSpecification(new PutCuratorReview(
             self::$session,
             self::CURATOR_ID,
-            $appId = '130',
+            $appId = 130,
             'foo',
             $state = RecommendationState::NOT_RECOMMENDED()
         ))));
@@ -47,7 +47,7 @@ final class GetCuratorReviewsTest extends CuratorTestCase
                 self::assertInternalType('array', $review['recommendation']);
                 self::assertNotEmpty($recommendation = $review['recommendation']);
 
-                if ($review['appid'] === (int)$appId) {
+                if ($review['appid'] === $appId) {
                     $foundAppId = true;
 
                     self::assertSame($state->toInt(), $recommendation['recommendation_state']);

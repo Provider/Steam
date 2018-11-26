@@ -20,7 +20,7 @@ final class PutCuratorReview extends CuratorResource
     public function __construct(
         CuratorSession $session,
         int $curatorId,
-        string $appId,
+        int $appId,
         string $reviewBody,
         RecommendationState $recommendationState,
         string $linkUrl = ''
