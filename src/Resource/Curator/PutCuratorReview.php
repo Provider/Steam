@@ -19,7 +19,7 @@ final class PutCuratorReview extends CuratorResource
 
     public function __construct(
         CuratorSession $session,
-        string $curatorId,
+        int $curatorId,
         string $appId,
         string $reviewBody,
         RecommendationState $recommendationState,
@@ -42,11 +42,7 @@ final class PutCuratorReview extends CuratorResource
     {
         parent::augmentOptions($options);
 
-        $options
-            ->setMethod('POST')
-            ->setBody($body = new FormBody)
-            ->getCookieJar()
-        ;
+        $options->setMethod('POST')->setBody($body = new FormBody);
 
         $body->addFields([
             'appid' => $this->appId,

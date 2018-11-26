@@ -27,6 +27,6 @@ final class PutCuratorReviewTest extends CuratorTestCase
         self::assertArrayHasKey('success', $response);
         self::assertSame(1, $response['success']);
         self::assertArrayHasKey('clanid', $response);
-        self::assertSame(self::CURATOR_ID, (string)$response['clanid']);
+        self::assertSame(self::CURATOR_ID, $response['clanid']);
     }
 }

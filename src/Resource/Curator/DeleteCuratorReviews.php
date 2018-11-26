@@ -11,7 +11,7 @@ final class DeleteCuratorReviews extends CuratorResource
 {
     private $appIds;
 
-    public function __construct(CuratorSession $session, string $curatorId, array $appIds)
+    public function __construct(CuratorSession $session, int $curatorId, array $appIds)
     {
         parent::__construct($session, $curatorId);
 
@@ -30,7 +30,6 @@ final class DeleteCuratorReviews extends CuratorResource
         $options
             ->setMethod('POST')
             ->setBody($body = new FormBody)
-            ->getCookieJar()
         ;
 
         $body->addFields([

@@ -19,7 +19,7 @@ abstract class CuratorResource implements AsyncResource
 
     protected $curatorId;
 
-    public function __construct(CuratorSession $session, string $curatorId)
+    public function __construct(CuratorSession $session, int $curatorId)
     {
         $this->session = $session;
         $this->curatorId = $curatorId;
