@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional\Curator;
 
+use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\PutCuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\RecommendationState;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
@@ -17,10 +18,11 @@ final class PutCuratorReviewTest extends CuratorTestCase
         $response = \Amp\Promise\wait(self::$porter->importOneAsync(new AsyncImportSpecification(new PutCuratorReview(
             self::$session,
             self::CURATOR_ID,
-            60,
-            'foo',
-            RecommendationState::RECOMMENDED(),
-            'http://example.com'
+            new CuratorReview(
+                60,
+                'foo',
+                RecommendationState::RECOMMENDED()
+            )
         ))));
 
         self::assertInternalType('array', $response);

@@ -9,6 +9,7 @@ use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\DeleteCurato
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\GetCuratorLists;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\PutCuratorList;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\PutCuratorListApp;
+use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\PutCuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\RecommendationState;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
@@ -109,9 +110,11 @@ final class CuratorListsTest extends CuratorTestCase
             new PutCuratorReview(
                 self::$session,
                 self::CURATOR_ID,
-                $appId = 10,
-                'foo',
-                RecommendationState::INFORMATIONAL()
+                new CuratorReview(
+                    $appId = 10,
+                    'foo',
+                    RecommendationState::INFORMATIONAL()
+                )
             )
         )));
 

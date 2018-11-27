@@ -12,25 +12,16 @@ use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
  */
 final class PutCuratorReview extends CuratorResource
 {
-    private $appId;
-    private $reviewBody;
-    private $recommendationState;
-    private $linkUrl;
+    private $review;
 
     public function __construct(
         CuratorSession $session,
         int $curatorId,
-        int $appId,
-        string $reviewBody,
-        RecommendationState $recommendationState,
-        string $linkUrl = ''
+        CuratorReview $review
     ) {
         parent::__construct($session, $curatorId);
 
-        $this->appId = $appId;
-        $this->reviewBody = $reviewBody;
-        $this->recommendationState = $recommendationState;
-        $this->linkUrl = $linkUrl;
+        $this->review = $review;
     }
 
     protected function getUrl(): string
@@ -45,10 +36,10 @@ final class PutCuratorReview extends CuratorResource
         $options->setMethod('POST')->setBody($body = new FormBody);
 
         $body->addFields([
-            'appid' => $this->appId,
-            'blurb' => $this->reviewBody,
-            'link_url' => $this->linkUrl,
-            'recommendation_state' => $this->recommendationState->toInt(),
+            'appid' => $this->review->getAppId(),
+            'blurb' => $this->review->getBody(),
+            'link_url' => $this->review->getUrl(),
+            'recommendation_state' => $this->review->getRecommendationState()->toInt(),
             'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
         ]);
     }

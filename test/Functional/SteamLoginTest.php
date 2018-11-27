@@ -18,6 +18,10 @@ final class SteamLoginTest extends TestCase
      */
     public function testSecureLoginCookie(): void
     {
+        if (!isset($_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD'])) {
+            $this->markTestSkipped();
+        }
+
         $porter = FixtureFactory::createPorter();
 
         /** @var AsyncLoginRecord $steamLogin */
@@ -25,6 +29,7 @@ final class SteamLoginTest extends TestCase
             new SteamLogin($_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD'])
         ))->findFirstCollection();
 
+        /** @var SecureLoginCookie $secureLoginCookie */
         $secureLoginCookie = \Amp\Promise\wait($steamLogin->getSecureLoginCookie());
 
         self::assertInstanceOf(SecureLoginCookie::class, $secureLoginCookie);
