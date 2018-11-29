@@ -61,10 +61,13 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertSame($app['price'], 999);
         self::assertFalse($app['vrx']);
+        self::assertFalse($app['free']);
 
         self::assertInternalType('int', $app['positive_reviews']);
         self::assertInternalType('int', $app['negative_reviews']);
-        self::assertGreaterThan(90000, $app['positive_reviews'] + $app['negative_reviews']);
+        self::assertGreaterThan(100000, $total = $app['positive_reviews'] + $app['negative_reviews']);
+        self::assertGreaterThan(50000, $app['steam_reviews']);
+        self::assertLessThan($total, $app['steam_reviews']);
 
         self::assertTrue($app['windows']);
         self::assertTrue($app['linux']);
@@ -499,7 +502,7 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * Tests that games marked as 'Free', 'Free to Play' or having no price are detected as being cost-free,
-     * where cost-free is defined as having a price of 0.
+     * where cost-free is defined as having a price of 0 and no discount.
      *
      * @dataProvider provideFreeApps
      */

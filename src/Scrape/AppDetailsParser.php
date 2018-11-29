@@ -36,6 +36,7 @@ final class AppDetailsParser
         $tags = self::parseTags($crawler);
         $languages = self::parseLanguages($crawler);
         $vrx = self::parseVrExclusive($crawler);
+        $free = self::parseFree($crawler);
 
         // Reviews area.
         $reviewsArea = $crawler->filter('.user_reviews')->first();
@@ -57,6 +58,9 @@ final class AppDetailsParser
         $positive_reviews = $hasReviews ? self::filterNumbers($positiveReviews->text()) : 0;
         $negative_reviews = $hasReviews ? self::filterNumbers(
             $crawler->filter('[for=review_type_negative] > .user_reviews_count')->text()
+        ) : 0;
+        $steam_reviews = $hasReviews ? self::filterNumbers(
+            $crawler->filter('[for=purchase_type_steam] > .user_reviews_count')->text()
         ) : 0;
 
         // Platforms.
@@ -81,8 +85,10 @@ final class AppDetailsParser
             'discount_price',
             'discount',
             'vrx',
+            'free',
             'positive_reviews',
             'negative_reviews',
+            'steam_reviews',
             'windows',
             'linux',
             'mac',
@@ -220,6 +226,17 @@ final class AppDetailsParser
         }
 
         return false;
+    }
+
+    private static function parseFree(Crawler $crawler): ?bool
+    {
+        $tooltip = $crawler->filter('#review_histogram_rollup_section .tooltip');
+
+        if (!$tooltip->count()) {
+            return null;
+        }
+
+        return (bool)preg_match('[\bfree\b]', $tooltip->attr('data-tooltip-text'));
     }
 
     private static function trimNodeText(Crawler $crawler): string
