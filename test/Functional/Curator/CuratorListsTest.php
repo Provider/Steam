@@ -6,6 +6,7 @@ namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional\Curator;
 use Amp\Loop;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\CuratorList;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\DeleteCuratorList;
+use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\DeleteCuratorListApp;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\GetCuratorLists;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\PutCuratorList;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\PutCuratorListApp;
@@ -18,6 +19,7 @@ use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
  * @see GetCuratorLists
  * @see PutCuratorList
  * @see PutCuratorListApp
+ * @see DeleteCuratorListApp
  * @see DeleteCuratorList
  */
 final class CuratorListsTest extends CuratorTestCase
@@ -99,7 +101,7 @@ final class CuratorListsTest extends CuratorTestCase
     }
 
     /**
-     * Tests that a curator list can have a review added to it.
+     * Tests that a curator list can have a review added to and removed from it.
      *
      * The created list is deleted at the end of the test, however the review is not.
      */
@@ -133,6 +135,14 @@ final class CuratorListsTest extends CuratorTestCase
             // Add review to list.
             $response = \Amp\Promise\wait(self::$porter->importOneAsync(new AsyncImportSpecification(
                 new PutCuratorListApp(self::$session, self::CURATOR_ID, $listId, $appId)
+            )));
+
+            self::assertArrayHasKey('success', $response);
+            self::assertSame(1, $response['success']);
+
+            // Delete review from list.
+            $response = \Amp\Promise\wait(self::$porter->importOneAsync(new AsyncImportSpecification(
+                new DeleteCuratorListApp(self::$session, self::CURATOR_ID, $listId, $appId)
             )));
 
             self::assertArrayHasKey('success', $response);
