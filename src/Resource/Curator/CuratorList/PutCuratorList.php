@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList;
 
 use Amp\Artax\FormBody;
+use Amp\Artax\RequestBody;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpOptions;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
@@ -38,7 +39,7 @@ final class PutCuratorList extends CuratorResource
         ;
     }
 
-    private function toFormBody(CuratorList $list): FormBody
+    private function toFormBody(CuratorList $list): RequestBody
     {
         $body = new FormBody;
 
@@ -53,10 +54,6 @@ final class PutCuratorList extends CuratorResource
             'title_blurb_locs' => '{}',
             'type' => 2,
         ]);
-
-        foreach ($list->getAppIds() as $appId) {
-            $body->addField('appids', $appId);
-        }
 
         return $body;
     }

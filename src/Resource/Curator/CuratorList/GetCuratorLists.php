@@ -11,7 +11,7 @@ final class GetCuratorLists extends CuratorResource
 {
     protected function getUrl(): string
     {
-        return SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/ajaxgetlists/");
+        return SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/ajaxgetlists/?all=1");
     }
 
     protected function emitResponses(\Closure $emit, HttpResponse $response): \Generator

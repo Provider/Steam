@@ -19,6 +19,7 @@
     "phpseclib/phpseclib": "^2"
   },
   "require-dev": {
+    "athari/yalinqo": "^2",
     "phpunit/phpunit": "^6",
     "scriptfusion/phpunit-immediate-exception-printer": "^1",
     "mockery/mockery": "^1"
