@@ -64,7 +64,7 @@ final class AppDetailsParser
         ) : 0;
 
         // Platforms.
-        $platforms = $crawler->filter('.game_area_purchase_platform')->first();
+        $platforms = $purchaseArea->filter('.game_area_purchase_platform')->first();
         $windows = $platforms->filter('.win')->count() > 0;
         $linux = $platforms->filter('.linux')->count() > 0;
         $mac = $platforms->filter('.mac')->count() > 0;

@@ -348,6 +348,21 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a game with a demo correctly parses the full game's platforms instead of the demo's platforms.
+     *
+     * @see https://github.com/250/Steam-250/issues/33
+     * @see https://store.steampowered.com/app/206190/
+     */
+    public function testPlatformsWithDemo(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(206190)));
+
+        self::assertTrue($app['windows']);
+        self::assertTrue($app['mac']);
+        self::assertTrue($app['linux']);
+    }
+
+    /**
      * Tests that a game with all VR platforms is correctly identified.
      *
      * @see http://store.steampowered.com/app/552440/
