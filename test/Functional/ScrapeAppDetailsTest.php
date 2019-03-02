@@ -63,6 +63,8 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertFalse($app['vrx']);
         self::assertFalse($app['free']);
 
+        self::assertCount(0, $app['videos']);
+
         self::assertInternalType('int', $app['positive_reviews']);
         self::assertInternalType('int', $app['negative_reviews']);
         self::assertGreaterThan(100000, $total = $app['positive_reviews'] + $app['negative_reviews']);
@@ -553,6 +555,21 @@ final class ScrapeAppDetailsTest extends TestCase
             '"Play Game" button (no price)' => [250600],
             '"Install Game" button (no price)' => [252150],
         ];
+    }
+
+    /**
+     * Tests that a game with multiple videos has its video IDs parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/32400/
+     */
+    public function testVideoIds(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(32400)));
+
+        self::assertArrayHasKey('videos', $app);
+        self::assertCount(2, $videos = $app['videos']);
+        self::assertContains(256662547, $videos);
+        self::assertContains(256662555, $videos);
     }
 
     /**

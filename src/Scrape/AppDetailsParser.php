@@ -38,6 +38,9 @@ final class AppDetailsParser
         $vrx = self::parseVrExclusive($crawler);
         $free = self::parseFree($crawler);
 
+        // Media area.
+        $videos = self::parseVideoIds($crawler);
+
         // Reviews area.
         $reviewsArea = $crawler->filter('.user_reviews')->first();
         $release_date = self::parseReleaseDate($reviewsArea);
@@ -86,6 +89,7 @@ final class AppDetailsParser
             'discount',
             'vrx',
             'free',
+            'videos',
             'positive_reviews',
             'negative_reviews',
             'steam_reviews',
@@ -237,6 +241,15 @@ final class AppDetailsParser
         }
 
         return (bool)preg_match('[\bfree\b]', $tooltip->attr('data-tooltip-text'));
+    }
+
+    private static function parseVideoIds(Crawler $crawler)
+    {
+        return $crawler->filter('#highlight_strip_scroll > .highlight_strip_movie')->each(
+            static function (Crawler $crawler): int {
+                return self::filterNumbers($crawler->attr('id'));
+            }
+        );
     }
 
     private static function trimNodeText(Crawler $crawler): string
