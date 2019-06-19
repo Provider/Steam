@@ -35,13 +35,26 @@ final class AppDetailsParser
             $crawler->filter('[for=review_type_negative] > .user_reviews_count')->text()
         ) : 0;
 
+        $purchaseArea = $crawler->filter(
+            '#game_area_purchase .game_area_purchase_game:not(.demo_above_purchase)'
+        )->first();
+
         // Platforms.
-        $windows = $crawler->filter('.game_area_purchase_platform')->first()->filter('.win')->count() > 0;
-        $linux = $crawler->filter('.game_area_purchase_platform')->first()->filter('.linux')->count() > 0;
-        $mac = $crawler->filter('.game_area_purchase_platform')->first()->filter('.mac')->count() > 0;
-        $vive = $crawler->filter('.game_area_purchase_platform')->first()->filter('.htcvive')->count() > 0;
-        $occulus = $crawler->filter('.game_area_purchase_platform')->first()->filter('.oculusrift')->count() > 0;
-        $wmr = $crawler->filter('.game_area_purchase_platform')->first()->filter('.windowsmr')->count() > 0;
+        $platforms = $purchaseArea->filter('.game_area_purchase_platform')->first();
+        $windows = $platforms->filter('.win')->count() > 0;
+        $linux = $platforms->filter('.linux')->count() > 0;
+        $mac = $platforms->filter('.mac')->count() > 0;
+
+        // VR platforms.
+        $vrPlatforms = $crawler->filter(
+            '.block_title.vrsupport ~ .game_area_details_specs > a.name[href*="vrsupport=10"]'
+        )->each(static function (Crawler $crawler): string {
+            return preg_replace('[.*vrsupport=(\d+).*]', '$1', $crawler->attr('href'));
+        });
+        $vive = in_array('101', $vrPlatforms, true);
+        $occulus = in_array('102', $vrPlatforms, true);
+        $wmr = in_array('104', $vrPlatforms, true);
+        $valve_index = in_array('105', $vrPlatforms, true);
 
         return compact(
             'name',
@@ -61,7 +74,8 @@ final class AppDetailsParser
             'mac',
             'vive',
             'occulus',
-            'wmr'
+            'wmr',
+            'valve_index'
         );
     }
 
