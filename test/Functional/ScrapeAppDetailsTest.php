@@ -376,6 +376,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertTrue($app['vive']);
         self::assertTrue($app['occulus']);
         self::assertTrue($app['wmr']);
+        self::assertTrue($app['valve_index']);
     }
 
     /**

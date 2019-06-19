@@ -74,6 +74,7 @@ final class SteamLogin implements AsyncResource
             ;
 
             $body->addField('username', $this->username);
+            $body->addField('donotcache', (string)(microtime(true) * 1000 | 0));
 
             $json = json_decode(
                 (string)yield $connector->fetchAsync(SteamProvider::buildStoreApiUrl('/login/getrsakey/')),

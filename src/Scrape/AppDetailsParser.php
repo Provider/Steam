@@ -71,9 +71,17 @@ final class AppDetailsParser
         $windows = $platforms->filter('.win')->count() > 0;
         $linux = $platforms->filter('.linux')->count() > 0;
         $mac = $platforms->filter('.mac')->count() > 0;
-        $vive = $platforms->filter('.htcvive')->count() > 0;
-        $occulus = $platforms->filter('.oculusrift')->count() > 0;
-        $wmr = $platforms->filter('.windowsmr')->count() > 0;
+
+        // VR platforms.
+        $vrPlatforms = $crawler->filter(
+            '.block_title.vrsupport ~ .game_area_details_specs > a.name[href*="vrsupport=10"]'
+        )->each(static function (Crawler $crawler): string {
+            return preg_replace('[.*vrsupport=(\d+).*]', '$1', $crawler->attr('href'));
+        });
+        $vive = in_array('101', $vrPlatforms, true);
+        $occulus = in_array('102', $vrPlatforms, true);
+        $wmr = in_array('104', $vrPlatforms, true);
+        $valve_index = in_array('105', $vrPlatforms, true);
 
         return compact(
             'name',
@@ -98,7 +106,8 @@ final class AppDetailsParser
             'mac',
             'vive',
             'occulus',
-            'wmr'
+            'wmr',
+            'valve_index'
         );
     }
 
