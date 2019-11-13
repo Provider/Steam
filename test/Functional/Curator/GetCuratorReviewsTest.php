@@ -31,12 +31,12 @@ final class GetCuratorReviewsTest extends CuratorTestCase
         self::assertArrayHasKey('success', $response);
         self::assertSame(1, $response['success']);
 
-        $reviews = self::$porter->importAsync(new AsyncImportSpecification(
-            new GetCuratorReviews(self::$session, self::CURATOR_ID)
-        ));
-
-        Loop::run(static function () use ($reviews, $appId, $state): \Generator {
+        Loop::run(static function () use ($appId, $state): \Generator {
             $foundAppId = false;
+
+            $reviews = self::$porter->importAsync(new AsyncImportSpecification(
+                new GetCuratorReviews(self::$session, self::CURATOR_ID)
+            ));
 
             while (yield $reviews->advance()) {
                 $review = $reviews->getCurrent();

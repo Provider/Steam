@@ -10,6 +10,7 @@
   "require": {
     "php": "^7.1",
     "ext-json": "*",
+    "amphp/parallel": "^1.1",
     "connectors/http": "dev-5.0-rc",
     "connectors/ssl": "dev-5.0-rc",
     "eloquent/enumeration": "^5",
