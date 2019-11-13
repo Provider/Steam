@@ -8,6 +8,7 @@ use Amp\Iterator;
 use Amp\Producer;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
+use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncSteamStoreSessionRecord;
 use ScriptFUSION\Porter\Provider\Steam\Cookie\StoreSessionCookie;
@@ -32,9 +33,7 @@ final class CreateSteamStoreSession implements AsyncResource
                         throw new \InvalidArgumentException('Unexpected connector type.');
                     }
 
-                    $options = $baseConnector->getOptions()->setDiscardBody(true);
-
-                    yield $connector->fetchAsync(SteamProvider::buildStoreApiUrl('/'));
+                    yield $connector->fetchAsync(new AsyncHttpDataSource(SteamProvider::buildStoreApiUrl('/')));
                 } catch (\Throwable $throwable) {
                     $sessionCookie->fail($throwable);
 
@@ -43,7 +42,7 @@ final class CreateSteamStoreSession implements AsyncResource
 
                 $sessionCookie->resolve(
                     new StoreSessionCookie(
-                        $options->getCookieJar()->get(SteamProvider::STORE_DOMAIN, '', 'sessionid')[0]
+                        $baseConnector->getCookieJar()->get(SteamProvider::STORE_DOMAIN, '', 'sessionid')[0]
                     )
                 );
             }),

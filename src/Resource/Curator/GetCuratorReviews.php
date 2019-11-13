@@ -3,16 +3,18 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
+use ScriptFUSION\Porter\Connector\DataSource;
+use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 final class GetCuratorReviews extends CuratorResource
 {
-    protected function getUrl(): string
+    protected function getSource(): DataSource
     {
-        return SteamProvider::buildStoreApiUrl(
+        return new AsyncHttpDataSource(SteamProvider::buildStoreApiUrl(
             "/curator/$this->curatorId/admin/ajaxgetrecommendations/?count=0x7FFFFFFF"
-        );
+        ));
     }
 
     protected function emitResponses(\Closure $emit, HttpResponse $response): \Generator

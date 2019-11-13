@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
 use Amp\Artax\FormBody;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpOptions;
+use ScriptFUSION\Porter\Connector\DataSource;
+use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 /**
@@ -24,17 +25,9 @@ final class PutCuratorReview extends CuratorResource
         $this->review = $review;
     }
 
-    protected function getUrl(): string
+    protected function getSource(): DataSource
     {
-        return SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxcreatereview/");
-    }
-
-    protected function augmentOptions(AsyncHttpOptions $options): void
-    {
-        parent::augmentOptions($options);
-
-        $options->setMethod('POST')->setBody($body = new FormBody);
-
+        $body = new FormBody;
         $body->addFields([
             'appid' => $this->review->getAppId(),
             'blurb' => $this->review->getBody(),
@@ -42,5 +35,12 @@ final class PutCuratorReview extends CuratorResource
             'recommendation_state' => $this->review->getRecommendationState()->toInt(),
             'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
         ]);
+
+        return (new AsyncHttpDataSource(
+            SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxcreatereview/")
+        ))
+            ->setMethod('POST')
+            ->setBody($body)
+        ;
     }
 }

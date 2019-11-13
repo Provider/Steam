@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
 use Amp\Artax\FormBody;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpOptions;
+use ScriptFUSION\Porter\Connector\DataSource;
+use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 final class DeleteCuratorReviews extends CuratorResource
@@ -23,14 +24,9 @@ final class DeleteCuratorReviews extends CuratorResource
         return SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxupdatemultiplecurations/");
     }
 
-    protected function augmentOptions(AsyncHttpOptions $options): void
+    protected function getSource(): DataSource
     {
-        parent::augmentOptions($options);
-
-        $options
-            ->setMethod('POST')
-            ->setBody($body = new FormBody)
-        ;
+        $body = new FormBody;
 
         $body->addFields([
             'delete' => 1,
@@ -40,5 +36,10 @@ final class DeleteCuratorReviews extends CuratorResource
         foreach ($this->appIds as $appId) {
             $body->addField('appids', $appId);
         }
+
+        return (new AsyncHttpDataSource($this->getUrl()))
+            ->setMethod('POST')
+            ->setBody($body)
+        ;
     }
 }

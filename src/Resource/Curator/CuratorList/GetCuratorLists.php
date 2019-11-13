@@ -3,15 +3,19 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList;
 
+use ScriptFUSION\Porter\Connector\DataSource;
+use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorResource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 final class GetCuratorLists extends CuratorResource
 {
-    protected function getUrl(): string
+    protected function getSource(): DataSource
     {
-        return SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/ajaxgetlists/?all=1");
+        return new AsyncHttpDataSource(
+            SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/ajaxgetlists/?all=1")
+        );
     }
 
     protected function emitResponses(\Closure $emit, HttpResponse $response): \Generator

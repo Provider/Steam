@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
 use ScriptFUSION\Porter\Connector\ImportConnector;
-use ScriptFUSION\Porter\Options\EncapsulatedOptions;
+use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\UsersReviewsRecords;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\UserReviewsParser;
@@ -25,7 +25,7 @@ final class ScrapeUserReviews implements ProviderResource, Url
         return SteamProvider::class;
     }
 
-    public function fetch(ImportConnector $connector, EncapsulatedOptions $options = null): \Iterator
+    public function fetch(ImportConnector $connector): \Iterator
     {
         /** @var Crawler $crawler */
         $pages = $this->fetchPages($connector, $crawler);
@@ -43,7 +43,7 @@ final class ScrapeUserReviews implements ProviderResource, Url
         $next = null;
 
         do {
-            $html = $connector->fetch($this->getUrl($next ? $next->attr('href') : ''))->getBody();
+            $html = $connector->fetch(new HttpDataSource($this->getUrl($next ? $next->attr('href') : '')))->getBody();
             $crawler = new Crawler($html);
 
             yield from UserReviewsParser::parse($crawler);

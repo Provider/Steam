@@ -5,7 +5,8 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList;
 
 use Amp\Artax\FormBody;
 use Amp\Artax\RequestBody;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpOptions;
+use ScriptFUSION\Porter\Connector\DataSource;
+use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
@@ -24,16 +25,11 @@ final class PutCuratorList extends CuratorResource
         $this->list = $list;
     }
 
-    protected function getUrl(): string
+    protected function getSource(): DataSource
     {
-        return SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxeditlist/");
-    }
-
-    protected function augmentOptions(AsyncHttpOptions $options): void
-    {
-        parent::augmentOptions($options);
-
-        $options
+        return (new AsyncHttpDataSource(
+            SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxeditlist/")
+        ))
             ->setMethod('POST')
             ->setBody($this->toFormBody($this->list))
         ;

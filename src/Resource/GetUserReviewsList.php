@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
 use ScriptFUSION\Porter\Connector\ImportConnector;
-use ScriptFUSION\Porter\Options\EncapsulatedOptions;
+use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\UserReviewsRecords;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
@@ -26,9 +26,9 @@ final class GetUserReviewsList implements ProviderResource, Url
         return SteamProvider::class;
     }
 
-    public function fetch(ImportConnector $connector, EncapsulatedOptions $options = null): \Iterator
+    public function fetch(ImportConnector $connector): \Iterator
     {
-        $response = \json_decode((string)$connector->fetch($this->getUrl()), true);
+        $response = \json_decode((string)$connector->fetch(new HttpDataSource($this->getUrl())), true);
 
         if ($response['success'] !== 1) {
             throw new ApiResponseException('Failed to retrieve reviews.', $response['success']);

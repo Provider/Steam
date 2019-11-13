@@ -8,7 +8,9 @@ use Amp\Iterator;
 use Amp\Producer;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
+use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Net\Http\HttpConnector;
+use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
@@ -36,7 +38,11 @@ final class ScrapeAppDetails implements ProviderResource, AsyncResource, Url
     {
         $this->configureOptions($connector->findBaseConnector());
 
-        $this->validateResponse($response = $connector->fetch($this->getUrl()));
+        $this->validateResponse($response = $connector->fetch(
+            (new HttpDataSource($this->getUrl()))
+                // Enable age-restricted and mature content.
+                ->addHeader('Cookie: birthtime=0; mature_content=1')
+        ));
 
         yield AppDetailsParser::tryParseStorePage($response->getBody());
     }
@@ -45,9 +51,11 @@ final class ScrapeAppDetails implements ProviderResource, AsyncResource, Url
     {
         $this->configureAsyncOptions($connector->findBaseConnector());
 
-        return new Producer(function (\Closure $emit) use ($connector) {
+        return new Producer(function (\Closure $emit) use ($connector): \Generator {
             /** @var HttpResponse $response */
-            $this->validateResponse($response = yield $connector->fetchAsync($this->getUrl()));
+            $this->validateResponse($response = yield $connector->fetchAsync(
+                (new AsyncHttpDataSource($this->getUrl()))
+            ));
 
             yield $emit(AppDetailsParser::tryParseStorePage($response->getBody()));
         });
@@ -74,19 +82,17 @@ final class ScrapeAppDetails implements ProviderResource, AsyncResource, Url
         $connector->getOptions()
             // We want to capture redirects so do not follow them automatically.
             ->setFollowLocation(false)
-            // Enable age-restricted and mature content.
-            ->addHeader('Cookie: birthtime=0; mature_content=1')
         ;
     }
 
     private function configureAsyncOptions(AsyncHttpConnector $connector): void
     {
-        $options = $connector->getOptions()
+        $connector->getOptions()
             // Do not follow redirects.
             ->setMaxRedirects(0)
         ;
 
-        $cookies = $options->getCookieJar();
+        $cookies = $connector->getCookieJar();
         // Enable age-restricted content.
         $cookies->store(new Cookie('birthtime', '0', null, null, SteamProvider::STORE_DOMAIN));
         // Enable mature content.

@@ -12,6 +12,7 @@ use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
+use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncLoginRecord;
 use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
@@ -68,16 +69,15 @@ final class SteamLogin implements AsyncResource
                 throw new \InvalidArgumentException('Unexpected connector type.');
             }
 
-            $options = $baseConnector->getOptions()
+            $source = (new AsyncHttpDataSource(SteamProvider::buildStoreApiUrl('/login/getrsakey/')))
                 ->setMethod('POST')
                 ->setBody($body = new FormBody)
             ;
-
             $body->addField('username', $this->username);
             $body->addField('donotcache', (string)(microtime(true) * 1000 | 0));
 
             $json = json_decode(
-                (string)yield $connector->fetchAsync(SteamProvider::buildStoreApiUrl('/login/getrsakey/')),
+                (string)yield $connector->fetchAsync($source),
                 true
             );
 
@@ -98,7 +98,11 @@ final class SteamLogin implements AsyncResource
             ]);
 
             $json = json_decode(
-                (string)yield $connector->fetchAsync(SteamProvider::buildStoreApiUrl('/login/dologin/')),
+                (string)yield $connector->fetchAsync(
+                    (new AsyncHttpDataSource(SteamProvider::buildStoreApiUrl('/login/dologin/')))
+                        ->setMethod('POST')
+                        ->setBody($body)
+                ),
                 true
             );
 
@@ -110,7 +114,7 @@ final class SteamLogin implements AsyncResource
             return [
                 $json,
                 new SecureLoginCookie(
-                    $options->getCookieJar()->get(SteamProvider::STORE_DOMAIN, '', 'steamLoginSecure')[0]
+                    $baseConnector->getCookieJar()->get(SteamProvider::STORE_DOMAIN, '', 'steamLoginSecure')[0]
                 ),
             ];
         });

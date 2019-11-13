@@ -6,9 +6,9 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 use Amp\Artax\Cookie\CookieJar;
 use Amp\Iterator;
 use Amp\Producer;
+use ScriptFUSION\Porter\Connector\DataSource;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpOptions;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
@@ -30,7 +30,7 @@ abstract class CuratorResource implements AsyncResource
         return SteamProvider::class;
     }
 
-    abstract protected function getUrl(): string;
+    abstract protected function getSource(): DataSource;
 
     public function fetchAsync(ImportConnector $connector): Iterator
     {
@@ -40,22 +40,23 @@ abstract class CuratorResource implements AsyncResource
                 throw new \InvalidArgumentException('Unexpected connector type.');
             }
 
-            $this->augmentOptions($baseConnector->getOptions());
+            $this->applySessionCookies($baseConnector->getCookieJar());
 
-            $response = yield $connector->fetchAsync($this->getUrl());
+            $response = yield $connector->fetchAsync($this->getSource());
 
             yield from $this->emitResponses($emit, $response);
         });
     }
 
-    protected function augmentOptions(AsyncHttpOptions $options): void
-    {
-        $this->applySessionCookies($options->getCookieJar());
-    }
-
     protected function emitResponses(\Closure $emit, HttpResponse $response): \Generator
     {
-        yield $emit(\json_decode($response->getBody(), true));
+        $json = \json_decode($response->getBody(), true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('Invalid JSON: ' . json_last_error_msg());
+        }
+
+        yield $emit($json);
     }
 
     private function applySessionCookies(CookieJar $cookieJar): void
