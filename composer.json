@@ -9,13 +9,20 @@
   ],
   "require": {
     "php": "^7.1",
-    "scriptfusion/porter": "^4",
-    "connectors/http": "^2",
-    "symfony/dom-crawler": "^3",
-    "symfony/css-selector": "^3"
+    "ext-json": "*",
+    "amphp/parallel": "^1.1",
+    "connectors/http": "dev-5.0-rc",
+    "connectors/ssl": "dev-5.0-rc",
+    "eloquent/enumeration": "^5",
+    "phpseclib/phpseclib": "^2",
+    "scriptfusion/porter": "dev-data-source as 5",
+    "symfony/css-selector": "^3|^4",
+    "symfony/dom-crawler": "^3|^4"
   },
   "require-dev": {
-    "phpunit/phpunit": "^6",
+    "athari/yalinqo": "^2.4.2",
+    "phpunit/phpunit": "^6.5",
+    "scriptfusion/phpunit-immediate-exception-printer": "^1",
     "mockery/mockery": "^1"
   },
   "autoload": {
@@ -29,6 +36,12 @@
     }
   },
   "scripts": {
-    "test": "phpunit -c test"
+    "test": "phpunit -c test --colors"
+  },
+  "config": {
+    "platform": {
+      "php": "7.1.99"
+    },
+    "sort-packages": true
   }
 }

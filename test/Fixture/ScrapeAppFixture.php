@@ -25,6 +25,6 @@ class ScrapeAppFixture implements ProviderResource
 
     public function fetch(ImportConnector $connector, EncapsulatedOptions $options = null): \Iterator
     {
-        yield AppDetailsParser::parseStorePage(file_get_contents(__DIR__ . "/$this->fixture"));
+        yield AppDetailsParser::tryParseStorePage(file_get_contents(__DIR__ . "/$this->fixture"));
     }
 }

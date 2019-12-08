@@ -10,22 +10,50 @@ final class AppDetailsParser
 {
     use StaticClass;
 
-    public static function parseStorePage(string $html): array
+    public static function tryParseStorePage(string $html): array
+    {
+        try {
+            return self::parseStorePage($html);
+        } catch (\InvalidArgumentException $exception) {
+            // Promote empty node list to recoverable exception type.
+            if ($exception->getMessage() === 'The current node list is empty.') {
+                throw new InvalidMarkupException($exception->getMessage(), $exception->getCode(), $exception);
+            }
+
+            throw $exception;
+        }
+    }
+
+    private static function parseStorePage(string $html): array
     {
         $crawler = new Crawler($html);
 
-        self::validate($crawler);
+        self::validate($crawler, $html);
 
         $name = self::parseAppName($crawler);
         $type = self::parseAppType($crawler);
-        $release_date = self::parseReleaseDate($crawler);
         $genres = self::parseGenres($crawler);
         $tags = self::parseTags($crawler);
         $languages = self::parseLanguages($crawler);
-        $price = self::parsePrice($crawler);
-        $discount_price = self::parseDiscountPrice($crawler);
-        $discount = self::parseDiscountPercentage($crawler);
         $vrx = self::parseVrExclusive($crawler);
+        $free = self::parseFree($crawler);
+
+        // Media area.
+        $videos = self::parseVideoIds($crawler);
+
+        // Reviews area.
+        $reviewsArea = $crawler->filter('.user_reviews')->first();
+        $release_date = self::parseReleaseDate($reviewsArea);
+        $developers =  self::parseDevelopers($reviewsArea);
+        $publishers = self::parsePublishers($reviewsArea);
+
+        // Purchase area.
+        $purchaseArea = $crawler->filter(
+            '#game_area_purchase .game_area_purchase_game:not(.demo_above_purchase)'
+        )->first();
+        $price = self::parsePrice($purchaseArea);
+        $discount_price = self::parseDiscountPrice($purchaseArea);
+        $discount = self::parseDiscountPercentage($purchaseArea);
 
         // Reviews.
         $positiveReviews = $crawler->filter('[for=review_type_positive] > .user_reviews_count');
@@ -33,6 +61,9 @@ final class AppDetailsParser
         $positive_reviews = $hasReviews ? self::filterNumbers($positiveReviews->text()) : 0;
         $negative_reviews = $hasReviews ? self::filterNumbers(
             $crawler->filter('[for=review_type_negative] > .user_reviews_count')->text()
+        ) : 0;
+        $steam_reviews = $hasReviews ? self::filterNumbers(
+            $crawler->filter('[for=purchase_type_steam] > .user_reviews_count')->text()
         ) : 0;
 
         $purchaseArea = $crawler->filter(
@@ -60,6 +91,8 @@ final class AppDetailsParser
             'name',
             'type',
             'release_date',
+            'developers',
+            'publishers',
             'genres',
             'tags',
             'languages',
@@ -67,8 +100,11 @@ final class AppDetailsParser
             'discount_price',
             'discount',
             'vrx',
+            'free',
+            'videos',
             'positive_reviews',
             'negative_reviews',
+            'steam_reviews',
             'windows',
             'linux',
             'mac',
@@ -79,9 +115,13 @@ final class AppDetailsParser
         );
     }
 
-    private static function validate(Crawler $crawler): void
+    private static function validate(Crawler $crawler, string $html): void
     {
-        $bodyClasses = explode(' ', $crawler->filter('body')->attr('class'));
+        if (!$bodyClassesElement = $crawler->filter('body')->attr('class')) {
+            throw new InvalidMarkupException('Cannot parse body tag\'s class attribute: ' . $html);
+        }
+
+        $bodyClasses = explode(' ', $bodyClassesElement);
 
         if (!\in_array('v6', $bodyClasses, true)) {
             throw new ParserException('Unexpected version! Expected: v6.');
@@ -121,6 +161,17 @@ final class AppDetailsParser
         return $release_date;
     }
 
+    private static function parseDevelopers(Crawler $crawler): array
+    {
+        return $crawler->filter('#developers_list > a')->each(\Closure::fromCallable('self::trimNodeText'));
+    }
+
+    private static function parsePublishers(Crawler $crawler): array
+    {
+        return $crawler->filter('.dev_row > .summary.column:not([id]) > a')
+            ->each(\Closure::fromCallable('self::trimNodeText'));
+    }
+
     private static function parseTags(Crawler $crawler): array
     {
         if (preg_match('[InitAppTagModal\(\h*\d+,\s*([^\v]+),\v]', $crawler->html(), $matches)) {
@@ -145,13 +196,12 @@ final class AppDetailsParser
     }
 
     /**
-     * @param Crawler $crawler
+     * @param Crawler $purchaseArea
      *
      * @return int|null Price if integer, 0 if app is free and null if app has no price (i.e. not for sale).
      */
-    private static function parsePrice(Crawler $crawler): ?int
+    private static function parsePrice(Crawler $purchaseArea): ?int
     {
-        $purchaseArea = $crawler->filter('.game_area_purchase_game')->first();
         $priceElement = $purchaseArea->filter('.game_purchase_price');
         $discountElement = $purchaseArea->filter('.discount_original_price');
 
@@ -166,9 +216,8 @@ final class AppDetailsParser
         return $purchaseArea->filter('.game_purchase_action')->count() ? 0 : null;
     }
 
-    private static function parseDiscountPrice(Crawler $crawler): ?int
+    private static function parseDiscountPrice(Crawler $purchaseArea): ?int
     {
-        $purchaseArea = $crawler->filter('.game_area_purchase_game')->first();
         $discountPriceElement = $purchaseArea->filter('.discount_final_price');
 
         if (\count($discountPriceElement)) {
@@ -178,9 +227,9 @@ final class AppDetailsParser
         return null;
     }
 
-    private static function parseDiscountPercentage(Crawler $crawler): int
+    private static function parseDiscountPercentage(Crawler $purchaseArea): int
     {
-        $element = $crawler->filter('.game_area_purchase_game')->first()->filter('.discount_pct');
+        $element = $purchaseArea->filter('.discount_pct');
 
         return $element->count() ? self::filterNumbers($element->text()) : 0;
     }
@@ -194,6 +243,26 @@ final class AppDetailsParser
         }
 
         return false;
+    }
+
+    private static function parseFree(Crawler $crawler): ?bool
+    {
+        $tooltip = $crawler->filter('#review_histogram_rollup_section .tooltip');
+
+        if (!$tooltip->count()) {
+            return null;
+        }
+
+        return (bool)preg_match('[\bfree\b]', $tooltip->attr('data-tooltip-text'));
+    }
+
+    private static function parseVideoIds(Crawler $crawler)
+    {
+        return $crawler->filter('#highlight_strip_scroll > .highlight_strip_movie')->each(
+            static function (Crawler $crawler): int {
+                return self::filterNumbers($crawler->attr('id'));
+            }
+        );
     }
 
     private static function trimNodeText(Crawler $crawler): string

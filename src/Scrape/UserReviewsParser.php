@@ -15,7 +15,7 @@ final class UserReviewsParser
         self::validate($crawler);
 
         return $crawler->filter('.review_box .title > a')->each(
-            function (Crawler $a): array {
+            static function (Crawler $a): array {
                 $href = $a->attr('href');
 
                 if (!preg_match('[/(\d+)/$]', $href, $matches)) {

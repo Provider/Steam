@@ -7,7 +7,9 @@ use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppDetails;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\InvalidMarkupException;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\ParserException;
+use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSION\Porter\Specification\ImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\Fixture\ScrapeAppFixture;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
@@ -22,23 +24,29 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     private $porter;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->porter = FixtureFactory::createPorter();
     }
 
     /**
-     * Tests that all supported fields can be scraped from a game page.
+     * Tests that all supported fields can be scraped from a game page bisynchronously.
      *
      * @see http://store.steampowered.com/app/10/
+     *
+     * @dataProvider provideGameBisync
      */
-    public function testGame()
+    public function testGame(\Closure $import): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(10)));
+        $app = \Closure::bind($import, $this)();
 
         self::assertSame('Counter-Strike', $app['name']);
         self::assertSame('game', $app['type']);
         self::assertSame('2000-11-01T00:00:00+00:00', $app['release_date']->format('c'));
+        self::assertCount(1, $app['developers']);
+        self::assertSame('Valve', $app['developers'][0]);
+        self::assertCount(1, $app['publishers']);
+        self::assertSame('Valve', $app['publishers'][0]);
         self::assertContains('Action', $app['genres']);
 
         self::assertCount(8, $languages = $app['languages']);
@@ -53,10 +61,15 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertSame($app['price'], 999);
         self::assertFalse($app['vrx']);
+        self::assertFalse($app['free']);
+
+        self::assertCount(0, $app['videos']);
 
         self::assertInternalType('int', $app['positive_reviews']);
         self::assertInternalType('int', $app['negative_reviews']);
-        self::assertGreaterThan(90000, $app['positive_reviews'] + $app['negative_reviews']);
+        self::assertGreaterThan(100000, $total = $app['positive_reviews'] + $app['negative_reviews']);
+        self::assertGreaterThan(50000, $app['steam_reviews']);
+        self::assertLessThan($total, $app['steam_reviews']);
 
         self::assertTrue($app['windows']);
         self::assertTrue($app['linux']);
@@ -84,40 +97,82 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Provides a game synchronously and asynchronously.
+     */
+    public function provideGameBisync(): \Generator
+    {
+        return $this->provideAppBisync(10);
+    }
+
+    private function provideAppBisync(int $appId): \Generator
+    {
+        yield 'sync' => [function () use ($appId) {
+            return $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+        }, $appId];
+
+        yield 'async' => [function () use ($appId) {
+            return \Amp\Promise\wait(
+                $this->porter->importOneAsync(new AsyncImportSpecification(new ScrapeAppDetails($appId)))
+            );
+        }, $appId];
+    }
+
+    /**
      * Tests that apps redirecting to another page throw an exception.
      *
      * @see http://store.steampowered.com/app/5/
+     *
+     * @dataProvider provideHiddenAppBisync
      */
-    public function testHiddenApp()
+    public function testHiddenApp(\Closure $import, int $appId): void
     {
         $this->expectException(InvalidAppIdException::class);
-        $this->expectExceptionMessage((string)$appId = 5);
+        $this->expectExceptionMessage("$appId");
 
-        $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+        \Closure::bind($import, $this)();
+    }
+
+    public function provideHiddenAppBisync(): \Generator
+    {
+        return $this->provideAppBisync(5);
     }
 
     /**
      * Tests that age-restricted content can be scraped.
      *
      * @see http://store.steampowered.com/app/232770/
+     *
+     * @dataProvider provideAgeRestrictedContentBisync
      */
-    public function testAgeRestrictedContent()
+    public function testAgeRestrictedContent(\Closure $import): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(232770)));
+        $app = \Closure::bind($import, $this)();
 
         self::assertSame('POSTAL', $app['name']);
+    }
+
+    public function provideAgeRestrictedContentBisync(): \Generator
+    {
+        return $this->provideAppBisync(232770);
     }
 
     /**
      * Tests that mature content can be scraped.
      *
      * @see http://store.steampowered.com/app/292030/
+     *
+     * @dataProvider provideMatureContentBisync
      */
-    public function testMatureContent()
+    public function testMatureContent(\Closure $import): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(292030)));
+        $app = \Closure::bind($import, $this)();
 
         self::assertSame('The Witcher® 3: Wild Hunt', $app['name']);
+    }
+
+    public function provideMatureContentBisync(): \Generator
+    {
+        return $this->provideAppBisync(292030);
     }
 
     /**
@@ -125,7 +180,7 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see http://store.steampowered.com/app/219740/
      */
-    public function testNoReleaseDate()
+    public function testNoReleaseDate(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(219740)));
 
@@ -136,7 +191,7 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * @see http://store.steampowered.com/app/1840/
      */
-    public function testSoftware()
+    public function testSoftware(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(1840)));
 
@@ -152,7 +207,7 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * @see http://store.steampowered.com/app/323130/
      */
-    public function testDlc()
+    public function testDlc(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(323130)));
 
@@ -166,7 +221,7 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see http://store.steampowered.com/app/630/
      */
-    public function testWindowsOnly()
+    public function testWindowsOnly(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(630)));
 
@@ -180,7 +235,7 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see http://store.steampowered.com/app/694180/
      */
-    public function testMacOnly()
+    public function testMacOnly(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(694180)));
 
@@ -190,11 +245,12 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a game that is region locked throws a parser exception.
      * Dishonored RHCP is region locked to Russia, Hungary, Czech Republic and Poland.
      *
      * @see http://store.steampowered.com/app/217980/
      */
-    public function testRegionLockedApp()
+    public function testRegionLockedApp(): void
     {
         $this->expectException(ParserException::class);
         $this->expectExceptionMessage('app');
@@ -207,7 +263,7 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see http://store.steampowered.com/app/1620/
      */
-    public function testNoReviews()
+    public function testNoReviews(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(1620)));
 
@@ -220,7 +276,7 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see http://store.steampowered.com/app/271260/
      */
-    public function testInvalidDate()
+    public function testInvalidDate(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('invalid date.html')));
 
@@ -229,11 +285,91 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a game with multiple publishers is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/632350/
+     */
+    public function testDevelopers(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(632350)));
+
+        self::assertArrayHasKey('developers', $app);
+        self::assertCount(3, $developers = $app['developers']);
+        self::assertSame('IDEA FACTORY', $developers[0]);
+        self::assertSame('COMPILE HEART', $developers[1]);
+        self::assertSame('TAMSOFT', $developers[2]);
+    }
+
+    /**
+     * Tests that a game with no developer is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/211202/
+     */
+    public function testNoDeveloper(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(211202)));
+
+        self::assertArrayHasKey('developers', $app);
+        self::assertCount(0, $app['developers']);
+
+        self::assertArrayHasKey('publishers', $app);
+        self::assertCount(1, $publishers = $app['publishers']);
+        self::assertSame('SEGA', $publishers[0]);
+    }
+
+    /**
+     * Tests that a game with multiple developers is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/748490/
+     */
+    public function testPublishers(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(748490)));
+
+        self::assertArrayHasKey('publishers', $app);
+        self::assertCount(2, $publishers = $app['publishers']);
+        self::assertSame('XSEED Games', $publishers[0]);
+        self::assertSame('Marvelous USA, Inc.', $publishers[1]);
+    }
+
+    /**
+     * Tests that a game with no publisher is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/253630/
+     */
+    public function testNoPublisher(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(253630)));
+
+        self::assertArrayHasKey('developers', $app);
+        self::assertCount(1, $developers = $app['developers']);
+        self::assertSame('Worthless Bums', $developers[0]);
+
+        self::assertArrayHasKey('publishers', $app);
+        self::assertCount(0, $app['publishers']);
+    }
+
+    /**
+     * Tests that a game with a demo correctly parses the full game's platforms instead of the demo's platforms.
+     *
+     * @see https://github.com/250/Steam-250/issues/33
+     * @see https://store.steampowered.com/app/206190/
+     */
+    public function testPlatformsWithDemo(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(206190)));
+
+        self::assertTrue($app['windows']);
+        self::assertTrue($app['mac']);
+        self::assertTrue($app['linux']);
+    }
+
+    /**
      * Tests that a game with all VR platforms is correctly identified.
      *
      * @see http://store.steampowered.com/app/552440/
      */
-    public function testVrPlatforms()
+    public function testVrPlatforms(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(552440)));
 
@@ -246,7 +382,7 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * Tests that a game with multiple tags has tag names and vote counts parsed correctly.
      */
-    public function testTags()
+    public function testTags(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('tags.html')));
 
@@ -273,7 +409,7 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see http://store.steampowered.com/app/1840/
      */
-    public function testGenres()
+    public function testGenres(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(1840)));
 
@@ -288,7 +424,7 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see http://store.steampowered.com/app/473460/
      */
-    public function testLanguages()
+    public function testLanguages(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(473460)));
 
@@ -300,7 +436,7 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * Tests that a game with a discount is parsed correctly.
      */
-    public function testDiscountedGame()
+    public function testDiscountedGame(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('discounted.html')));
 
@@ -319,7 +455,7 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see http://store.steampowered.com/app/698780/
      */
-    public function testZeroDiscount()
+    public function testZeroDiscount(): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(698780)));
 
@@ -383,13 +519,17 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that games marked as 'Free', 'Free to Play' or having no price are detected as being cost-free.
+     * Tests that games marked as 'Free', 'Free to Play' or having no price are detected as being cost-free,
+     * where cost-free is defined as having a price of 0 and no discount.
      *
      * @dataProvider provideFreeApps
      */
-    public function testFreeGames(int $appId)
+    public function testFreeGames(int $appId): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+
+        self::assertArrayHasKey('price', $app);
+        self::assertSame(0, $app['price']);
 
         self::assertArrayHasKey('discount_price', $app);
         self::assertNull($app['discount_price']);
@@ -416,5 +556,43 @@ final class ScrapeAppDetailsTest extends TestCase
             '"Play Game" button (no price)' => [250600],
             '"Install Game" button (no price)' => [252150],
         ];
+    }
+
+    /**
+     * Tests that a game with multiple videos has its video IDs parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/32400/
+     */
+    public function testVideoIds(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(32400)));
+
+        self::assertArrayHasKey('videos', $app);
+        self::assertCount(2, $videos = $app['videos']);
+        self::assertContains(256662547, $videos);
+        self::assertContains(256662555, $videos);
+    }
+
+    /**
+     * Tests that a game with a demo area as the first "purchase" area is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/766280/
+     */
+    public function testGameDemo(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(766280)));
+
+        self::assertArrayHasKey('price', $app);
+        self::assertGreaterThan(0, $app['price']);
+    }
+
+    /**
+     * Tests that when non-HTML markup is returned, InvalidMarkupException is thrown.
+     */
+    public function testInvalidMarkup(): void
+    {
+        $this->expectException(InvalidMarkupException::class);
+
+        $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('scuffed.xml')));
     }
 }
