@@ -11,19 +11,17 @@
     "php": "^7.1",
     "ext-json": "*",
     "amphp/parallel": "^1.1",
-    "connectors/http": "dev-5.0-rc",
-    "connectors/ssl": "dev-5.0-rc",
+    "connectors/http": "^3",
     "eloquent/enumeration": "^5",
     "phpseclib/phpseclib": "^2",
-    "scriptfusion/porter": "dev-data-source as 5",
+    "scriptfusion/porter": "^5",
     "symfony/css-selector": "^3|^4",
     "symfony/dom-crawler": "^3|^4"
   },
   "require-dev": {
     "athari/yalinqo": "^2.4.2",
-    "phpunit/phpunit": "^6.5",
-    "scriptfusion/phpunit-immediate-exception-printer": "^1",
-    "mockery/mockery": "^1"
+    "phpunit/phpunit": "^7",
+    "mockery/mockery": "^1.3"
   },
   "autoload": {
     "psr-4": {

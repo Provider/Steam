@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
 use Amp\Artax\FormBody;
-use ScriptFUSION\Porter\Connector\DataSource;
+use ScriptFUSION\Porter\Connector\AsyncDataSource;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
@@ -24,7 +24,7 @@ final class DeleteCuratorReviews extends CuratorResource
         return SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxupdatemultiplecurations/");
     }
 
-    protected function getSource(): DataSource
+    protected function getSource(): AsyncDataSource
     {
         $body = new FormBody;
 

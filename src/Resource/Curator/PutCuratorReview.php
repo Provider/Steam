@@ -4,14 +4,15 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
 use Amp\Artax\FormBody;
-use ScriptFUSION\Porter\Connector\DataSource;
+use ScriptFUSION\Porter\Connector\AsyncDataSource;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
+use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 /**
  * Creates or updates an existing app review.
  */
-final class PutCuratorReview extends CuratorResource
+final class PutCuratorReview extends CuratorResource implements SingleRecordResource
 {
     private $review;
 
@@ -25,7 +26,7 @@ final class PutCuratorReview extends CuratorResource
         $this->review = $review;
     }
 
-    protected function getSource(): DataSource
+    protected function getSource(): AsyncDataSource
     {
         $body = new FormBody;
         $body->addFields([

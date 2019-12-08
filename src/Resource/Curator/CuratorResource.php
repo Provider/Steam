@@ -6,7 +6,7 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 use Amp\Artax\Cookie\CookieJar;
 use Amp\Iterator;
 use Amp\Producer;
-use ScriptFUSION\Porter\Connector\DataSource;
+use ScriptFUSION\Porter\Connector\AsyncDataSource;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
@@ -30,7 +30,7 @@ abstract class CuratorResource implements AsyncResource
         return SteamProvider::class;
     }
 
-    abstract protected function getSource(): DataSource;
+    abstract protected function getSource(): AsyncDataSource;
 
     public function fetchAsync(ImportConnector $connector): Iterator
     {

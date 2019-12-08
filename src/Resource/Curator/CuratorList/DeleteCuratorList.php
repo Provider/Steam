@@ -4,13 +4,14 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList;
 
 use Amp\Artax\FormBody;
-use ScriptFUSION\Porter\Connector\DataSource;
+use ScriptFUSION\Porter\Connector\AsyncDataSource;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
+use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
-final class DeleteCuratorList extends CuratorResource
+final class DeleteCuratorList extends CuratorResource implements SingleRecordResource
 {
     private $listId;
 
@@ -21,7 +22,7 @@ final class DeleteCuratorList extends CuratorResource
         $this->listId = $listId;
     }
 
-    protected function getSource(): DataSource
+    protected function getSource(): AsyncDataSource
     {
         $body = new FormBody;
         $body->addFields([

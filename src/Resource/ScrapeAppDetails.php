@@ -14,13 +14,14 @@ use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
+use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\AppDetailsParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 /**
  * Scrapes the Steam store page for App details.
  */
-final class ScrapeAppDetails implements ProviderResource, AsyncResource, Url
+final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, AsyncResource, Url
 {
     private $appId;
 

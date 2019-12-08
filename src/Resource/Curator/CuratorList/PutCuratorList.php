@@ -5,8 +5,9 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList;
 
 use Amp\Artax\FormBody;
 use Amp\Artax\RequestBody;
-use ScriptFUSION\Porter\Connector\DataSource;
+use ScriptFUSION\Porter\Connector\AsyncDataSource;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
+use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
@@ -14,7 +15,7 @@ use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 /**
  * Creates a curator list if list ID is not set, otherwise updates the curator list specified by the list ID.
  */
-final class PutCuratorList extends CuratorResource
+final class PutCuratorList extends CuratorResource implements SingleRecordResource
 {
     private $list;
 
@@ -25,7 +26,7 @@ final class PutCuratorList extends CuratorResource
         $this->list = $list;
     }
 
-    protected function getSource(): DataSource
+    protected function getSource(): AsyncDataSource
     {
         return (new AsyncHttpDataSource(
             SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxeditlist/")

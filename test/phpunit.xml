@@ -1,9 +1,8 @@
 <phpunit
     beStrictAboutOutputDuringTests="true"
-    printerClass="ScriptFUSION\PHPUnitImmediateExceptionPrinter\ImmediateExceptionPrinter"
     colors="true"
 >
-    <testsuite>
+    <testsuite name="default">
         <directory>.</directory>
     </testsuite>
     <filter>
