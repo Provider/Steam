@@ -15,8 +15,8 @@
     "eloquent/enumeration": "^5",
     "phpseclib/phpseclib": "^2",
     "scriptfusion/porter": "^5",
-    "symfony/css-selector": "^3|^4",
-    "symfony/dom-crawler": "^3|^4"
+    "symfony/css-selector": "^3|^4|^5",
+    "symfony/dom-crawler": "^3|^4|^5"
   },
   "require-dev": {
     "athari/yalinqo": "^2.4.2",
