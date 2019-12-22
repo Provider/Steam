@@ -10,6 +10,7 @@ use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
 use ScriptFUSION\Porter\Provider\Steam\Resource\SteamLogin;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
+use function Amp\Promise\wait;
 
 final class SteamLoginTest extends TestCase
 {
@@ -30,7 +31,7 @@ final class SteamLoginTest extends TestCase
         ))->findFirstCollection();
 
         /** @var SecureLoginCookie $secureLoginCookie */
-        $secureLoginCookie = \Amp\Promise\wait($steamLogin->getSecureLoginCookie());
+        $secureLoginCookie = wait($steamLogin->getSecureLoginCookie());
 
         self::assertInstanceOf(SecureLoginCookie::class, $secureLoginCookie);
         self::assertInstanceOf(Cookie::class, $cookie = $secureLoginCookie->getCookie());

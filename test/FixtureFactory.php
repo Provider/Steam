@@ -10,6 +10,7 @@ use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 use ScriptFUSION\StaticClass;
+use function Amp\call;
 
 final class FixtureFactory
 {
@@ -40,7 +41,7 @@ final class FixtureFactory
             return self::$savedSession;
         }
 
-        return self::$savedSession = \Amp\call(static function () use ($porter): \Generator {
+        return self::$savedSession = call(static function () use ($porter): \Generator {
             if (isset($_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD'])) {
                 return yield CuratorSession::create($porter, $_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD']);
             }

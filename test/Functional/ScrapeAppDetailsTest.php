@@ -13,6 +13,7 @@ use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSION\Porter\Specification\ImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\Fixture\ScrapeAppFixture;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
+use function Amp\Promise\wait;
 
 /**
  * @see ScrapeAppDetails
@@ -65,8 +66,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertCount(0, $app['videos']);
 
-        self::assertInternalType('int', $app['positive_reviews']);
-        self::assertInternalType('int', $app['negative_reviews']);
+        self::assertIsInt($app['positive_reviews']);
+        self::assertIsInt($app['negative_reviews']);
         self::assertGreaterThan(100000, $total = $app['positive_reviews'] + $app['negative_reviews']);
         self::assertGreaterThan(50000, $app['steam_reviews']);
         self::assertLessThan($total, $app['steam_reviews']);
@@ -80,7 +81,7 @@ final class ScrapeAppDetailsTest extends TestCase
 
         foreach ($app['tags'] as $tag) {
             self::assertArrayHasKey('name', $tag);
-            self::assertInternalType('string', $tagName = $tag['name']);
+            self::assertIsString($tagName = $tag['name']);
 
             // Tags should not contain any whitespace
             self::assertNotContains("\r", $tagName);
@@ -111,7 +112,7 @@ final class ScrapeAppDetailsTest extends TestCase
         }, $appId];
 
         yield 'async' => [function () use ($appId) {
-            return \Amp\Promise\wait(
+            return wait(
                 $this->porter->importOneAsync(new AsyncImportSpecification(new ScrapeAppDetails($appId)))
             );
         }, $appId];

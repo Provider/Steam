@@ -9,6 +9,7 @@ use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\GetCuratorReviews;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\PutCuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\RecommendationState;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
+use function Amp\Promise\wait;
 
 /**
  * @see GetCuratorReviews
@@ -17,7 +18,7 @@ final class GetCuratorReviewsTest extends CuratorTestCase
 {
     public function testListCuratorReviews(): void
     {
-        $response = \Amp\Promise\wait(self::$porter->importOneAsync(new AsyncImportSpecification(new PutCuratorReview(
+        $response = wait(self::$porter->importOneAsync(new AsyncImportSpecification(new PutCuratorReview(
             self::$session,
             self::CURATOR_ID,
             new CuratorReview(
@@ -27,7 +28,7 @@ final class GetCuratorReviewsTest extends CuratorTestCase
             )
         ))));
 
-        self::assertInternalType('array', $response);
+        self::assertIsArray($response);
         self::assertArrayHasKey('success', $response);
         self::assertSame(1, $response['success']);
 
@@ -42,15 +43,15 @@ final class GetCuratorReviewsTest extends CuratorTestCase
                 $review = $reviews->getCurrent();
 
                 self::assertArrayHasKey('appid', $review);
-                self::assertInternalType('int', $review['appid']);
+                self::assertIsInt($review['appid']);
                 self::assertNotEmpty($review['appid']);
 
                 self::assertArrayHasKey('app_name', $review);
-                self::assertInternalType('string', $review['app_name']);
+                self::assertIsString($review['app_name']);
                 self::assertNotEmpty($review['app_name']);
 
                 self::assertArrayHasKey('recommendation', $review);
-                self::assertInternalType('array', $review['recommendation']);
+                self::assertIsArray($review['recommendation']);
                 self::assertNotEmpty($recommendation = $review['recommendation']);
 
                 if ($review['appid'] === $appId) {

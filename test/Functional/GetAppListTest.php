@@ -26,10 +26,10 @@ final class GetAppListTest extends TestCase
 
         foreach ($apps as $app) {
             self::assertArrayHasKey('appid', $app);
-            self::assertInternalType('int', $app['appid']);
+            self::assertIsInt($app['appid']);
 
             self::assertArrayHasKey('name', $app);
-            self::assertInternalType('string', $app['name']);
+            self::assertIsString($app['name']);
             self::assertNotEmpty($app['name']);
         }
     }

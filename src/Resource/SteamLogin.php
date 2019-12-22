@@ -17,6 +17,7 @@ use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncLoginRecord;
 use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
+use function Amp\call;
 
 /**
  * TODO: 2FA support.
@@ -63,7 +64,7 @@ final class SteamLogin implements AsyncResource
 
     private function login(ImportConnector $connector): Promise
     {
-        return \Amp\call(function () use ($connector): \Generator {
+        return call(function () use ($connector): \Generator {
             $baseConnector = $connector->findBaseConnector();
             if (!$baseConnector instanceof AsyncHttpConnector) {
                 throw new \InvalidArgumentException('Unexpected connector type.');

@@ -38,7 +38,7 @@ final class GetUserReviewsListTest extends TestCase
     public function testReviewFields(UserReviewsRecords $reviews): void
     {
         foreach ($reviews as $review) {
-            self::assertInternalType('array', $review);
+            self::assertIsArray($review);
             self::assertArrayHasKey('author', $review);
             self::assertArrayHasKey('review', $review);
         }

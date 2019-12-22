@@ -40,9 +40,9 @@ final class ScrapeUserReviewsTest extends TestCase
             self::assertArrayHasKey('url', $review);
             self::assertArrayHasKey('positive', $review);
 
-            self::assertInternalType('int', $review['app_id']);
-            self::assertInternalType('string', $review['url']);
-            self::assertInternalType('bool', $review['positive']);
+            self::assertIsInt($review['app_id']);
+            self::assertIsString($review['url']);
+            self::assertIsBool($review['positive']);
 
             ++$count;
         }

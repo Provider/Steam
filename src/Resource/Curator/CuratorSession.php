@@ -13,6 +13,7 @@ use ScriptFUSION\Porter\Provider\Steam\Cookie\StoreSessionCookie;
 use ScriptFUSION\Porter\Provider\Steam\Resource\CreateSteamStoreSession;
 use ScriptFUSION\Porter\Provider\Steam\Resource\SteamLogin;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
+use function Amp\call;
 
 final class CuratorSession
 {
@@ -28,7 +29,7 @@ final class CuratorSession
 
     public static function create(Porter $porter, string $username, string $password): Promise
     {
-        return \Amp\call(static function () use ($porter, $username, $password): \Generator {
+        return call(static function () use ($porter, $username, $password): \Generator {
             /** @var AsyncLoginRecord $steamLogin */
             $steamLogin = $porter->importAsync(new AsyncImportSpecification(
                 new SteamLogin($username, $password)
@@ -46,7 +47,7 @@ final class CuratorSession
      */
     public static function createFromCookie(SecureLoginCookie $secureLoginCookie, Porter $porter): Promise
     {
-        return \Amp\call(static function () use ($secureLoginCookie, $porter): \Generator {
+        return call(static function () use ($secureLoginCookie, $porter): \Generator {
             /** @var AsyncSteamStoreSessionRecord $storeSession */
             $storeSession = $porter->importAsync(new AsyncImportSpecification(
                 new CreateSteamStoreSession
