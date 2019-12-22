@@ -124,11 +124,17 @@ final class AppDetailsParser
         $bodyClasses = explode(' ', $bodyClassesElement);
 
         if (!\in_array('v6', $bodyClasses, true)) {
-            throw new ParserException('Unexpected version! Expected: v6.');
+            throw new ParserException('Unexpected version! Expected: v6.', ParserException::UNEXPECTED_VERSION);
         }
 
         if (!\in_array('app', $bodyClasses, true)) {
-            throw new ParserException('Unexpected page type! Expected: app.');
+            $error = $crawler->filter('#error_box .error');
+
+            if ($error->count()) {
+                throw new SteamStoreException($error->text());
+            }
+
+            throw new ParserException('Unexpected page type! Expected: app.', ParserException::UNEXPECTED_TYPE);
         }
     }
 

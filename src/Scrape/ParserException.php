@@ -8,5 +8,6 @@ namespace ScriptFUSION\Porter\Provider\Steam\Scrape;
  */
 class ParserException extends \RuntimeException
 {
-    // Intentionally empty.
+    public const UNEXPECTED_VERSION = 1;
+    public const UNEXPECTED_TYPE = 2;
 }

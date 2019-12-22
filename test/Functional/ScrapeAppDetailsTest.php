@@ -8,7 +8,7 @@ use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppDetails;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\InvalidMarkupException;
-use ScriptFUSION\Porter\Provider\Steam\Scrape\ParserException;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\SteamStoreException;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSION\Porter\Specification\ImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\Fixture\ScrapeAppFixture;
@@ -252,8 +252,8 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testRegionLockedApp(): void
     {
-        $this->expectException(ParserException::class);
-        $this->expectExceptionMessage('app');
+        $this->expectException(SteamStoreException::class);
+        $this->expectExceptionMessage('This item is currently unavailable in your region');
 
         $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(217980)));
     }
