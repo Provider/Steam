@@ -12,7 +12,7 @@
     "ext-json": "*",
     "amphp/parallel": "^1.1",
     "connectors/http": "^3",
-    "eloquent/enumeration": "^5",
+    "eloquent/enumeration": "^5|^6",
     "phpseclib/phpseclib": "^2",
     "scriptfusion/porter": "^5",
     "symfony/css-selector": "^3|^4|^5",
