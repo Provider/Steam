@@ -36,7 +36,10 @@ final class UserReviewsParser
         $bodyClasses = explode(' ', $crawler->filter('body')->attr('class'));
 
         if (!\in_array('migrated_profile_page', $bodyClasses, true)) {
-            throw new ParserException('Unexpected page type! Expected: migrated_profile_page.');
+            throw new ParserException(
+                'Unexpected page type! Expected: migrated_profile_page.',
+                ParserException::UNEXPECTED_TYPE
+            );
         }
     }
 }

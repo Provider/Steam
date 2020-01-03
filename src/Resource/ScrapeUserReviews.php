@@ -11,6 +11,9 @@ use ScriptFUSION\Porter\Provider\Steam\Scrape\UserReviewsParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 use Symfony\Component\DomCrawler\Crawler;
 
+/**
+ * Scrapes all reviews posted by a user from their profile.
+ */
 final class ScrapeUserReviews implements ProviderResource, Url
 {
     private $profileUrl;
