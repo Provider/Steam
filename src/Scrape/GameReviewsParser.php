@@ -15,34 +15,20 @@ final class GameReviewsParser
 
     public static function parse(Crawler $crawler): array
     {
-        self::validate($crawler);
-
-        return [
-            'reviews' => $crawler->filter('.apphub_Card')->each(
-                static function (Crawler $card): array {
-                    return [
-                        'uid' => self::extractUserId($card),
-                        'positive' => self::extractPositive($card),
-                        'date' => self::extractDate($card),
-                    ];
-                }
-            ),
-            'form' => $crawler->filter('form')->form()->getValues(),
-        ];
-    }
-
-    private static function validate(Crawler $crawler): void
-    {
-        $id = $crawler->filter('body > div')->attr('id');
-
-        if (!\preg_match('[^page\d+$]', $id)) {
-            throw new ParserException("Unexpected page type: \"$id\".", ParserException::UNEXPECTED_TYPE);
-        }
+        return $crawler->filter('.review_box')->each(
+            static function (Crawler $card): array {
+                return [
+                    'uid' => self::extractUserId($card),
+                    'positive' => self::extractPositive($card),
+                    'date' => self::extractDate($card),
+                ];
+            }
+        );
     }
 
     private static function extractUserId(Crawler $crawler): int
     {
-        $uid = (int)$crawler->filter('.apphub_friend_block')->attr('data-miniprofile');
+        $uid = (int)$crawler->filter('.playerAvatar')->attr('data-miniprofile');
 
         if ($uid < 1 || $uid > 0xFFFFFFFF) {
             throw new ParserException("Invalid Steam user ID: \"$uid\".");
@@ -64,7 +50,7 @@ final class GameReviewsParser
 
     private static function extractDate(Crawler $crawler): \DateTimeImmutable
     {
-        $date = $crawler->filter('.date_posted')->text();
+        $date = $crawler->filter('.postedDate')->text();
 
         if (!StringType::startsWith($date, $prefix = 'Posted: ')) {
             throw new ParserException("Unexpected date: \"$date\".");

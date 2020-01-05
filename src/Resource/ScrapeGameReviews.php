@@ -18,35 +18,16 @@ final class ScrapeGameReviews implements AsyncResource, Url
     private $appId;
 
     private $query = [
-        // Reviews section.
-        'appHubSubSection' => 10,
-        'browsefilter' => 'mostrecent',
-        'filterLanguage' => 'all',
-
-        // Only page number matters; most other variables are ignored.
-        'p' => null,
-
-        /*
-         * Number of results per page must be set, otherwise duplicate pages can occur more frequently.
-         * The actual value has no impact on the number of results per page, which is always locked to 10.
-         * Setting this value below 10 reduces the chance that page 2 is a duplicate of page 1.
-         */
-//        'numperpage' => 10,
-//        'userreviewscursor' => '*',
-//        'userreviewsoffset' => 0,
+        'filter' => 'recent', // Order by date.
+        'purchase_type' => 'all', // Steam and non-Steam.
+        'language' => 'all',
+        'review_type' => 'all', // Positive and negative.
+        'filter_offtopic_activity' => 0,
     ];
 
-    /**
-     * Starting page doesn't work: it reduces the total number of pages that will be downloaded but the list still
-     * starts from the most recent review; reviews cannot be skipped over.
-     *
-     * @param int $appId
-     * @param int $startingPage
-     */
-    public function __construct(int $appId, int $startingPage = 1)
+    public function __construct(int $appId)
     {
         $this->appId = $appId;
-        $this->query['p'] = $startingPage;
     }
 
     public function getProviderClassName(): string
@@ -69,27 +50,26 @@ final class ScrapeGameReviews implements AsyncResource, Url
                     throw new \RuntimeException("Unexpected status code: {$response->getStatusCode()}.");
                 }
 
-                /*
-                 * Stop condition is an empty body, which should only happen at the end of the list, but also
-                 * happens randomly after about 4K pages.
-                 */
-                if ($response->getBody() === '') {
+                $json = json_decode($response->getBody(), true);
+
+                // Stop condition is an empty recommendation list. This is quicker and easier than parsing HTML.
+                if (!$json['recommendationids']) {
                     break;
                 }
 
-                ['reviews' => $reviews, 'form' => $form] = GameReviewsParser::parse(new Crawler($response->getBody()));
-
-                $this->query = $form;
+                $reviews = GameReviewsParser::parse(new Crawler($json['html']));
 
                 foreach ($reviews as $review) {
                     yield $callable($review);
                 }
+
+                $this->query['cursor'] = $json['cursor'];
             }
         });
     }
 
     public function getUrl(): string
     {
-        return "https://steamcommunity.com/app/$this->appId/homecontent/?" . http_build_query($this->query);
+        return "https://store.steampowered.com/appreviews/$this->appId?" . http_build_query($this->query);
     }
 }

@@ -5,14 +5,13 @@ namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
 use Amp\PHPUnit\AsyncTestCase;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeGameReviews;
-use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeUserReviews;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 /**
- * @see ScrapeUserReviews
+ * @see ScrapeGameReviews
  */
-final class ScrapeUserReviewsTest extends AsyncTestCase
+final class ScrapeGameReviewsTest extends AsyncTestCase
 {
     private const REVIEWS_PER_PAGE = 10;
 
