@@ -37,13 +37,7 @@ final class ScrapeGameReviewsTest extends AsyncTestCase
         $uids = [];
 
         while (yield $reviews->advance()) {
-            $review = $reviews->getCurrent();
-
-            self::assertIsArray($review);
-            self::assertArrayHasKey('review_id', $review);
-            self::assertArrayHasKey('user_id', $review);
-            self::assertArrayHasKey('positive', $review);
-            self::assertArrayHasKey('date', $review);
+            self::assertLooksLikeReview($review = $reviews->getCurrent());
 
             self::assertNotContains($uid = $review['user_id'], $uids, 'Unique user_ids only.');
             $uids[] = $review['user_id'];
@@ -69,13 +63,7 @@ final class ScrapeGameReviewsTest extends AsyncTestCase
         $uids = [];
 
         while (yield $reviews->advance()) {
-            $review = $reviews->getCurrent();
-
-            self::assertIsArray($review);
-            self::assertArrayHasKey('review_id', $review);
-            self::assertArrayHasKey('user_id', $review);
-            self::assertArrayHasKey('positive', $review);
-            self::assertArrayHasKey('date', $review);
+            self::assertLooksLikeReview($review = $reviews->getCurrent());
 
             self::assertNotContains($uid = $review['user_id'], $uids, 'Unique user_ids only.');
             $uids[] = $review['user_id'];
@@ -100,13 +88,7 @@ final class ScrapeGameReviewsTest extends AsyncTestCase
         $uids = [];
 
         while (yield $reviews->advance()) {
-            $review = $reviews->getCurrent();
-
-            self::assertIsArray($review);
-            self::assertArrayHasKey('review_id', $review);
-            self::assertArrayHasKey('user_id', $review);
-            self::assertArrayHasKey('positive', $review);
-            self::assertArrayHasKey('date', $review);
+            self::assertLooksLikeReview($review = $reviews->getCurrent());
 
             self::assertNotContains($uid = $review['user_id'], $uids, 'Unique user_ids only.');
             $uids[] = $review['user_id'];
@@ -115,5 +97,26 @@ final class ScrapeGameReviewsTest extends AsyncTestCase
         self::assertGreaterThan(self::REVIEWS_PER_PAGE * 8, $count = count($uids));
 
         self::assertCount(yield $reviews->getTotal(), $uids);
+    }
+
+    private static function assertLooksLikeReview(array $review): void
+    {
+        self::assertArrayHasKey('review_id', $review);
+        self::assertIsInt($review['review_id']);
+        self::assertArrayHasKey('user_id', $review);
+        self::assertIsInt($review['user_id']);
+        self::assertArrayHasKey('positive', $review);
+        self::assertIsBool($review['positive']);
+
+        self::assertArrayHasKey('date', $review);
+        /** @var \DateTimeImmutable $date */
+        self::assertInstanceOf(\DateTimeImmutable::class, $date = $review['date']);
+        self::assertSame('000000', $date->format('His'), 'Date has no time component.');
+        self::assertLessThan(new \DateTime(), $date, 'Date must be in the past.');
+        self::assertGreaterThan(
+            new \DateTime('2013-01'),
+            $date,
+            'Date must be after 2013, when reviews were released.'
+        );
     }
 }
