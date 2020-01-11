@@ -18,12 +18,20 @@ final class GameReviewsParser
         return $crawler->filter('.review_box')->each(
             static function (Crawler $card): array {
                 return [
-                    'uid' => self::extractUserId($card),
+                    'review_id' => self::extractReviewId($card),
+                    'user_id' => self::extractUserId($card),
                     'positive' => self::extractPositive($card),
                     'date' => self::extractDate($card),
                 ];
             }
         );
+    }
+
+    private static function extractReviewId(Crawler $crawler): int
+    {
+        $div = $crawler->filter('div[id^=ReviewContentrecent]');
+
+        return (int)preg_replace('[^\\D+]', '', $div->attr('id'));
     }
 
     private static function extractUserId(Crawler $crawler): int
@@ -56,6 +64,6 @@ final class GameReviewsParser
             throw new ParserException("Unexpected date: \"$date\".");
         }
 
-        return new \DateTimeImmutable(substr($date, strlen($prefix)));
+        return new \DateTimeImmutable(rtrim(strtr(substr($date, strlen($prefix)), [',' => ''])));
     }
 }
