@@ -26,7 +26,21 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
     }
 
     /**
-     * @see https://store.steampowered.com/app/719070/BlowOut/
+     * @link https://store.steampowered.com/app/1150670/Sorcerer_Lord/
+     */
+    public function testZeroReviews(): \Generator
+    {
+        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(1150670)))
+            ->findFirstCollection();
+
+        // Exceptions will be masked if we don't advance first.
+        self::assertFalse(yield $reviews->advance());
+
+        self::assertSame(0, yield $reviews->getTotal());
+    }
+
+    /**
+     * @link https://store.steampowered.com/app/719070/BlowOut/
      */
     public function testOnePage(): \Generator
     {
@@ -52,7 +66,7 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
     /**
      * Tests that an app with two review pages is parsed correctly.
      *
-     * @see https://store.steampowered.com/app/614770/Beachhead_DESERT_WAR/
+     * @link https://store.steampowered.com/app/614770/Beachhead_DESERT_WAR/
      */
     public function testTwoPages(): \Generator
     {
@@ -78,7 +92,7 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
     /**
      * Tests that an app with multiple review pages is parsed correctly.
      *
-     * @see https://store.steampowered.com/app/302160/The_Egyptian_Prophecy_The_Fate_of_Ramses/
+     * @link https://store.steampowered.com/app/302160/The_Egyptian_Prophecy_The_Fate_of_Ramses/
      */
     public function testMultiplePages(): \Generator
     {
@@ -114,6 +128,24 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
         yield $reviews->advance();
         self::assertLooksLikeReview($reviews->getCurrent());
         self::assertFalse(yield $reviews->advance());
+    }
+
+    /**
+     * Tests that an app with a large total number of review is parsed successfully.
+     *
+     * @link https://store.steampowered.com/app/730/CounterStrike_Global_Offensive/
+     */
+    public function testLargeTotal(): \Generator
+    {
+        /** @var AsyncGameReviewsRecords $reviews */
+        $reviews = $this->porter->importAsync(new AsyncImportSpecification(
+            new ScrapeAppReviews(730)
+        ))->findFirstCollection();
+
+        // Exceptions will be masked if we don't advance first.
+        self::assertTrue(yield $reviews->advance());
+
+        self::assertGreaterThan(3800000, yield $reviews->getTotal());
     }
 
     private static function assertLooksLikeReview(array $review): void

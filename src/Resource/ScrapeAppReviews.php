@@ -28,7 +28,7 @@ final class ScrapeAppReviews implements AsyncResource, Url
         'filter_offtopic_activity' => 0,
         'start_date' => -1,
         'end_date' => -1,
-        // Must be set to "include" otherwise start/end date are ignored.
+        // Must be set to 'include' otherwise start/end date are ignored.
         'date_range_type' => 'include',
     ];
 
@@ -50,7 +50,7 @@ final class ScrapeAppReviews implements AsyncResource, Url
 
         return new AsyncGameReviewsRecords(
             new Producer(function (\Closure $callable) use ($connector, $total): \Generator {
-                while (true) {
+                do {
                     /** @var HttpResponse $response */
                     $response = yield $connector->fetchAsync(new AsyncHttpDataSource($this->getUrl()));
 
@@ -60,23 +60,22 @@ final class ScrapeAppReviews implements AsyncResource, Url
 
                     $json = json_decode($response->getBody(), true);
 
-                    // Stop condition is an empty recommendation list. This is quicker and easier than parsing HTML.
-                    if (!$json['recommendationids']) {
-                        break;
-                    }
-
                     if (isset($json['review_score'])) {
                         $total->resolve($this->parseResultsTotal($json['review_score']));
                     }
 
-                    $reviews = GameReviewsParser::parse(new Crawler($json['html']));
+                    if ($json['recommendationids']) {
+                        $reviews = GameReviewsParser::parse(new Crawler($json['html']));
 
-                    foreach ($reviews as $review) {
-                        yield $callable($review);
+                        foreach ($reviews as $review) {
+                            yield $callable($review);
+                        }
                     }
 
                     $this->query['cursor'] = $json['cursor'];
-                }
+
+                    // Stop condition is an empty recommendation list. This is quicker and easier than parsing HTML.
+                } while ($json['recommendationids']);
             }),
             $total->promise(),
             $this
@@ -90,8 +89,8 @@ final class ScrapeAppReviews implements AsyncResource, Url
 
     private function parseResultsTotal(string $reviewScore): int
     {
-        if (preg_match('[<b>(\\d+)</b>]', $reviewScore, $matches)) {
-            return (int)$matches[1];
+        if (preg_match('[<b>([\\d,]+)</b>]', $reviewScore, $matches)) {
+            return (int)strtr($matches[1], [',' => '']);
         }
 
         throw new ParserException('Failed to parse results total.');
