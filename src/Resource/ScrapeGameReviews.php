@@ -26,11 +26,17 @@ final class ScrapeGameReviews implements AsyncResource, Url
         'language' => 'all',
         'review_type' => 'all', // Positive and negative.
         'filter_offtopic_activity' => 0,
+        'start_date' => -1,
+        'end_date' => -1,
+        // Must be set to "include" otherwise start/end date are ignored.
+        'date_range_type' => 'include',
     ];
 
-    public function __construct(int $appId)
+    public function __construct(int $appId, \DateTimeImmutable $startDate = null, \DateTimeImmutable $endDate = null)
     {
         $this->appId = $appId;
+        $startDate && $this->query['start_date'] = $startDate->getTimestamp();
+        $endDate && $this->query['end_date'] = $endDate->getTimestamp();
     }
 
     public function getProviderClassName(): string

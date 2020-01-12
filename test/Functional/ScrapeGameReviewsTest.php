@@ -99,6 +99,23 @@ final class ScrapeGameReviewsTest extends AsyncTestCase
         self::assertCount(yield $reviews->getTotal(), $uids);
     }
 
+    /**
+     * Tests that an app with multiple reviews can be narrowed down to a single one with an appropriate date range.
+     */
+    public function testDateRange(): \Generator
+    {
+        /** @var AsyncGameReviewsRecords $reviews */
+        $reviews = $this->porter->importAsync(new AsyncImportSpecification(
+            new ScrapeGameReviews(302160, new \DateTimeImmutable('2014-07-01'), new \DateTimeImmutable('2014-07-02'))
+        ))->findFirstCollection();
+
+        self::assertSame(1, yield $reviews->getTotal());
+
+        yield $reviews->advance();
+        self::assertLooksLikeReview($reviews->getCurrent());
+        self::assertFalse(yield $reviews->advance());
+    }
+
     private static function assertLooksLikeReview(array $review): void
     {
         self::assertArrayHasKey('review_id', $review);
