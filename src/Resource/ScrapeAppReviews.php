@@ -16,7 +16,7 @@ use ScriptFUSION\Porter\Provider\Steam\Scrape\ParserException;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 use Symfony\Component\DomCrawler\Crawler;
 
-final class ScrapeGameReviews implements AsyncResource, Url
+final class ScrapeAppReviews implements AsyncResource, Url
 {
     private $appId;
 

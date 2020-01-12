@@ -5,14 +5,14 @@ namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
 use Amp\PHPUnit\AsyncTestCase;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncGameReviewsRecords;
-use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeGameReviews;
+use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppReviews;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 /**
- * @see ScrapeGameReviews
+ * @see ScrapeAppReviews
  */
-final class ScrapeGameReviewsTest extends AsyncTestCase
+final class ScrapeAppReviewsTest extends AsyncTestCase
 {
     private const REVIEWS_PER_PAGE = 10;
 
@@ -31,7 +31,7 @@ final class ScrapeGameReviewsTest extends AsyncTestCase
     public function testOnePage(): \Generator
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeGameReviews(719070)))
+        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(719070)))
             ->findFirstCollection();
         $total = yield $reviews->getTotal();
         $uids = [];
@@ -57,7 +57,7 @@ final class ScrapeGameReviewsTest extends AsyncTestCase
     public function testTwoPages(): \Generator
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeGameReviews(614770)))
+        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(614770)))
             ->findFirstCollection();
         $total = yield $reviews->getTotal();
         $uids = [];
@@ -83,7 +83,7 @@ final class ScrapeGameReviewsTest extends AsyncTestCase
     public function testMultiplePages(): \Generator
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeGameReviews(302160)))
+        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(302160)))
             ->findFirstCollection();
         $uids = [];
 
@@ -106,7 +106,7 @@ final class ScrapeGameReviewsTest extends AsyncTestCase
     {
         /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->importAsync(new AsyncImportSpecification(
-            new ScrapeGameReviews(302160, new \DateTimeImmutable('2014-07-01'), new \DateTimeImmutable('2014-07-02'))
+            new ScrapeAppReviews(302160, new \DateTimeImmutable('2014-07-01'), new \DateTimeImmutable('2014-07-02'))
         ))->findFirstCollection();
 
         self::assertSame(1, yield $reviews->getTotal());
