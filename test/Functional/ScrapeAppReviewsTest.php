@@ -30,13 +30,12 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
      */
     public function testZeroReviews(): \Generator
     {
+        /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(1150670)))
             ->findFirstCollection();
 
-        // Exceptions will be masked if we don't advance first.
-        self::assertFalse(yield $reviews->advance());
-
         self::assertSame(0, yield $reviews->getTotal());
+        self::assertFalse(yield $reviews->advance(), 'No results.');
     }
 
     /**
@@ -142,10 +141,8 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
             new ScrapeAppReviews(730)
         ))->findFirstCollection();
 
-        // Exceptions will be masked if we don't advance first.
-        self::assertTrue(yield $reviews->advance());
-
         self::assertGreaterThan(3800000, yield $reviews->getTotal());
+        self::assertTrue(yield $reviews->advance(), 'Has results.');
     }
 
     private static function assertLooksLikeReview(array $review): void

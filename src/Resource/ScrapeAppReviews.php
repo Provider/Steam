@@ -61,7 +61,11 @@ final class ScrapeAppReviews implements AsyncResource, Url
                     $json = json_decode($response->getBody(), true);
 
                     if (isset($json['review_score'])) {
-                        $total->resolve($this->parseResultsTotal($json['review_score']));
+                        try {
+                            $total->resolve($this->parseResultsTotal($json['review_score']));
+                        } catch (\Throwable $throwable) {
+                            $total->fail($throwable);
+                        }
                     }
 
                     if ($json['recommendationids']) {
