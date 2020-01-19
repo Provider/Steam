@@ -47,9 +47,10 @@ final class ScrapeAppReviews implements AsyncResource, Url
     public function fetchAsync(ImportConnector $connector): Iterator
     {
         $total = new Deferred();
+        $resolved = false;
 
         return new AsyncGameReviewsRecords(
-            new Producer(function (\Closure $callable) use ($connector, $total): \Generator {
+            new Producer(function (\Closure $callable) use ($connector, $total, $resolved): \Generator {
                 do {
                     try {
                         /** @var HttpResponse $response */
@@ -63,9 +64,14 @@ final class ScrapeAppReviews implements AsyncResource, Url
 
                         if (isset($json['review_score'])) {
                             $total->resolve($this->parseResultsTotal($json['review_score']));
+                            $resolved = true;
                         }
                     } catch (\Throwable $throwable) {
-                        $total->fail($throwable);
+                        if (!$resolved) {
+                            $total->fail($throwable);
+                        }
+
+                        throw $throwable;
                     }
 
                     if ($json['recommendationids']) {
