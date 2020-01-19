@@ -51,21 +51,21 @@ final class ScrapeAppReviews implements AsyncResource, Url
         return new AsyncGameReviewsRecords(
             new Producer(function (\Closure $callable) use ($connector, $total): \Generator {
                 do {
-                    /** @var HttpResponse $response */
-                    $response = yield $connector->fetchAsync(new AsyncHttpDataSource($this->getUrl()));
+                    try {
+                        /** @var HttpResponse $response */
+                        $response = yield $connector->fetchAsync(new AsyncHttpDataSource($this->getUrl()));
 
-                    if ($response->getStatusCode() !== 200) {
-                        throw new \RuntimeException("Unexpected status code: {$response->getStatusCode()}.");
-                    }
-
-                    $json = json_decode($response->getBody(), true);
-
-                    if (isset($json['review_score'])) {
-                        try {
-                            $total->resolve($this->parseResultsTotal($json['review_score']));
-                        } catch (\Throwable $throwable) {
-                            $total->fail($throwable);
+                        if ($response->getStatusCode() !== 200) {
+                            throw new \RuntimeException("Unexpected status code: {$response->getStatusCode()}.");
                         }
+
+                        $json = json_decode($response->getBody(), true);
+
+                        if (isset($json['review_score'])) {
+                            $total->resolve($this->parseResultsTotal($json['review_score']));
+                        }
+                    } catch (\Throwable $throwable) {
+                        $total->fail($throwable);
                     }
 
                     if ($json['recommendationids']) {
