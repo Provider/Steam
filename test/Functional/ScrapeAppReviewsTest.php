@@ -153,6 +153,7 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
         self::assertIsInt($review['user_id']);
         self::assertArrayHasKey('positive', $review);
         self::assertIsBool($review['positive']);
+        self::assertArrayHasKey('source', $review);
 
         self::assertArrayHasKey('date', $review);
         /** @var \DateTimeImmutable $date */

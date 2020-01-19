@@ -22,6 +22,7 @@ final class GameReviewsParser
                     'user_id' => self::extractUserId($card),
                     'positive' => self::extractPositive($card),
                     'date' => self::extractDate($card),
+                    'source' => self::extractSource($card),
                 ];
             }
         );
@@ -65,5 +66,20 @@ final class GameReviewsParser
         }
 
         return new \DateTimeImmutable(rtrim(strtr(substr($date, strlen($prefix)), [',' => ''])));
+    }
+
+    public static function extractSource(Crawler $crawler): ReviewSource
+    {
+        $source = $crawler->filter('.review_source')->attr('src');
+
+        if (StringType::endsWith($source, 'icon_review_steam.png')) {
+            return ReviewSource::STEAM();
+        }
+
+        if (StringType::endsWith($source, 'icon_review_key.png')) {
+            return ReviewSource::STEAM_KEY();
+        }
+
+        throw new ParserException("Invalid resource source: \"$source\".");
     }
 }
