@@ -154,6 +154,7 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
         self::assertArrayHasKey('positive', $review);
         self::assertIsBool($review['positive']);
         self::assertArrayHasKey('source', $review);
+        self::assertArrayHasKey('review_playtime', $review);
 
         self::assertArrayHasKey('date', $review);
         /** @var \DateTimeImmutable $date */

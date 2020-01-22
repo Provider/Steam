@@ -23,6 +23,7 @@ final class GameReviewsParser
                     'positive' => self::extractPositive($card),
                     'date' => self::extractDate($card),
                     'source' => self::extractSource($card),
+                    'review_playtime' => self::extractReviewPlaytime($card),
                 ];
             }
         );
@@ -81,5 +82,16 @@ final class GameReviewsParser
         }
 
         throw new ParserException("Invalid resource source: \"$source\".");
+    }
+
+    private static function extractReviewPlaytime(Crawler $crawler): ?int
+    {
+        $hours = $crawler->filter('.hours')->text();
+
+        if (preg_match('[\(([\\d,.]+) hrs at review time\)]', $hours, $matches)) {
+            return $matches[1] * 60 | 0;
+        }
+
+        return null;
     }
 }
