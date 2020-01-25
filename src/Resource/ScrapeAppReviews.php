@@ -32,6 +32,12 @@ final class ScrapeAppReviews implements AsyncResource, Url
         'date_range_type' => 'include',
     ];
 
+    /** @var int */
+    private $total;
+
+    /** @var int */
+    private $count = 0;
+
     public function __construct(int $appId, \DateTimeImmutable $startDate = null, \DateTimeImmutable $endDate = null)
     {
         $this->appId = $appId;
@@ -46,11 +52,13 @@ final class ScrapeAppReviews implements AsyncResource, Url
 
     public function fetchAsync(ImportConnector $connector): Iterator
     {
-        $total = new Deferred();
+        $deferredTotal = new Deferred();
         $resolved = false;
 
         return new AsyncGameReviewsRecords(
-            new Producer(function (\Closure $callable) use ($connector, $total, $resolved): \Generator {
+            new Producer(function (\Closure $callable) use ($connector, $deferredTotal, $resolved): \Generator {
+                $try = 1;
+
                 do {
                     try {
                         /** @var HttpResponse $response */
@@ -63,12 +71,12 @@ final class ScrapeAppReviews implements AsyncResource, Url
                         $json = json_decode($response->getBody(), true);
 
                         if (isset($json['review_score'])) {
-                            $total->resolve($this->parseResultsTotal($json['review_score']));
+                            $deferredTotal->resolve($this->total = $this->parseResultsTotal($json['review_score']));
                             $resolved = true;
                         }
                     } catch (\Throwable $throwable) {
                         if (!$resolved) {
-                            $total->fail($throwable);
+                            $deferredTotal->fail($throwable);
                         }
 
                         throw $throwable;
@@ -78,16 +86,32 @@ final class ScrapeAppReviews implements AsyncResource, Url
                         $reviews = GameReviewsParser::parse(new Crawler($json['html']));
 
                         foreach ($reviews as $review) {
+                            ++$this->count;
+
                             yield $callable($review);
                         }
                     }
 
+                    if (!$json['recommendationids'] && $this->count < $this->total - 2) {
+                        if (++$try <= 5) {
+                            /*
+                             * Steam frequently misreports a cursor as finished when it's not. Happens more often
+                             * during peak times, and chronically so during sales. However, sales create deeper
+                             * problems, such as under-reporting the total, which this does nothing to combat.
+                             */
+                            continue;
+                        }
+
+                        throw new TotalLessThanExpectedException("Expected: $this->total, got: $this->count.");
+                    }
+
+                    // Advance cursor.
                     $this->query['cursor'] = $json['cursor'];
 
                     // Stop condition is an empty recommendation list. This is quicker and easier than parsing HTML.
                 } while ($json['recommendationids']);
             }),
-            $total->promise(),
+            $deferredTotal->promise(),
             $this
         );
     }

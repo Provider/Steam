@@ -124,7 +124,7 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
 
         self::assertSame(1, yield $reviews->getTotal());
 
-        yield $reviews->advance();
+        self::assertTrue(yield $reviews->advance(), 'Has one review.');
         self::assertLooksLikeReview($reviews->getCurrent());
         self::assertFalse(yield $reviews->advance());
     }
