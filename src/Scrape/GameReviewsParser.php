@@ -86,10 +86,12 @@ final class GameReviewsParser
 
     private static function extractReviewPlaytime(Crawler $crawler): ?int
     {
-        $hours = $crawler->filter('.hours')->text();
+        if (($hoursElement = $crawler->filter('.hours'))->count()) {
+            $hours = $hoursElement->first()->text();
 
-        if (preg_match('[\(([\\d,.]+) hrs at review time\)]', $hours, $matches)) {
-            return strtr($matches[1], [',' => '']) * 60 | 0;
+            if (preg_match('[\(([\\d,.]+) hrs at review time\)]', $hours, $matches)) {
+                return strtr($matches[1], [',' => '']) * 60 | 0;
+            }
         }
 
         return null;
