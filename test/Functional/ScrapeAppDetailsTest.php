@@ -206,15 +206,15 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * @see http://store.steampowered.com/app/323130/
+     * @see http://store.steampowered.com/app/9070/
      */
     public function testDlc(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(323130)));
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(9070)));
 
-        self::assertSame('Half-Life Soundtrack', $app['name']);
+        self::assertSame('DOOM 3 Resurrection of Evil', $app['name']);
         self::assertSame('dlc', $app['type']);
-        self::assertSame('2014-09-24T00:00:00+00:00', $app['release_date']->format('c'));
+        self::assertEquals(new \DateTimeImmutable('2005-04-03'), $app['release_date']);
     }
 
     /**
