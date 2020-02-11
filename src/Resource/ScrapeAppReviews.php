@@ -70,6 +70,10 @@ final class ScrapeAppReviews implements AsyncResource, Url
 
                         $json = json_decode($response->getBody(), true);
 
+                        if (!isset($json['success']) || $json['success'] !== 1) {
+                            throw new InvalidAppIdException("Application ID \"$this->appId\" is invalid.");
+                        }
+
                         if (isset($json['review_score'])) {
                             $deferredTotal->resolve($this->total = $this->parseResultsTotal($json['review_score']));
                             $resolved = true;

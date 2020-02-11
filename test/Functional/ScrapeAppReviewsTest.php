@@ -5,6 +5,7 @@ namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
 use Amp\PHPUnit\AsyncTestCase;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncGameReviewsRecords;
+use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppReviews;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
@@ -143,6 +144,39 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
 
         self::assertGreaterThan(3800000, yield $reviews->getTotal());
         self::assertTrue(yield $reviews->advance(), 'Has results.');
+    }
+
+    /**
+     * Tests that an app that redirects instead of emitting reviews throws an appropriate exception.
+     *
+     * @link https://store.steampowered.com/app/1116370/
+     * @link https://store.steampowered.com/app/1212270/
+     * @link https://store.steampowered.com/app/1132400/
+     * @link https://store.steampowered.com/app/983850/
+     * @link https://store.steampowered.com/app/1118900/
+     * @link https://store.steampowered.com/app/1044240/
+     * @link https://store.steampowered.com/app/1072370/
+     * @link https://store.steampowered.com/app/1156840/
+     * @link https://store.steampowered.com/app/1050470/
+     * @link https://store.steampowered.com/app/966050/
+     * @link https://store.steampowered.com/app/1175940/
+     * @link https://store.steampowered.com/app/1211810/
+     * @link https://store.steampowered.com/app/1147430/
+     * @link https://store.steampowered.com/app/969590/
+     * @link https://store.steampowered.com/app/1208720/
+     * @link https://store.steampowered.com/app/469560/
+     * @link https://store.steampowered.com/app/989630/
+     */
+    public function testInvalidAppId(): \Generator
+    {
+        /** @var AsyncGameReviewsRecords $reviews */
+        $reviews = $this->porter->importAsync(new AsyncImportSpecification(
+            new ScrapeAppReviews(1116370)
+        ))->findFirstCollection();
+
+        $this->expectException(InvalidAppIdException::class);
+
+        yield $reviews->advance();
     }
 
     private static function assertLooksLikeReview(array $review): void
