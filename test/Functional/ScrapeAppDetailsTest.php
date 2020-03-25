@@ -468,6 +468,21 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a game perpetually in early access is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/15540/1_2_3_KICK_IT_Drop_That_Beat_Like_an_Ugly_Baby/
+     */
+    public function testEarlyAccess(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(15540)));
+
+        self::assertArrayHasKey('tags', $app);
+        self::assertNotEmpty($tags = $app['tags']);
+
+        self::assertCount(1, from($tags)->where('$v["name"] === "Early Access"'));
+    }
+
+    /**
      * Tests that games marked as VR exclusive are correctly detected.
      *
      * @dataProvider provideVrExclusiveApps
