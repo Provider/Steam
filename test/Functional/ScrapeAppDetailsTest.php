@@ -476,10 +476,10 @@ final class ScrapeAppDetailsTest extends TestCase
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(15540)));
 
-        self::assertArrayHasKey('tags', $app);
-        self::assertNotEmpty($tags = $app['tags']);
+        self::assertArrayHasKey('genres', $app);
+        self::assertNotEmpty($genres = $app['genres']);
 
-        self::assertCount(1, from($tags)->where('$v["name"] === "Early Access"'));
+        self::assertContains('Early Access', $genres);
     }
 
     /**
