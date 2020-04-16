@@ -22,10 +22,25 @@ final class GetAppList implements ProviderResource, StaticUrl
 
     public function fetch(ImportConnector $connector): \Iterator
     {
-        return new \ArrayIterator(\json_decode(
-            (string)$connector->fetch(new HttpDataSource(self::getUrl())),
-            true
-        )['applist']['apps']);
+        $tries = -1;
+
+        retry:
+        if (++$tries === 10) {
+            throw new FetchAppListException("Could not fetch app list after $tries attempts.");
+        }
+
+        $json = \json_decode((string)$connector->fetch(new HttpDataSource(self::getUrl())), true);
+
+        if (isset($json['applist']['apps'])) {
+            $apps = $json['applist']['apps'];
+        }
+
+        // App list is empty about 20% of the time, seemingly more often on CI, so counting is important.
+        if ($json === null || !isset($apps) || !count($apps)) {
+            goto retry;
+        }
+
+        return new \ArrayIterator($apps);
     }
 
     public static function getUrl(): string
