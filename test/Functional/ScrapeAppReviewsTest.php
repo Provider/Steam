@@ -27,12 +27,12 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
     }
 
     /**
-     * @link https://store.steampowered.com/app/1150670/Sorcerer_Lord/
+     * @link https://store.steampowered.com/app/256611/CSX_SD70MAC_Addon_Livery/
      */
     public function testZeroReviews(): \Generator
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(1150670)))
+        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(256611)))
             ->findFirstCollection();
 
         self::assertSame(0, yield $reviews->getTotal());
