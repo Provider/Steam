@@ -15,7 +15,7 @@ use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
  */
 final class ScrapeAppReviewsTest extends AsyncTestCase
 {
-    private const REVIEWS_PER_PAGE = 10;
+    private const REVIEWS_PER_PAGE = 20;
 
     private $porter;
 
@@ -58,7 +58,7 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
         }
 
         self::assertGreaterThan(0, $count = count($uids));
-        self::assertLessThan(self::REVIEWS_PER_PAGE, $count);
+        self::assertLessThanOrEqual(self::REVIEWS_PER_PAGE, $count);
 
         self::assertCount($total, $uids);
     }
@@ -66,12 +66,12 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
     /**
      * Tests that an app with two review pages is parsed correctly.
      *
-     * @link https://store.steampowered.com/app/614770/Beachhead_DESERT_WAR/
+     * @link https://store.steampowered.com/app/347270/Knights_of_the_Sky/
      */
     public function testTwoPages(): \Generator
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(614770)))
+        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(347270)))
             ->findFirstCollection();
         $total = yield $reviews->getTotal();
         $uids = [];
@@ -84,7 +84,7 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
         }
 
         self::assertGreaterThan(self::REVIEWS_PER_PAGE, $count = count($uids));
-        self::assertLessThan(self::REVIEWS_PER_PAGE * 2, $count);
+        self::assertLessThanOrEqual(self::REVIEWS_PER_PAGE * 2, $count);
 
         self::assertCount($total, $uids);
     }
@@ -108,7 +108,7 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
             $uids[] = $review['user_id'];
         }
 
-        self::assertGreaterThan(self::REVIEWS_PER_PAGE * 8, $count = count($uids));
+        self::assertGreaterThan(self::REVIEWS_PER_PAGE * 4, $count = count($uids));
 
         self::assertCount(yield $reviews->getTotal(), $uids);
     }
