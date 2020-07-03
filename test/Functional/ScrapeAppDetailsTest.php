@@ -45,9 +45,11 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('game', $app['type']);
         self::assertSame('2000-11-01T00:00:00+00:00', $app['release_date']->format('c'));
         self::assertCount(1, $app['developers']);
-        self::assertSame('Valve', $app['developers'][0]);
+        self::assertSame('valve', current($app['developers']));
+        self::assertSame('Valve', key($app['developers']));
         self::assertCount(1, $app['publishers']);
-        self::assertSame('Valve', $app['publishers'][0]);
+        self::assertSame('valve', current($app['publishers']));
+        self::assertSame('Valve', key($app['publishers']));
         self::assertContains('Action', $app['genres']);
 
         self::assertCount(8, $languages = $app['languages']);
@@ -288,7 +290,7 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * Tests that a game with multiple publishers is parsed correctly.
      *
-     * @see https://store.steampowered.com/app/632350/
+     * @see https://store.steampowered.com/app/632350/Cyberdimension_Neptunia_4_Goddesses_Online/
      */
     public function testDevelopers(): void
     {
@@ -296,15 +298,18 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('developers', $app);
         self::assertCount(3, $developers = $app['developers']);
-        self::assertSame('IDEA FACTORY', $developers[0]);
-        self::assertSame('COMPILE HEART', $developers[1]);
-        self::assertSame('TAMSOFT', $developers[2]);
+        self::assertNull(current($developers));
+        self::assertSame('IDEA FACTORY', key($developers));
+        self::assertSame('ideafactoryintl', next($developers));
+        self::assertSame('COMPILE HEART', key($developers));
+        self::assertSame('ideafactoryintl', next($developers));
+        self::assertSame('TAMSOFT', key($developers));
     }
 
     /**
      * Tests that a game with no developer is parsed correctly.
      *
-     * @see https://store.steampowered.com/app/211202/
+     * @see https://store.steampowered.com/app/211202/Golden_Axe_III/
      */
     public function testNoDeveloper(): void
     {
@@ -315,13 +320,14 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('publishers', $app);
         self::assertCount(1, $publishers = $app['publishers']);
-        self::assertSame('SEGA', $publishers[0]);
+        self::assertSame('Sega', current($publishers));
+        self::assertSame('SEGA', key($publishers));
     }
 
     /**
      * Tests that a game with multiple developers is parsed correctly.
      *
-     * @see https://store.steampowered.com/app/748490/
+     * @see https://store.steampowered.com/app/748490/The_Legend_of_Heroes_Trails_of_Cold_Steel_II/
      */
     public function testPublishers(): void
     {
@@ -329,14 +335,16 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('publishers', $app);
         self::assertCount(2, $publishers = $app['publishers']);
-        self::assertSame('XSEED Games', $publishers[0]);
-        self::assertSame('Marvelous USA, Inc.', $publishers[1]);
+        self::assertSame('xseedgames', current($publishers));
+        self::assertSame('XSEED Games', key($publishers));
+        self::assertSame('xseedgames', next($publishers));
+        self::assertSame('Marvelous USA, Inc.', key($publishers));
     }
 
     /**
      * Tests that a game with no publisher is parsed correctly.
      *
-     * @see https://store.steampowered.com/app/253630/
+     * @see https://store.steampowered.com/app/253630/Steam_Marines/
      */
     public function testNoPublisher(): void
     {
@@ -344,7 +352,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('developers', $app);
         self::assertCount(1, $developers = $app['developers']);
-        self::assertSame('Worthless Bums', $developers[0]);
+        self::assertNull(current($developers));
+        self::assertSame('Worthless Bums', key($developers));
 
         self::assertArrayHasKey('publishers', $app);
         self::assertCount(0, $app['publishers']);

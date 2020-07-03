@@ -44,8 +44,8 @@ final class AppDetailsParser
         // Reviews area.
         $reviewsArea = $crawler->filter('.user_reviews')->first();
         $release_date = self::parseReleaseDate($reviewsArea);
-        $developers =  self::parseDevelopers($reviewsArea);
-        $publishers = self::parsePublishers($reviewsArea);
+        $developers = iterator_to_array(self::parseDevelopers($reviewsArea));
+        $publishers = iterator_to_array(self::parsePublishers($reviewsArea));
 
         // Purchase area.
         $purchaseArea = $crawler->filter(
@@ -167,15 +167,21 @@ final class AppDetailsParser
         return $release_date;
     }
 
-    private static function parseDevelopers(Crawler $crawler): array
+    /**
+     * @return \Traversable[name => id]
+     */
+    private static function parseDevelopers(Crawler $crawler): \Traversable
     {
-        return $crawler->filter('#developers_list > a')->each(\Closure::fromCallable('self::trimNodeText'));
+        foreach ($crawler->filter('#developers_list > a') as $a) {
+            yield trim($a->nodeValue) => self::filterDevlisherUrl($a->attributes['href']->value);
+        }
     }
 
-    private static function parsePublishers(Crawler $crawler): array
+    private static function parsePublishers(Crawler $crawler): \Traversable
     {
-        return $crawler->filter('.dev_row > .summary.column:not([id]) > a')
-            ->each(\Closure::fromCallable('self::trimNodeText'));
+        foreach ($crawler->filter('.dev_row > .summary.column:not([id]) > a') as $a) {
+            yield trim($a->nodeValue) => self::filterDevlisherUrl($a->attributes['href']->value);
+        }
     }
 
     private static function parseTags(Crawler $crawler): array
@@ -286,5 +292,21 @@ final class AppDetailsParser
     private static function filterNumbers(string $input): int
     {
         return +preg_replace('[\D]', null, $input);
+    }
+
+    /**
+     * Filters the specified developer/publisher URL so only the devlisher's identifier remains.
+     *
+     * @param string $url Developer/publisher URL.
+     *
+     * @return string Devlisher ID.
+     */
+    private static function filterDevlisherUrl(string $url): ?string
+    {
+        if (preg_match('[er/([^?]+)]', $url, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 }
