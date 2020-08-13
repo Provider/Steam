@@ -288,22 +288,22 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that a game with multiple publishers is parsed correctly.
+     * Tests that a game with multiple developers is parsed correctly.
      *
-     * @see https://store.steampowered.com/app/632350/Cyberdimension_Neptunia_4_Goddesses_Online/
+     * @see https://store.steampowered.com/app/606680/Silver/
      */
     public function testDevelopers(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(632350)));
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(606680)));
 
         self::assertArrayHasKey('developers', $app);
         self::assertCount(3, $developers = $app['developers']);
         self::assertNull(current($developers));
-        self::assertSame('IDEA FACTORY', key($developers));
-        self::assertSame('ideafactoryintl', next($developers));
-        self::assertSame('COMPILE HEART', key($developers));
-        self::assertSame('ideafactoryintl', next($developers));
-        self::assertSame('TAMSOFT', key($developers));
+        self::assertSame('Infogrames', key($developers));
+        self::assertNull(next($developers));
+        self::assertSame('Spiral House', key($developers));
+        self::assertSame('THQNordic', next($developers));
+        self::assertSame('THQ Nordic', key($developers));
     }
 
     /**
@@ -325,7 +325,7 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that a game with multiple developers is parsed correctly.
+     * Tests that a game with multiple publishers is parsed correctly.
      *
      * @see https://store.steampowered.com/app/748490/The_Legend_of_Heroes_Trails_of_Cold_Steel_II/
      */
