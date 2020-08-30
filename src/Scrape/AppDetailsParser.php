@@ -41,6 +41,9 @@ final class AppDetailsParser
         // Media area.
         $videos = self::parseVideoIds($crawler);
 
+        // Header area.
+        $blurb = ($snippet = $crawler->filter('.game_description_snippet'))->count() ? trim($snippet->text()) : null;
+
         // Reviews area.
         $reviewsArea = $crawler->filter('.user_reviews')->first();
         $release_date = self::parseReleaseDate($reviewsArea);
@@ -90,6 +93,7 @@ final class AppDetailsParser
         return compact(
             'name',
             'type',
+            'blurb',
             'release_date',
             'developers',
             'publishers',

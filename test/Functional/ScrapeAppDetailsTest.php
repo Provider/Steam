@@ -43,6 +43,7 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertSame('Counter-Strike', $app['name']);
         self::assertSame('game', $app['type']);
+        self::assertStringStartsWith('Play the world\'s number 1 online action game.', $app['blurb']);
         self::assertSame('2000-11-01T00:00:00+00:00', $app['release_date']->format('c'));
         self::assertCount(1, $app['developers']);
         self::assertSame('valve', current($app['developers']));
