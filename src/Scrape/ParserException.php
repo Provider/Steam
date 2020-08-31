@@ -10,4 +10,5 @@ class ParserException extends \RuntimeException
 {
     public const UNEXPECTED_VERSION = 1;
     public const UNEXPECTED_TYPE = 2;
+    public const MISSING_CANONICAL_APP_ID = 3;
 }

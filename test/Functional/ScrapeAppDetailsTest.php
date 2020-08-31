@@ -42,6 +42,7 @@ final class ScrapeAppDetailsTest extends TestCase
         $app = \Closure::bind($import, $this)();
 
         self::assertSame('Counter-Strike', $app['name']);
+        self::assertSame(10, $app['app_id']);
         self::assertSame('game', $app['type']);
         self::assertStringStartsWith('Play the world\'s number 1 online action game.', $app['blurb']);
         self::assertSame('2000-11-01T00:00:00+00:00', $app['release_date']->format('c'));
@@ -177,6 +178,18 @@ final class ScrapeAppDetailsTest extends TestCase
     public function provideMatureContentBisync(): \Generator
     {
         return $this->provideAppBisync(292030);
+    }
+
+    /**
+     * Tests that an app that is a child of another app points to the parent app ID.
+     *
+     * @see https://store.steampowered.com/app/900883/The_Elder_Scrolls_IV_Oblivion_Game_of_the_Year_Edition_Deluxe/
+     */
+    public function testChildApp(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(900883)));
+
+        self::assertSame(22330, $app['app_id']);
     }
 
     /**

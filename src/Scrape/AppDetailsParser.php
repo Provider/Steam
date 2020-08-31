@@ -38,6 +38,9 @@ final class AppDetailsParser
         $vrx = self::parseVrExclusive($crawler);
         $free = self::parseFree($crawler);
 
+        // Title area.
+        $app_id = self::parseCanonicalAppId($crawler);
+
         // Media area.
         $videos = self::parseVideoIds($crawler);
 
@@ -93,6 +96,7 @@ final class AppDetailsParser
         return compact(
             'name',
             'type',
+            'app_id',
             'blurb',
             'release_date',
             'developers',
@@ -147,7 +151,16 @@ final class AppDetailsParser
         return $crawler->filter('.apphub_AppName')->text();
     }
 
-    private static function parseAppType(Crawler $crawler)
+    private static function parseCanonicalAppId(Crawler $crawler): int
+    {
+        if (preg_match('[/app/(\d+)$]', $crawler->filter('.apphub_OtherSiteInfo > a')->attr('href'), $matches)) {
+            return +$matches[1];
+        }
+
+        throw new ParserException('Could not parse canonical app ID.', ParserException::MISSING_CANONICAL_APP_ID);
+    }
+
+    private static function parseAppType(Crawler $crawler): string
     {
         return mb_strtolower(
             preg_replace(
