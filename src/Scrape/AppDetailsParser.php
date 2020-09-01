@@ -39,7 +39,7 @@ final class AppDetailsParser
         $free = self::parseFree($crawler);
 
         // Title area.
-        $app_id = self::parseCanonicalAppId($crawler);
+        $app_id = self::parseAppId($crawler);
 
         // Media area.
         $videos = self::parseVideoIds($crawler);
@@ -52,6 +52,9 @@ final class AppDetailsParser
         $release_date = self::parseReleaseDate($reviewsArea);
         $developers = iterator_to_array(self::parseDevelopers($reviewsArea));
         $publishers = iterator_to_array(self::parsePublishers($reviewsArea));
+
+        // Tags area.
+        $canonical_id = +$crawler->filter('[data-appid]')->attr('data-appid');
 
         // Purchase area.
         $purchaseArea = $crawler->filter(
@@ -97,6 +100,7 @@ final class AppDetailsParser
             'name',
             'type',
             'app_id',
+            'canonical_id',
             'blurb',
             'release_date',
             'developers',
@@ -151,13 +155,13 @@ final class AppDetailsParser
         return $crawler->filter('.apphub_AppName')->text();
     }
 
-    private static function parseCanonicalAppId(Crawler $crawler): int
+    private static function parseAppId(Crawler $crawler): int
     {
         if (preg_match('[/app/(\d+)$]', $crawler->filter('.apphub_OtherSiteInfo > a')->attr('href'), $matches)) {
             return +$matches[1];
         }
 
-        throw new ParserException('Could not parse canonical app ID.', ParserException::MISSING_CANONICAL_APP_ID);
+        throw new ParserException('Could not parse canonical app ID.', ParserException::MISSING_APP_ID);
     }
 
     private static function parseAppType(Crawler $crawler): string

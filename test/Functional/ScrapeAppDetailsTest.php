@@ -43,6 +43,7 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertSame('Counter-Strike', $app['name']);
         self::assertSame(10, $app['app_id']);
+        self::assertSame(10, $app['canonical_id']);
         self::assertSame('game', $app['type']);
         self::assertStringStartsWith('Play the world\'s number 1 online action game.', $app['blurb']);
         self::assertSame('2000-11-01T00:00:00+00:00', $app['release_date']->format('c'));
@@ -181,15 +182,29 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that an app that is a child of another app points to the parent app ID.
+     * Tests that an app that is a child of another app points to the parent app ID but retains its own canonical ID.
      *
-     * @see https://store.steampowered.com/app/900883/The_Elder_Scrolls_IV_Oblivion_Game_of_the_Year_Edition_Deluxe/
+     * @see https://store.steampowered.com/app/1313/SiN_Gold/
      */
     public function testChildApp(): void
     {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId = 1313)));
+
+        self::assertSame(1300, $app['app_id']);
+        self::assertSame($appId, $app['canonical_id']);
+    }
+
+    /**
+     * Tests that an app that is an alias of another app has a different appId and canonicalId to itself.
+     *
+     * @see https://store.steampowered.com/app/900883/The_Elder_Scrolls_IV_Oblivion_Game_of_the_Year_Edition_Deluxe/
+     */
+    public function testAliasedApp(): void
+    {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(900883)));
 
-        self::assertSame(22330, $app['app_id']);
+        self::assertSame($parentId = 22330, $app['app_id']);
+        self::assertSame($parentId, $app['canonical_id']);
     }
 
     /**
