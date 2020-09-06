@@ -14,23 +14,35 @@ use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 final class GetAppListTest extends TestCase
 {
     /**
-     * Tests that when downloading the complete list of Steam apps, the list contains at least 49000 entries and each
-     * entry is well-formed.
+     * Tests that when downloading the complete list of Steam apps, the list contains an appropriate number of entries
+     * and each entry is well-formed.
+     *
+     * @dataProvider provideAppListApiKeys
      */
-    public function testAppList(): void
+    public function testAppList(?string $key, int $expected): void
     {
         $porter = FixtureFactory::createPorter();
 
-        $apps = $porter->import(new ImportSpecification(new GetAppList));
-        self::assertGreaterThan(49000, count($apps));
+        $apps = $porter->import(new ImportSpecification(new GetAppList($key)));
 
+        $count = 0;
         foreach ($apps as $app) {
+            ++$count;
             self::assertArrayHasKey('appid', $app);
             self::assertIsInt($app['appid']);
 
             self::assertArrayHasKey('name', $app);
             self::assertIsString($app['name']);
-            self::assertNotEmpty($app['name']);
         }
+
+        self::assertGreaterThanOrEqual($expected, $count);
+    }
+
+    public function provideAppListApiKeys(): iterable
+    {
+        return [
+            'No key' => [null, 100000],
+            'Api key' => [$_SERVER['STEAM_API_KEY'], 71000],
+        ];
     }
 }
