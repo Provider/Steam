@@ -7,6 +7,8 @@ use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
+use ScriptFUSION\Retry\ExceptionHandler\ExponentialBackoffExceptionHandler;
+use function ScriptFUSION\Retry\retry;
 
 /**
  * @see https://partner.steamgames.com/doc/webapi/ISteamApps#GetAppList
@@ -33,22 +35,30 @@ final class GetAppList implements ProviderResource, Url
     public function fetch(ImportConnector $connector): \Iterator
     {
         do {
-            $json = \json_decode(
-                (string)$connector->fetch(new HttpDataSource(
-                    $this->getUrl() . (isset($lastId) ? "&last_appid=$lastId" : '')
-                )),
-                true
+            yield from retry(
+                10,
+                function () use ($connector, &$lastId): array {
+                    $json = \json_decode(
+                        (string)$connector->fetch(new HttpDataSource(
+                            $this->getUrl() . (isset($lastId) ? "&last_appid=$lastId" : '')
+                        )),
+                        true
+                    );
+
+                    $apps = $json['applist']['apps'] ?? $json['response']['apps'] ?? null;
+
+                    // App list is empty about 20% of the time, seemingly more often on CI, so counting is important.
+                    if ($json === null || !isset($apps) || !count($apps)) {
+                        throw new FetchAppListException('App list was empty!');
+                    }
+
+                    $lastId = $json['response']['last_appid'] ?? null;
+
+                    return $apps;
+                },
+                new ExponentialBackoffExceptionHandler
             );
-
-            $apps = $json['applist']['apps'] ?? $json['response']['apps'] ?? null;
-
-            // App list is empty about 20% of the time, seemingly more often on CI, so counting is important.
-            if ($json === null || !isset($apps) || !count($apps)) {
-                throw new FetchAppListException('App list was empty!');
-            }
-
-            yield from $apps;
-        } while ($lastId = $json['response']['last_appid'] ?? null);
+        } while ($lastId);
     }
 
     public function getUrl(): string
