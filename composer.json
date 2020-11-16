@@ -11,7 +11,7 @@
     "php": "^7.1",
     "ext-json": "*",
     "amphp/parallel": "^1.1",
-    "connectors/http": "^3",
+    "connectors/http": "^4",
     "eloquent/enumeration": "^5|^6",
     "phpseclib/phpseclib": "^2",
     "scriptfusion/porter": "^5",
@@ -38,9 +38,6 @@
     "test": "phpunit -c test --colors"
   },
   "config": {
-    "platform": {
-      "php": "7.1.99"
-    },
     "sort-packages": true
   }
 }

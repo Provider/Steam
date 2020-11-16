@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
-use Amp\Artax\Cookie\Cookie;
+use Amp\Http\Cookie\ResponseCookie;
 use Amp\Promise;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncLoginRecord;
@@ -59,12 +59,12 @@ final class CuratorSession
         });
     }
 
-    public function getSecureLoginCookie(): Cookie
+    public function getSecureLoginCookie(): ResponseCookie
     {
         return $this->secureLoginCookie->getCookie();
     }
 
-    public function getStoreSessionCookie(): Cookie
+    public function getStoreSessionCookie(): ResponseCookie
     {
         return $this->storeSessionCookie->getCookie();
     }

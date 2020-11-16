@@ -180,7 +180,7 @@ final class AppDetailsParser
         $date = $crawler->filter('.release_date > .date');
 
         try {
-            $release_date = $date->count() ? new \DateTimeImmutable($date->text()) : null;
+            $release_date = $date->count() ? new \DateTimeImmutable($date->text(), new \DateTimeZone('UTC')) : null;
         } catch (\Exception $exception) {
             $release_date = null;
         }

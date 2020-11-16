@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
-use Amp\Artax\Cookie\Cookie;
+use Amp\Http\Cookie\ResponseCookie;
 use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncLoginRecord;
 use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
@@ -20,7 +20,7 @@ final class SteamLoginTest extends TestCase
     public function testSecureLoginCookie(): void
     {
         if (!isset($_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD'])) {
-            $this->markTestSkipped();
+            self::markTestSkipped();
         }
 
         $porter = FixtureFactory::createPorter();
@@ -34,7 +34,7 @@ final class SteamLoginTest extends TestCase
         $secureLoginCookie = wait($steamLogin->getSecureLoginCookie());
 
         self::assertInstanceOf(SecureLoginCookie::class, $secureLoginCookie);
-        self::assertInstanceOf(Cookie::class, $cookie = $secureLoginCookie->getCookie());
+        self::assertInstanceOf(ResponseCookie::class, $cookie = $secureLoginCookie->getCookie());
         self::assertNotEmpty($cookie->getValue());
     }
 }

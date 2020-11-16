@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList;
 
-use Amp\Artax\FormBody;
+use Amp\Http\Client\Body\FormBody;
 use ScriptFUSION\Porter\Connector\AsyncDataSource;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;

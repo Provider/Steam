@@ -3,14 +3,15 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Cookie;
 
-use Amp\Artax\Cookie\Cookie;
+use Amp\Http\Cookie\CookieAttributes;
+use Amp\Http\Cookie\ResponseCookie;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 final class SecureLoginCookie
 {
     private $cookie;
 
-    public function __construct(Cookie $cookie)
+    public function __construct(ResponseCookie $cookie)
     {
         if ($cookie->getName() !== 'steamLoginSecure') {
             throw new \InvalidArgumentException('Invalid cookie name.');
@@ -22,18 +23,15 @@ final class SecureLoginCookie
     public static function create(string $value): self
     {
         return new self(
-            new Cookie(
+            new ResponseCookie(
                 'steamLoginSecure',
                 $value,
-                null,
-                null,
-                SteamProvider::STORE_DOMAIN,
-                true
+                CookieAttributes::default()->withDomain(SteamProvider::STORE_DOMAIN)->withSecure()
             )
         );
     }
 
-    public function getCookie(): Cookie
+    public function getCookie(): ResponseCookie
     {
         return $this->cookie;
     }
