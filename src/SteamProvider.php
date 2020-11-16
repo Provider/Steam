@@ -14,7 +14,7 @@ final class SteamProvider implements Provider, AsyncProvider
 {
     public const STORE_DOMAIN = 'store.steampowered.com';
     private const STEAMWORKS_API_URL = 'https://api.steampowered.com';
-    public const STORE_API_URL = 'https://' . self::STORE_DOMAIN;
+    private const STORE_API_URL = 'https://' . self::STORE_DOMAIN;
 
     private $connector;
 

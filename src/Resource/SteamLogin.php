@@ -5,14 +5,12 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
 use Amp\Deferred;
 use Amp\Http\Client\Body\FormBody;
-use Amp\Http\Cookie\RequestCookie;
+use Amp\Http\Cookie\ResponseCookie;
 use Amp\Iterator;
 use Amp\Producer;
 use Amp\Promise;
-use League\Uri\Http;
 use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
-use Psr\Http\Message\UriInterface;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
@@ -116,15 +114,15 @@ final class SteamLogin implements AsyncResource
             }
 
             $steamLoginCookie = current(array_filter(
-                yield $baseConnector->getCookieJar()->get(Http::createFromString(SteamProvider::STORE_API_URL)),
-                static function (RequestCookie $cookie) {
+                $baseConnector->getCookieJar()->getAll(),
+                static function (ResponseCookie $cookie) {
                     return $cookie->getName() === 'steamLoginSecure';
                 }
             ));
 
             assert($steamLoginCookie);
 
-            return [$json, SecureLoginCookie::create($steamLoginCookie->getValue())];
+            return [$json, new SecureLoginCookie($steamLoginCookie)];
         });
     }
 }

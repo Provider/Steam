@@ -4,11 +4,9 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
 use Amp\Deferred;
-use Amp\Http\Cookie\RequestCookie;
 use Amp\Http\Cookie\ResponseCookie;
 use Amp\Iterator;
 use Amp\Producer;
-use League\Uri\Http;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
@@ -44,15 +42,15 @@ final class CreateSteamStoreSession implements AsyncResource
                 }
 
                 $steamSession = current(array_filter(
-                    yield $baseConnector->getCookieJar()->get(Http::createFromString(SteamProvider::STORE_API_URL)),
-                    static function (RequestCookie $cookie) {
+                    $baseConnector->getCookieJar()->getAll(),
+                    static function (ResponseCookie $cookie) {
                         return $cookie->getName() === 'sessionid';
                     }
                 ));
 
                 assert($steamSession);
 
-                $sessionCookie->resolve(StoreSessionCookie::create($steamSession->getValue()));
+                $sessionCookie->resolve(new StoreSessionCookie($steamSession));
             }),
             $sessionCookie->promise(),
             $this
