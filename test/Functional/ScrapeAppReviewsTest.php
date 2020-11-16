@@ -149,29 +149,15 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
     /**
      * Tests that an app that redirects instead of emitting reviews throws an appropriate exception.
      *
-     * @link https://store.steampowered.com/app/1116370/
-     * @link https://store.steampowered.com/app/1212270/
-     * @link https://store.steampowered.com/app/1132400/
-     * @link https://store.steampowered.com/app/983850/
-     * @link https://store.steampowered.com/app/1118900/
-     * @link https://store.steampowered.com/app/1044240/
-     * @link https://store.steampowered.com/app/1072370/
-     * @link https://store.steampowered.com/app/1156840/
-     * @link https://store.steampowered.com/app/1050470/
-     * @link https://store.steampowered.com/app/966050/
-     * @link https://store.steampowered.com/app/1175940/
-     * @link https://store.steampowered.com/app/1211810/
-     * @link https://store.steampowered.com/app/1147430/
-     * @link https://store.steampowered.com/app/969590/
-     * @link https://store.steampowered.com/app/1208720/
-     * @link https://store.steampowered.com/app/469560/
-     * @link https://store.steampowered.com/app/989630/
+     * On October 14th, 2020, Valve pushed an update that changed the response for reviews for invalid apps from
+     * unsuccessful to successful but with no results. Generally this exception is no longer thrown unless the ID
+     * is totally invalid, i.e. out of range.
      */
     public function testInvalidAppId(): \Generator
     {
         /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->importAsync(new AsyncImportSpecification(
-            new ScrapeAppReviews(1116370)
+            new ScrapeAppReviews(0)
         ))->findFirstCollection();
 
         $this->expectException(InvalidAppIdException::class);
