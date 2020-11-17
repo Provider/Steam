@@ -14,8 +14,8 @@ A [Porter][Porter] provider for [Steam][Steam], a digital distribution platform 
   [Version image]: https://poser.pugx.org/provider/steam/version "Latest version"
   [Downloads]: https://packagist.org/packages/provider/steam
   [Downloads image]: https://poser.pugx.org/provider/steam/downloads "Total downloads"
-  [Build]: https://travis-ci.org/Provider/Steam
-  [Build image]: https://travis-ci.org/Provider/Steam.svg?branch=master "Build status"
+  [Build]: https://github.com/Provider/Steam/actions?query=workflow%3ACI
+  [Build image]: https://github.com/Provider/Steam/workflows/CI/badge.svg "Build status"
   [Coverage]: https://coveralls.io/github/Provider/Steam
   [Coverage image]: https://coveralls.io/repos/Provider/Steam/badge.svg "Test coverage"
   [Style]: https://styleci.io/repos/108416308

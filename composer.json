@@ -38,9 +38,6 @@
     "test": "phpunit -c test --colors"
   },
   "config": {
-    "platform": {
-      "php": "7.1.99"
-    },
     "sort-packages": true
   }
 }
