@@ -13,7 +13,7 @@
     "amphp/parallel": "^1.1",
     "connectors/http": "^4",
     "eloquent/enumeration": "^5|^6",
-    "amphp/http-client": "v4.4.1",
+    "amphp/http-client": "v4.3.1",
     "phpseclib/phpseclib": "^2",
     "scriptfusion/porter": "^5",
     "symfony/css-selector": "^3|^4|^5",
