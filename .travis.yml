@@ -9,11 +9,6 @@ php:
   - 7.2
   - 7.4
 
-env:
-  matrix:
-    -
-    - DEPENDENCIES=--prefer-lowest
-
 matrix:
   fast_finish: true
 
@@ -27,7 +22,3 @@ install:
 
 script:
   - composer test -- --coverage-clover=build/logs/clover.xml
-
-after_success:
-  - composer require php-coveralls/php-coveralls:^2
-  - vendor/bin/php-coveralls -v
