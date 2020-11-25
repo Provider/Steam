@@ -245,7 +245,7 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertSame('DOOM 3 Resurrection of Evil', $app['name']);
         self::assertSame('dlc', $app['type']);
-        self::assertEquals(new \DateTimeImmutable('2005-04-03'), $app['release_date']);
+        self::assertEquals('2005-04-03', $app['release_date']->format('Y-m-d'));
     }
 
     /**

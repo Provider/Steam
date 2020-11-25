@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
-use Amp\Artax\Cookie\Cookie;
+use Amp\Http\Cookie\CookieAttributes;
+use Amp\Http\Cookie\ResponseCookie;
 use Amp\Iterator;
 use Amp\Producer;
 use ScriptFUSION\Porter\Connector\ImportConnector;
@@ -94,9 +95,10 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         ;
 
         $cookies = $connector->getCookieJar();
+        $cookieAttributes = CookieAttributes::default()->withDomain(SteamProvider::STORE_DOMAIN);
         // Enable age-restricted content.
-        $cookies->store(new Cookie('birthtime', '0', null, null, SteamProvider::STORE_DOMAIN));
+        $cookies->store(new ResponseCookie('birthtime', '0', $cookieAttributes));
         // Enable mature content.
-        $cookies->store(new Cookie('mature_content', '1', null, null, SteamProvider::STORE_DOMAIN));
+        $cookies->store(new ResponseCookie('mature_content', '1', $cookieAttributes));
     }
 }

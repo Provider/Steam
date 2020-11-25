@@ -3,16 +3,18 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Cookie;
 
-use Amp\Artax\Cookie\Cookie;
+use Amp\Http\Cookie\ResponseCookie;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 final class StoreSessionCookie
 {
+    private const NAME = 'sessionid';
+
     private $cookie;
 
-    public function __construct(Cookie $cookie)
+    public function __construct(ResponseCookie $cookie)
     {
-        if ($cookie->getName() !== 'sessionid') {
+        if ($cookie->getName() !== self::NAME) {
             throw new \InvalidArgumentException('Invalid cookie name.');
         }
         if ($cookie->getDomain() !== SteamProvider::STORE_DOMAIN) {
@@ -22,7 +24,7 @@ final class StoreSessionCookie
         $this->cookie = $cookie;
     }
 
-    public function getCookie(): Cookie
+    public function getCookie(): ResponseCookie
     {
         return $this->cookie;
     }

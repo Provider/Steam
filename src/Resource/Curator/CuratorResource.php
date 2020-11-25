@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
-use Amp\Artax\Cookie\CookieJar;
+use Amp\Http\Client\Cookie\CookieJar;
 use Amp\Iterator;
 use Amp\Producer;
 use ScriptFUSION\Porter\Connector\AsyncDataSource;

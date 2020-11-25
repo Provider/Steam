@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
-use Amp\Artax\FormBody;
 use Amp\Deferred;
+use Amp\Http\Client\Body\FormBody;
+use Amp\Http\Cookie\ResponseCookie;
 use Amp\Iterator;
 use Amp\Producer;
 use Amp\Promise;
@@ -55,7 +56,7 @@ final class SteamLogin implements AsyncResource
 
                 $loginCookie->resolve($cookie);
 
-                $emit($json);
+                yield $emit($json);
             }),
             $loginCookie->promise(),
             $this
@@ -99,7 +100,7 @@ final class SteamLogin implements AsyncResource
             ]);
 
             $json = json_decode(
-                (string)yield $connector->fetchAsync(
+                (string)$response = yield $connector->fetchAsync(
                     (new AsyncHttpDataSource(SteamProvider::buildStoreApiUrl('/login/dologin/')))
                         ->setMethod('POST')
                         ->setBody($body)
@@ -112,12 +113,16 @@ final class SteamLogin implements AsyncResource
                 throw new SteamLoginException("Unable to log in using supplied credentials.\n$message");
             }
 
-            return [
-                $json,
-                new SecureLoginCookie(
-                    $baseConnector->getCookieJar()->get(SteamProvider::STORE_DOMAIN, '', 'steamLoginSecure')[0]
-                ),
-            ];
+            $steamLoginCookie = current(array_filter(
+                $baseConnector->getCookieJar()->getAll(),
+                static function (ResponseCookie $cookie) {
+                    return $cookie->getName() === 'steamLoginSecure';
+                }
+            ));
+
+            assert($steamLoginCookie);
+
+            return [$json, new SecureLoginCookie($steamLoginCookie)];
         });
     }
 }
