@@ -312,7 +312,7 @@ final class AppDetailsParser
      */
     private static function filterNumbers(string $input): int
     {
-        return +preg_replace('[\D]', null, $input);
+        return +preg_replace('[\D]', '', $input);
     }
 
     /**

@@ -14,8 +14,8 @@ jobs:
       max-parallel: 1
       matrix:
         php:
-          - 7.2
-          - 7.4
+          - 8.0
+          - 7.3
         dependencies:
           - hi
           - lo
@@ -27,6 +27,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          coverage: xdebug
 
       - name: Validate composer.json
         run: composer validate

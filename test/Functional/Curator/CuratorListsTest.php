@@ -129,7 +129,10 @@ final class CuratorListsTest extends CuratorTestCase
 
             // Fetch first app from list.
             $list = self::fetchList($listId);
-            $firstApp = from($list['apps'])->orderBy('$v["sort_order"]')->first();
+            usort($list['apps'], static function (array $a, array $b) {
+                return $a['sort_order'] <=> $b['sort_order'];
+            });
+            $firstApp = reset($list['apps']);
 
             self::assertSame(
                 $appId1,
@@ -144,7 +147,10 @@ final class CuratorListsTest extends CuratorTestCase
 
             // Fetch first app from list.
             $list = self::fetchList($listId);
-            $firstApp = from($list['apps'])->orderBy('$v["sort_order"]')->first();
+            usort($list['apps'], static function (array $a, array $b) {
+                return $a['sort_order'] <=> $b['sort_order'];
+            });
+            $firstApp = reset($list['apps']);
 
             self::assertSame(
                 $appId2,
@@ -188,7 +194,9 @@ final class CuratorListsTest extends CuratorTestCase
 
         $lists = wait(self::iteratorToArray($listIterator));
 
-        $list = from($lists)->firstOrDefault(null, "\$v['listid'] === '$listId'");
+        $list = \iter\search(static function (array $list) use ($listId) {
+            return $list['listid'] === $listId;
+        }, $lists);
         self::assertNotNull($list, 'Find specified curator list in curator list collection.');
 
         return $list;

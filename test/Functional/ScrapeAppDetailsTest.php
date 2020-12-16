@@ -89,9 +89,9 @@ final class ScrapeAppDetailsTest extends TestCase
             self::assertIsString($tagName = $tag['name']);
 
             // Tags should not contain any whitespace
-            self::assertNotContains("\r", $tagName);
-            self::assertNotContains("\n", $tagName);
-            self::assertNotContains("\t", $tagName);
+            self::assertStringNotContainsString("\r", $tagName);
+            self::assertStringNotContainsString("\n", $tagName);
+            self::assertStringNotContainsString("\t", $tagName);
 
             // Tags should not start or end with spaces.
             self::assertStringStartsNotWith(' ', $tagName);

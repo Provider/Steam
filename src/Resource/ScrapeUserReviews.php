@@ -36,7 +36,7 @@ final class ScrapeUserReviews implements ProviderResource, Url
         // Force Crawler creation.
         $pages->current();
         $count = $crawler->filter('.review_stat')->first()->filter('.giantNumber')->text();
-        $avatar = preg_replace('[_medium(?=\.jpg$)]', null, $crawler->filter('.playerAvatar > img')->attr('src'));
+        $avatar = preg_replace('[_medium(?=\.jpg$)]', '', $crawler->filter('.playerAvatar > img')->attr('src'));
 
         return new UsersReviewsRecords($pages, +$count, $avatar, $this);
     }
