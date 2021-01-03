@@ -317,6 +317,19 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a game with an invalid date, like "2021", is treated as null.
+     *
+     * @see https://store.steampowered.com/app/1468600/Matias_Candia_LORD_DOOMER/
+     */
+    public function testInvalidDateYearOnly(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('invalid date (year only).html')));
+
+        self::assertArrayHasKey('release_date', $app);
+        self::assertNull($app['release_date']);
+    }
+
+    /**
      * Tests that a game with multiple developers is parsed correctly.
      *
      * @see https://store.steampowered.com/app/606680/Silver/

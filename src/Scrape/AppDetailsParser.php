@@ -185,7 +185,8 @@ final class AppDetailsParser
             $release_date = null;
         }
 
-        return $release_date;
+        // If date includes time portion, assume it was mis-parsed.
+        return $release_date && $release_date->format('G') ? null : $release_date;
     }
 
     /**
