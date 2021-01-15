@@ -53,7 +53,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertCount(1, $app['publishers']);
         self::assertSame('valve', current($app['publishers']));
         self::assertSame('Valve', key($app['publishers']));
-        self::assertContains('Action', $app['genres']);
+        self::assertContains('Action Games', $app['genres']);
 
         self::assertCount(8, $languages = $app['languages']);
         self::assertContains('English', $languages);
