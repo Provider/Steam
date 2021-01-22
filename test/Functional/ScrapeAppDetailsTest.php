@@ -53,7 +53,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertCount(1, $app['publishers']);
         self::assertSame('valve', current($app['publishers']));
         self::assertSame('Valve', key($app['publishers']));
-        self::assertContains('Action Games', $app['genres']);
+        self::assertContains('Action', $app['genres']);
 
         self::assertCount(8, $languages = $app['languages']);
         self::assertContains('English', $languages);
@@ -651,6 +651,28 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('price', $app);
         self::assertGreaterThan(0, $app['price']);
+    }
+
+    /**
+     * Tests that a game whose primary purchase area does not appear first is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/519860/DUSK/
+     * @see https://store.steampowered.com/app/214560/Mark_of_the_Ninja/
+     * @dataProvider providePrimaryPurchaseAreaNotFirstApps
+     */
+    public function testPrimaryPurchaseAreaNotFirst(int $appId): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+
+        self::assertTrue($app['windows']);
+    }
+
+    public function providePrimaryPurchaseAreaNotFirstApps(): iterable
+    {
+        return [
+            'DUSK' => [519860],
+            'Mark of the Ninja' => [214560],
+        ];
     }
 
     /**

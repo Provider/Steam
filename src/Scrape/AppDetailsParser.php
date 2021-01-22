@@ -57,9 +57,7 @@ final class AppDetailsParser
         $canonical_id = +$crawler->filter('[data-appid]')->attr('data-appid');
 
         // Purchase area.
-        $purchaseArea = $crawler->filter(
-            '#game_area_purchase .game_area_purchase_game:not(.demo_above_purchase)'
-        )->first();
+        $purchaseArea = self::findPrimaryPurchaseArea($crawler);
         $price = self::parsePrice($purchaseArea);
         $discount_price = self::parseDiscountPrice($purchaseArea);
         $discount = self::parseDiscountPercentage($purchaseArea);
@@ -74,10 +72,6 @@ final class AppDetailsParser
         $steam_reviews = $hasReviews ? self::filterNumbers(
             $crawler->filter('[for=purchase_type_steam] > .user_reviews_count')->text()
         ) : 0;
-
-        $purchaseArea = $crawler->filter(
-            '#game_area_purchase .game_area_purchase_game:not(.demo_above_purchase)'
-        )->first();
 
         // Platforms.
         $platforms = $purchaseArea->filter('.game_area_purchase_platform')->first();
@@ -330,5 +324,20 @@ final class AppDetailsParser
         }
 
         return null;
+    }
+
+    /**
+     * Finds the "primary" purchase area, that is, the purchase area representing the main package for this app.
+     *
+     * @return Crawler Crawler containing the primary purchase area node if found, otherwise a crawler with no nodes.
+     */
+    private static function findPrimaryPurchaseArea(Crawler $crawler): Crawler
+    {
+        $purchaseArea = $crawler->filter(
+            '#game_area_purchase .game_area_purchase_game:not(.demo_above_purchase)
+                > .game_area_purchase_platform:not(:empty)'
+        );
+
+        return $purchaseArea->count() ? $purchaseArea->closest('.game_area_purchase_game') : $purchaseArea;
     }
 }
