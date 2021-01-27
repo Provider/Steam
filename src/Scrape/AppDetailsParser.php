@@ -345,24 +345,24 @@ final class AppDetailsParser
     private static function findPrimaryPurchaseArea(Crawler $crawler, string $title): array
     {
         // Detect if game is multi-sub.
-        if (count($multi = $crawler->filter('#widget_create label'))) {
+        if (count($labels = $crawler->filter('#widget_create label'))) {
             // Resolve primary sub by picking sub title with smallest levenshtein distance from app title.
-            foreach ($multi as $label) {
-                $titles[self::filterNumbers($label->attributes['for']->value)] =
+            foreach ($labels as $label) {
+                $subs[self::filterNumbers($label->attributes['for']->value)] =
                     levenshtein($title, $label->textContent);
             }
 
-            asort($titles);
-            $primarySubId = key($titles);
+            asort($subs);
+            $primarySubId = key($subs);
 
             return [
                 $crawler->filter("#game_area_purchase_section_add_to_cart_$primarySubId"),
                 $primarySubId,
-                current($titles)
+                current($subs)
             ];
         }
 
-        // Pick first purchase area with platforms defined.
+        // Pick first purchase area with platforms defined that is not a demo area.
         $purchaseArea = $crawler->filter(
             '#game_area_purchase .game_area_purchase_game:not(.demo_above_purchase)
                 > .game_area_purchase_platform:not(:empty)'
