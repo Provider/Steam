@@ -57,7 +57,7 @@ final class AppDetailsParser
         $canonical_id = +$crawler->filter('[data-appid]')->attr('data-appid');
 
         // Purchase area.
-        $purchaseArea = self::findPrimaryPurchaseArea($crawler);
+        [$purchaseArea, $DEBUG_primary_sub_id, $DEBUG_levenshtein] = self::findPrimaryPurchaseArea($crawler, $name);
         $price = self::parsePrice($purchaseArea);
         $discount_price = self::parseDiscountPrice($purchaseArea);
         $discount = self::parseDiscountPercentage($purchaseArea);
@@ -117,7 +117,9 @@ final class AppDetailsParser
             'vive',
             'occulus',
             'wmr',
-            'valve_index'
+            'valve_index',
+            'DEBUG_primary_sub_id',
+            'DEBUG_levenshtein',
         );
     }
 
@@ -327,17 +329,48 @@ final class AppDetailsParser
     }
 
     /**
-     * Finds the "primary" purchase area, that is, the purchase area representing the main package for this app.
+     * Finds the "primary" purchase area within the specified crawler instance, that is, the purchase area representing
+     * the main package for this app. When applicable, the app title will be compared against game purchase areas to
+     * find the best match.
      *
-     * @return Crawler Crawler containing the primary purchase area node if found, otherwise a crawler with no nodes.
+     * @param Crawler $crawler Crawler instance.
+     * @param string $title App title.
+     *
+     * @return array (Crawler|?int)[] [
+     *     Crawler containing the primary purchase area node if found, otherwise a crawler with no nodes.,
+     *     Primary sub ID.,
+     *     Levenshtein distance between the specified app title and sub title.,
+     * ]
      */
-    private static function findPrimaryPurchaseArea(Crawler $crawler): Crawler
+    private static function findPrimaryPurchaseArea(Crawler $crawler, string $title): array
     {
+        // Detect if game is multi-sub.
+        if (count($multi = $crawler->filter('#widget_create label'))) {
+            // Resolve primary sub by picking sub title with smallest levenshtein distance from app title.
+            foreach ($multi as $label) {
+                $titles[self::filterNumbers($label->attributes['for']->value)] =
+                    levenshtein($title, $label->textContent);
+            }
+
+            asort($titles);
+            $primarySubId = key($titles);
+
+            return [
+                $crawler->filter("#game_area_purchase_section_add_to_cart_$primarySubId"),
+                $primarySubId,
+                current($titles)
+            ];
+        }
+
+        // Pick first purchase area with platforms defined.
         $purchaseArea = $crawler->filter(
             '#game_area_purchase .game_area_purchase_game:not(.demo_above_purchase)
                 > .game_area_purchase_platform:not(:empty)'
         );
 
-        return $purchaseArea->count() ? $purchaseArea->closest('.game_area_purchase_game') : $purchaseArea;
+        return ($purchaseArea->count()
+            ? [$purchaseArea->closest('.game_area_purchase_game')]
+            : [$purchaseArea]
+        ) + array_fill(0, 3, null);
     }
 }

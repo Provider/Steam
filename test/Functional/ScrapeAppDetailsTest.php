@@ -595,6 +595,9 @@ final class ScrapeAppDetailsTest extends TestCase
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
 
+        self::assertArrayHasKey('free', $app);
+        self::assertTrue($app['free']);
+
         self::assertArrayHasKey('price', $app);
         self::assertSame(0, $app['price']);
 
@@ -611,7 +614,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see http://store.steampowered.com/app/1840/
      * @see http://store.steampowered.com/app/323130/
      * @see http://store.steampowered.com/app/250600/
-     * @see http://store.steampowered.com/app/252150/
      */
     public function provideFreeApps(): array
     {
@@ -621,7 +623,6 @@ final class ScrapeAppDetailsTest extends TestCase
             '"Free" button (no price)' => [1840],
             '"Download" button (no price)' => [323130],
             '"Play Game" button (no price)' => [250600],
-            '"Install Game" button (no price)' => [252150],
         ];
     }
 
@@ -658,21 +659,46 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see https://store.steampowered.com/app/519860/DUSK/
      * @see https://store.steampowered.com/app/214560/Mark_of_the_Ninja/
+     * @see https://store.steampowered.com/app/620/Portal_2/
+     * @see https://store.steampowered.com/app/546560/HalfLife_Alyx/
      * @dataProvider providePrimaryPurchaseAreaNotFirstApps
      */
-    public function testPrimaryPurchaseAreaNotFirst(int $appId): void
+    public function testPrimaryPurchaseAreaNotFirst(int $appId, int $subId, int $levenshtein): void
     {
         $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
 
         self::assertTrue($app['windows']);
+        self::assertSame($subId, $app['DEBUG_primary_sub_id']);
+        self::assertSame($levenshtein, $app['DEBUG_levenshtein']);
     }
 
     public function providePrimaryPurchaseAreaNotFirstApps(): iterable
     {
         return [
-            'DUSK' => [519860],
-            'Mark of the Ninja' => [214560],
+            'DUSK' => [519860, 329111, 0],
+            'Mark of the Ninja' => [214560, 271120, 11],
+            'Portal 2' => [620, 7877, 0],
+            'Half-Life: Alyx' => [546560, 134870, 0],
         ];
+    }
+
+    /**
+     * Tests that Grimm is parsed correctly. Grimm is a special case because it's not technically free according to
+     * Steam internals but presents itself as if it were, but with an "Install Game" button not typically seen on free
+     * games. We will treat it as an ordinary paid game.
+     *
+     * Note this is a BC break because we used to present Grimm as free.
+     *
+     * @see https://store.steampowered.com/app/252150/Grimm/
+     */
+    public function testGrimm(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(252150)));
+
+        self::assertTrue($app['windows']);
+        // Either of these sub IDs are acceptable because both represent the same price and platforms.
+        self::assertContains($app['DEBUG_primary_sub_id'], [33741, 33744]);
+        self::assertSame(11, $app['DEBUG_levenshtein']);
     }
 
     /**
