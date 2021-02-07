@@ -58,9 +58,9 @@ final class AppDetailsParser
 
         // Purchase area.
         [$purchaseArea, $DEBUG_primary_sub_id, $DEBUG_levenshtein] = self::findPrimaryPurchaseArea($crawler, $name);
-        $price = self::parsePrice($purchaseArea);
-        $discount_price = self::parseDiscountPrice($purchaseArea);
-        $discount = self::parseDiscountPercentage($purchaseArea);
+        $price = $free ? 0 : self::parsePrice($purchaseArea);
+        $discount_price = $free ? null : self::parseDiscountPrice($purchaseArea);
+        $discount = $free ? 0 : self::parseDiscountPercentage($purchaseArea);
 
         // Reviews.
         $positiveReviews = $crawler->filter('[for=review_type_positive] > .user_reviews_count');
@@ -286,7 +286,7 @@ final class AppDetailsParser
         return (bool)preg_match('[\bfree\b]', $tooltip->attr('data-tooltip-text'));
     }
 
-    private static function parseVideoIds(Crawler $crawler)
+    private static function parseVideoIds(Crawler $crawler): array
     {
         return $crawler->filter('#highlight_strip_scroll > .highlight_strip_movie')->each(
             static function (Crawler $crawler): int {
@@ -348,17 +348,35 @@ final class AppDetailsParser
         if (count($labels = $crawler->filter('#widget_create label'))) {
             // Resolve primary sub by picking sub title with smallest levenshtein distance from app title.
             foreach ($labels as $label) {
-                $subs[self::filterNumbers($label->attributes['for']->value)] =
-                    levenshtein($title, $label->textContent);
+                $titles[$subId = self::filterNumbers($label->attributes['for']->value)] = $label->textContent;
+                $levenshteins[$subId] = levenshtein($title, $label->textContent);
             }
 
-            asort($subs);
-            $primarySubId = key($subs);
+            // Use exact match if exists.
+            asort($levenshteins);
+            if (current($levenshteins) === 0) {
+                goto levenshtein;
+            }
 
+            // Count how many purchase areas contain product title. If one or less, just use first area regardless
+            // of whether or not that area actually contains the title.
+            if (count($filtered = array_filter($titles, static function (string $t) use ($title): bool {
+                return strpos($t, $title) !== false;
+            })) < 2) {
+                return [
+                    self::findPurchaseAreaBySubId($crawler, key($titles)),
+                    key($titles),
+                    null,
+                ];
+            }
+
+            // Use purcahse area with smallest levenshtein distance.
+            ksort($levenshteins);
+            levenshtein:
             return [
-                $crawler->filter("#game_area_purchase_section_add_to_cart_$primarySubId"),
-                $primarySubId,
-                current($subs)
+                self::findPurchaseAreaBySubId($crawler, key($levenshteins)),
+                key($levenshteins),
+                current($levenshteins),
             ];
         }
 
@@ -372,5 +390,10 @@ final class AppDetailsParser
             ? [$purchaseArea->closest('.game_area_purchase_game')]
             : [$purchaseArea]
         ) + array_fill(0, 3, null);
+    }
+
+    private static function findPurchaseAreaBySubId(Crawler $crawler, int $subId): Crawler
+    {
+        return $crawler->filter("#game_area_purchase_section_add_to_cart_$subId");
     }
 }

@@ -607,13 +607,13 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertArrayHasKey('discount', $app);
         self::assertSame(0, $app['discount']);
     }
-
     /**
      * @see http://store.steampowered.com/app/630/
      * @see http://store.steampowered.com/app/570/
      * @see http://store.steampowered.com/app/1840/
      * @see http://store.steampowered.com/app/323130/
      * @see http://store.steampowered.com/app/250600/
+     * @see https://store.steampowered.com/app/206480/Dungeons__Dragons_Online
      */
     public function provideFreeApps(): array
     {
@@ -623,6 +623,7 @@ final class ScrapeAppDetailsTest extends TestCase
             '"Free" button (no price)' => [1840],
             '"Download" button (no price)' => [323130],
             '"Play Game" button (no price)' => [250600],
+            'Play for Free!' => [206480],
         ];
     }
 
@@ -661,6 +662,10 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/214560/Mark_of_the_Ninja/
      * @see https://store.steampowered.com/app/620/Portal_2/
      * @see https://store.steampowered.com/app/546560/HalfLife_Alyx/
+     * @see https://store.steampowered.com/app/2720/ThreadSpace_Hyperbol/
+     * @see https://store.steampowered.com/app/252150/Grimm/
+     * @see https://store.steampowered.com/app/294770/Haegemonia_Legions_of_Iron
+     *
      * @dataProvider providePrimaryPurchaseAreaNotFirstApps
      */
     public function testPrimaryPurchaseAreaNotFirst(int $appId, int $subId, int $levenshtein): void
@@ -671,7 +676,6 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame($subId, $app['DEBUG_primary_sub_id']);
         self::assertSame($levenshtein, $app['DEBUG_levenshtein']);
     }
-
     public function providePrimaryPurchaseAreaNotFirstApps(): iterable
     {
         return [
@@ -679,26 +683,51 @@ final class ScrapeAppDetailsTest extends TestCase
             'Mark of the Ninja' => [214560, 271120, 11],
             'Portal 2' => [620, 7877, 0],
             'Half-Life: Alyx' => [546560, 134870, 0],
+            'ThreadSpace: Hyperbol' => [2720, 388, 0],
+            'Grimm' => [252150, 33694, 34],
+            'Haegemonia: Legions of Iron' => [294770, 41904, 0],
         ];
     }
 
     /**
-     * Tests that Grimm is parsed correctly. Grimm is a special case because it's not technically free according to
-     * Steam internals but presents itself as if it were, but with an "Install Game" button not typically seen on free
-     * games. We will treat it as an ordinary paid game.
+     * Tests apps with multiple purchase areas are parsed correctly.
+     * @see https://store.steampowered.com/app/57620/Patrician_IV
+     * @see https://store.steampowered.com/app/2200/Quake_III_Arena
+     * @see https://store.steampowered.com/app/4560/Company_of_Heroes__Legacy_Edition
+     * @see https://store.steampowered.com/app/9000/Spear_of_Destiny
+     * @see https://store.steampowered.com/app/12150/Max_Payne_2_The_Fall_of_Max_Payne
+     * @see https://store.steampowered.com/app/15520/AaAaAA__A_Reckless_Disregard_for_Gravity
+     * @see https://store.steampowered.com/app/21000/LEGO_Batman_The_Videogame
+     * @see https://store.steampowered.com/app/24440/King_Arthur_Knights_and_Vassals_DLC
+     * @see https://store.steampowered.com/app/1449880/Mortal_Kombat_11_Kombat_Pack_2
+     * @see https://store.steampowered.com/app/202200/Galactic_Civilizations_II_Ultimate_Edition
+     * @see https://store.steampowered.com/app/206480/Dungeons__Dragons_Online
+     * @see https://store.steampowered.com/app/221001/FTL_Faster_Than_Light__Soundtrack
      *
-     * Note this is a BC break because we used to present Grimm as free.
-     *
-     * @see https://store.steampowered.com/app/252150/Grimm/
+     * @dataProvider provideMultiPurchaseAreas
      */
-    public function testGrimm(): void
+    public function testMultiPurchaseArea(int $appId, int $subId): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(252150)));
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
 
         self::assertTrue($app['windows']);
-        // Either of these sub IDs are acceptable because both represent the same price and platforms.
-        self::assertContains($app['DEBUG_primary_sub_id'], [33741, 33744]);
-        self::assertSame(11, $app['DEBUG_levenshtein']);
+        self::assertSame($subId, $app['DEBUG_primary_sub_id']);
+    }
+    public function provideMultiPurchaseAreas(): iterable
+    {
+        return [
+            'Patrician IV' => [57620, 6089],
+            'Quake III Arena' => [2200, 433],
+            'Company of Heroes - Legacy Edition' => [4560, 403],
+            'Spear of Destiny' => [9000, 417],
+            'Max Payne 2: The Fall of Max Payne' => [12150, 597],
+            'AaAaAA!!! - A Reckless Disregard for Gravity' => [15520, 2062],
+            'LEGO® Batman™: The Videogame' => [21000, 1016],
+            'King Arthur: Knights and Vassals DLC' => [24440, 2796],
+            'Mortal Kombat 11 Kombat Pack 2' => [1449880, 510130],
+            'Galactic Civilizations® II: Ultimate Edition' => [202200, 12481],
+            'FTL: Faster Than Light - Soundtrack' => [221001, 16706],
+        ];
     }
 
     /**

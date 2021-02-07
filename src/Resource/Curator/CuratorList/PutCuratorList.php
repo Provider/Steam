@@ -50,6 +50,8 @@ final class PutCuratorList extends CuratorResource implements SingleRecordResour
             'title' => $list->getTitle(),
             'title_blurb_locs' => '{}',
             'type' => 2,
+            // TODO: Remove or set to "none" when Valve get their shit together.
+            'sale_event_gid' => '3033706120464786490',
         ]);
 
         return $body;
