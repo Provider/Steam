@@ -670,15 +670,24 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/202200/Galactic_Civilizations_II_Ultimate_Edition
      * @see https://store.steampowered.com/app/206480/Dungeons__Dragons_Online
      * @see https://store.steampowered.com/app/221001/FTL_Faster_Than_Light__Soundtrack
-     * @see https://store.steampowered.com/app/252150/Grimm/
+     * @see https://store.steampowered.com/app/252150/Grimm
 
-     * @see https://store.steampowered.com/app/519860/DUSK/
-     * @see https://store.steampowered.com/app/214560/Mark_of_the_Ninja/
-     * @see https://store.steampowered.com/app/620/Portal_2/
-     * @see https://store.steampowered.com/app/546560/HalfLife_Alyx/
-     * @see https://store.steampowered.com/app/2720/ThreadSpace_Hyperbol/
-     * @see https://store.steampowered.com/app/294770/Haegemonia_Legions_of_Iron
-     * @see https://store.steampowered.com/app/782330/DOOM_Eternal/
+     * @see https://store.steampowered.com/app/519860/DUSK
+     * @see https://store.steampowered.com/app/214560/Mark_of_the_Ninja
+     * @see https://store.steampowered.com/app/620/Portal_2
+     * @see https://store.steampowered.com/app/546560/HalfLife_Alyx
+     * @see https://store.steampowered.com/app/782330/DOOM_Eternal
+     * @see https://store.steampowered.com/app/335300/DARK_SOULS_II_Scholar_of_the_First_Sin
+     * @see https://store.steampowered.com/app/3830/Psychonauts
+     * @see https://store.steampowered.com/app/24400/King_Arthur__The_Roleplaying_Wargame
+     * @see https://store.steampowered.com/app/26800/Braid
+     * @see https://store.steampowered.com/app/221680/Rocksmith_2014_Edition__Remastered
+     * @see https://store.steampowered.com/app/238240/Edge_of_Space
+     * @see https://store.steampowered.com/app/256390/MotoGP14
+     * @see https://store.steampowered.com/app/274170/Hotline_Miami_2_Wrong_Number
+     * @see https://store.steampowered.com/app/345660/RIDE
+     * @see https://store.steampowered.com/app/355130/MotoGP15
+     * @see https://store.steampowered.com/app/901478/Prince_of_Persia_The_Forgotten_Sands_Digital_Deluxe_Edition
      *
      * @dataProvider provideMultiPurchaseAreas
      */
@@ -711,9 +720,17 @@ final class ScrapeAppDetailsTest extends TestCase
             'Mark of the Ninja' => [214560, 271120],
             'Portal 2' => [620, 7877],
             'Half-Life: Alyx' => [546560, 134870],
-            'ThreadSpace: Hyperbol' => [2720, 388],
-            'Haegemonia: Legions of Iron' => [294770, 41904],
             'DOOM Eternal' => [782330, 235874],
+            'DARK SOULS™ II: Scholar of the First Sin' => [335300, 55366],
+            'Psychonauts' => [3830, 172],
+            'King Arthur - The Role-playing Wargame' => [24400, 2538],
+            'Rocksmith® 2014 Edition - Remastered' => [221680, 131845],
+            'Edge of Space' => [238240, 28923],
+            'MotoGP™14' => [256390, 52513],
+            'Hotline Miami 2: Wrong Number' => [274170, 37088],
+            'RIDE' => [345660, 60272],
+            'MotoGP™15' => [355130, 62485],
+            'Prince of Persia: The Forgotten Sands™ Digital Deluxe Edition' => [901478, 4487],
         ];
     }
 

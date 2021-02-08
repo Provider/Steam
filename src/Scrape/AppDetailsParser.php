@@ -345,6 +345,7 @@ final class AppDetailsParser
     {
         // Detect if game is multi-sub.
         if (count($labels = $crawler->filter('#widget_create label'))) {
+            // Collect purchase area titles.
             foreach ($labels as $label) {
                 $subId = self::filterNumbers($label->attributes['for']->value);
 
@@ -360,8 +361,8 @@ final class AppDetailsParser
             }
 
             // Count how many purchase areas contain product title.
-            if (count(array_filter($titles, static function (string $t) use ($title): bool {
-                return strpos($t, $title) !== false;
+            if (count(array_filter($titles, static function (string $purchaseAreaTitle) use ($title): bool {
+                return strpos($purchaseAreaTitle, $title) !== false;
             })) > 1) {
                 // If more than one, use purchase area with lowest sub ID.
                 ksort($titles);
