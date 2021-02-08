@@ -656,41 +656,8 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that a game whose primary purchase area does not appear first is parsed correctly.
+     * Tests that apps with multiple purchase areas are parsed correctly by picking the correct sub ID.
      *
-     * @see https://store.steampowered.com/app/519860/DUSK/
-     * @see https://store.steampowered.com/app/214560/Mark_of_the_Ninja/
-     * @see https://store.steampowered.com/app/620/Portal_2/
-     * @see https://store.steampowered.com/app/546560/HalfLife_Alyx/
-     * @see https://store.steampowered.com/app/2720/ThreadSpace_Hyperbol/
-     * @see https://store.steampowered.com/app/252150/Grimm/
-     * @see https://store.steampowered.com/app/294770/Haegemonia_Legions_of_Iron
-     *
-     * @dataProvider providePrimaryPurchaseAreaNotFirstApps
-     */
-    public function testPrimaryPurchaseAreaNotFirst(int $appId, int $subId, int $levenshtein): void
-    {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
-
-        self::assertTrue($app['windows']);
-        self::assertSame($subId, $app['DEBUG_primary_sub_id']);
-        self::assertSame($levenshtein, $app['DEBUG_levenshtein']);
-    }
-    public function providePrimaryPurchaseAreaNotFirstApps(): iterable
-    {
-        return [
-            'DUSK' => [519860, 329111, 0],
-            'Mark of the Ninja' => [214560, 271120, 11],
-            'Portal 2' => [620, 7877, 0],
-            'Half-Life: Alyx' => [546560, 134870, 0],
-            'ThreadSpace: Hyperbol' => [2720, 388, 0],
-            'Grimm' => [252150, 33694, 34],
-            'Haegemonia: Legions of Iron' => [294770, 41904, 0],
-        ];
-    }
-
-    /**
-     * Tests apps with multiple purchase areas are parsed correctly.
      * @see https://store.steampowered.com/app/57620/Patrician_IV
      * @see https://store.steampowered.com/app/2200/Quake_III_Arena
      * @see https://store.steampowered.com/app/4560/Company_of_Heroes__Legacy_Edition
@@ -703,6 +670,15 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/202200/Galactic_Civilizations_II_Ultimate_Edition
      * @see https://store.steampowered.com/app/206480/Dungeons__Dragons_Online
      * @see https://store.steampowered.com/app/221001/FTL_Faster_Than_Light__Soundtrack
+     * @see https://store.steampowered.com/app/252150/Grimm/
+
+     * @see https://store.steampowered.com/app/519860/DUSK/
+     * @see https://store.steampowered.com/app/214560/Mark_of_the_Ninja/
+     * @see https://store.steampowered.com/app/620/Portal_2/
+     * @see https://store.steampowered.com/app/546560/HalfLife_Alyx/
+     * @see https://store.steampowered.com/app/2720/ThreadSpace_Hyperbol/
+     * @see https://store.steampowered.com/app/294770/Haegemonia_Legions_of_Iron
+     * @see https://store.steampowered.com/app/782330/DOOM_Eternal/
      *
      * @dataProvider provideMultiPurchaseAreas
      */
@@ -716,6 +692,7 @@ final class ScrapeAppDetailsTest extends TestCase
     public function provideMultiPurchaseAreas(): iterable
     {
         return [
+            // Purchase area appears first but title does not match.
             'Patrician IV' => [57620, 6089],
             'Quake III Arena' => [2200, 433],
             'Company of Heroes - Legacy Edition' => [4560, 403],
@@ -727,6 +704,16 @@ final class ScrapeAppDetailsTest extends TestCase
             'Mortal Kombat 11 Kombat Pack 2' => [1449880, 510130],
             'Galactic Civilizations® II: Ultimate Edition' => [202200, 12481],
             'FTL: Faster Than Light - Soundtrack' => [221001, 16706],
+            'Grimm' => [252150, 33694],
+
+            // Purchase area does not appear first.
+            'DUSK' => [519860, 329111],
+            'Mark of the Ninja' => [214560, 271120],
+            'Portal 2' => [620, 7877],
+            'Half-Life: Alyx' => [546560, 134870],
+            'ThreadSpace: Hyperbol' => [2720, 388],
+            'Haegemonia: Legions of Iron' => [294770, 41904],
+            'DOOM Eternal' => [782330, 235874],
         ];
     }
 
