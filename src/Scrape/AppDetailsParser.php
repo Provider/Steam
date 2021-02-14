@@ -360,6 +360,11 @@ final class AppDetailsParser
                 $titles[$subId] = $label->textContent;
             }
 
+            // If there is exactly one non-package, pick it.
+            if (count($nonPackage = self::filterNonPackages($crawler)) === 1) {
+                return [$nonPackage, self::findPurchaseAreaSubId($nonPackage)];
+            }
+
             // Count how many purchase areas contain product title.
             if (count(array_filter($titles, static function (string $purchaseAreaTitle) use ($title): bool {
                 return strpos($purchaseAreaTitle, $title) !== false;
@@ -377,15 +382,47 @@ final class AppDetailsParser
         }
 
         // Pick first purchase area with platforms defined that is not a demo area.
-        $purchaseArea = $crawler->filter(
+        $purchaseArea = self::filterPurchaseAreas($crawler, true);
+
+        return [$purchaseArea, null];
+    }
+
+    private static function filterPurchaseAreas(Crawler $crawler, bool $firstOnly = false): Crawler
+    {
+        $purchaseAreas = $crawler->filter(
             '#game_area_purchase .game_area_purchase_game:not(.demo_above_purchase)
                 > .game_area_purchase_platform:not(:empty)'
         );
 
-        return ($purchaseArea->count()
-            ? [$purchaseArea->closest('.game_area_purchase_game')]
-            : [$purchaseArea]
-        ) + [1 => null];
+        if (!$purchaseAreas->count()) {
+            // Empty crawler.
+            return $purchaseAreas;
+        }
+
+        return $firstOnly
+            ? $purchaseAreas->closest('.game_area_purchase_game')
+            : new Crawler($purchaseAreas->each(function (Crawler $crawler) {
+                return $crawler->closest('.game_area_purchase_game')->getNode(0);
+            }))
+        ;
+    }
+
+    private static function filterNonPackages(Crawler $crawler): Crawler
+    {
+        $purchaseAreas = self::filterPurchaseAreas($crawler);
+
+        return $purchaseAreas->reduce(function (Crawler $crawler) {
+            return !$crawler->filter('.btn_packageinfo')->count();
+        });
+    }
+
+    private static function findPurchaseAreaSubId(Crawler $crawler): ?int
+    {
+        if (count($subId = $crawler->filter('input[name=subid]'))) {
+            return +$subId->attr('value');
+        }
+
+        return null;
     }
 
     private static function findPurchaseAreaBySubId(Crawler $crawler, int $subId): Crawler
