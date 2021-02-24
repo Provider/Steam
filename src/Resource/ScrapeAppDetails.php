@@ -17,13 +17,19 @@ use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\AppDetailsParser;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\InvalidMarkupException;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
+use function Amp\call;
+use function ScriptFUSION\Retry\retry;
+use function ScriptFUSION\Retry\retryAsync;
 
 /**
  * Scrapes the Steam store page for App details.
  */
 final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, AsyncResource, Url
 {
+    public const RETRIES = 5;
+
     private $appId;
 
     public function __construct(int $appId)
@@ -40,13 +46,19 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
     {
         $this->configureOptions($connector->findBaseConnector());
 
-        $this->validateResponse($response = $connector->fetch(
-            (new HttpDataSource($this->getUrl()))
-                // Enable age-restricted and mature content.
-                ->addHeader('Cookie: birthtime=0; mature_content=1')
-        ));
+        yield retry(
+            self::RETRIES,
+            function () use ($connector) {
+                $this->validateResponse($response = $connector->fetch(
+                    (new HttpDataSource($this->getUrl()))
+                        // Enable age-restricted and mature content.
+                        ->addHeader('Cookie: birthtime=0; mature_content=1')
+                ));
 
-        yield AppDetailsParser::tryParseStorePage($response->getBody());
+                return AppDetailsParser::tryParseStorePage($response->getBody());
+            },
+            self::createExceptionHandler()
+        );
     }
 
     public function fetchAsync(ImportConnector $connector): Iterator
@@ -54,12 +66,20 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         $this->configureAsyncOptions($connector->findBaseConnector());
 
         return new Producer(function (\Closure $emit) use ($connector): \Generator {
-            /** @var HttpResponse $response */
-            $this->validateResponse($response = yield $connector->fetchAsync(
-                (new AsyncHttpDataSource($this->getUrl()))
-            ));
+            yield $emit(retryAsync(
+                self::RETRIES,
+                function () use ($connector) {
+                    return call(function () use ($connector) {
+                        /** @var HttpResponse $response */
+                        $this->validateResponse($response = yield $connector->fetchAsync(
+                            (new AsyncHttpDataSource($this->getUrl()))
+                        ));
 
-            yield $emit(AppDetailsParser::tryParseStorePage($response->getBody()));
+                        return AppDetailsParser::tryParseStorePage($response->getBody());
+                    });
+                },
+                self::createExceptionHandler()
+            ));
         });
     }
 
@@ -100,5 +120,14 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         $cookies->store(new ResponseCookie('birthtime', '0', $cookieAttributes));
         // Enable mature content.
         $cookies->store(new ResponseCookie('mature_content', '1', $cookieAttributes));
+    }
+
+    private static function createExceptionHandler(): \Closure
+    {
+        return static function (\Exception $exception): void {
+            if (!$exception instanceof InvalidMarkupException) {
+                throw $exception;
+            }
+        };
     }
 }

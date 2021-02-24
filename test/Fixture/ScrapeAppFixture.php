@@ -25,6 +25,11 @@ class ScrapeAppFixture implements ProviderResource, SingleRecordResource
 
     public function fetch(ImportConnector $connector): \Iterator
     {
-        yield AppDetailsParser::tryParseStorePage(file_get_contents(__DIR__ . "/$this->fixture"));
+        yield AppDetailsParser::tryParseStorePage(self::getFixture($this->fixture));
+    }
+
+    public static function getFixture(string $fixture): string
+    {
+        return file_get_contents(__DIR__ . "/$fixture");
     }
 }

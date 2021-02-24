@@ -3,6 +3,7 @@
 namespace ScriptFUSIONTest\Porter\Provider\Steam;
 
 use Amp\Promise;
+use Mockery\MockInterface;
 use Psr\Container\ContainerInterface;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\StaticDataProvider;
@@ -20,19 +21,27 @@ final class FixtureFactory
 
     public static function createPorter(): Porter
     {
-        return new Porter(
-            \Mockery::mock(ContainerInterface::class)
-                ->shouldReceive('has')
-                    ->with(SteamProvider::class)
-                    ->andReturn(true)
-                ->shouldReceive('has')
-                    ->with(StaticDataProvider::class)
-                    ->andReturn(false)
-                ->shouldReceive('get')
-                    ->with(SteamProvider::class)
-                    ->andReturn(new SteamProvider)
-                ->getMock()
-        );
+        return new Porter(self::mockPorterContainer());
+    }
+
+    /**
+     * @return ContainerInterface|MockInterface
+     */
+    public static function mockPorterContainer(): ContainerInterface
+    {
+        return \Mockery::mock(ContainerInterface::class)
+            ->shouldReceive('has')
+                ->with(SteamProvider::class)
+                ->andReturn(true)
+            ->shouldReceive('has')
+                ->with(StaticDataProvider::class)
+                ->andReturn(false)
+            ->shouldReceive('get')
+                ->with(SteamProvider::class)
+                ->andReturn(new SteamProvider)
+                ->byDefault()
+            ->getMock()
+        ;
     }
 
     public static function createSession(Porter $porter): Promise
