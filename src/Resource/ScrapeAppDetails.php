@@ -7,6 +7,7 @@ use Amp\Http\Cookie\CookieAttributes;
 use Amp\Http\Cookie\ResponseCookie;
 use Amp\Iterator;
 use Amp\Producer;
+use Psr\Log\LoggerInterface;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
@@ -31,6 +32,9 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
     public const RETRIES = 5;
 
     private $appId;
+
+    /** @var LoggerInterface */
+    private $logger;
 
     public function __construct(int $appId)
     {
@@ -57,7 +61,7 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
 
                 return AppDetailsParser::tryParseStorePage($response->getBody());
             },
-            self::createExceptionHandler()
+            $this->createExceptionHandler()
         );
     }
 
@@ -78,7 +82,7 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
                         return AppDetailsParser::tryParseStorePage($response->getBody());
                     });
                 },
-                self::createExceptionHandler()
+                $this->createExceptionHandler()
             ));
         });
     }
@@ -97,6 +101,11 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
     {
         // Force the country to US, for consistency and easier date parsing, with the undocumented 'cc' parameter.
         return SteamProvider::buildStoreApiUrl("/app/$this->appId/?cc=us");
+    }
+
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 
     private function configureOptions(HttpConnector $connector): void
@@ -122,11 +131,16 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         $cookies->store(new ResponseCookie('mature_content', '1', $cookieAttributes));
     }
 
-    private static function createExceptionHandler(): \Closure
+    private function createExceptionHandler(): \Closure
     {
-        return static function (\Exception $exception): void {
+        return function (\Exception $exception): void {
             if (!$exception instanceof InvalidMarkupException) {
                 throw $exception;
+            }
+
+            if ($this->logger) {
+                $type = get_class($exception);
+                $this->logger->error("App #$this->appId: $type: {$exception->getMessage()}");
             }
         };
     }
