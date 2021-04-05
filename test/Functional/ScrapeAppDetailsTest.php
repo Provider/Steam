@@ -785,31 +785,4 @@ final class ScrapeAppDetailsTest extends TestCase
 
         $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('scuffed.xml')));
     }
-
-    /**
-     * Tests that when InvalidMarkupException is thrown, the request is retried.
-     */
-    public function testImportInvalidMarkup(): void
-    {
-        $resource = new ScrapeAppDetails(0);
-
-        // Mock connector to always return a scuffed response.
-        $builder = new MockConfigurationBuilder();
-        $builder->setBlackListedMethods([]);
-        $builder->addTarget(AsyncHttpConnector::class);
-        $connector = \Mockery::spy($builder);
-        $connector->expects('fetchAsync')->andReturn(
-            new Success(HttpResponse::fromPhpWrapper(
-                ['HTTP/1.1 200 OK'],
-                ScrapeAppFixture::getFixture('scuffed.xml')
-            ))
-        )->times($resource::RETRIES);
-        $connector->expects('getOptions')->andReturn(new AsyncHttpOptions());
-        $connector->expects('getCookieJar')->andReturn(new InMemoryCookieJar());
-
-        $importConnector = ImportConnectorFactory::create($connector, new AsyncImportSpecification($resource));
-
-        $this->expectException(FailingTooHardException::class);
-        wait(toArray($resource->fetchAsync($importConnector)));
-    }
 }
