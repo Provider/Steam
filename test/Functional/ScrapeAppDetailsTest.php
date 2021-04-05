@@ -747,6 +747,36 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that the parser will not throw an exception parsing this custom app page for Valve hardware.
+     *
+     * This bizarre app page will mostly parse as nulls. Since we are not interested in parsing this, this is fine.
+     *
+     * @see https://store.steampowered.com/app/1059530/Valve_Index_Headset/
+     */
+    public function testValveIndex(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId = 1059530)));
+
+        self::assertSame('hardware', $app['type']);
+        self::assertSame('Valve Index® Headset', $app['name']);
+        self::assertSame($appId, $app['app_id']);
+
+        // App has no tags, unlike every other app class on Steam.
+        self::assertIsArray($app['tags']);
+        self::assertEmpty($app['tags']);
+
+        // Since there are no tags, our current canonical lookup method fails.
+        self::assertNull($app['canonical_id']);
+
+        // App has no platform information.
+        self::assertFalse($app['windows']);
+
+        // Although this information is present on the page, we are currently not parsing it due to its different form.
+        self::assertNull($app['price']);
+        self::assertNull($app['release_date']);
+    }
+
+    /**
      * Tests that when non-HTML markup is returned, InvalidMarkupException is thrown.
      */
     public function testInvalidMarkup(): void

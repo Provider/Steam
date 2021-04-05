@@ -54,7 +54,7 @@ final class AppDetailsParser
         $publishers = iterator_to_array(self::parsePublishers($reviewsArea));
 
         // Tags area.
-        $canonical_id = +$crawler->filter('[data-appid]')->attr('data-appid');
+        $canonical_id = ($appId = $crawler->filter('[data-appid]'))->count() ? +$appId->attr('data-appid') : null;
 
         // Purchase area.
         [$purchaseArea, $DEBUG_primary_sub_id] = self::findPrimaryPurchaseArea($crawler, $name);
