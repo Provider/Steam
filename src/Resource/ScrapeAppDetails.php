@@ -43,7 +43,7 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         $this->validateResponse($response = $connector->fetch(
             (new HttpDataSource($this->getUrl()))
                 // Enable age-restricted and mature content.
-                ->addHeader('Cookie: birthtime=0; mature_content=1')
+                ->addHeader('Cookie: birthtime=0; wants_mature_content=1')
         ));
 
         yield AppDetailsParser::tryParseStorePage($response->getBody());
@@ -99,6 +99,6 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         // Enable age-restricted content.
         $cookies->store(new ResponseCookie('birthtime', '0', $cookieAttributes));
         // Enable mature content.
-        $cookies->store(new ResponseCookie('mature_content', '1', $cookieAttributes));
+        $cookies->store(new ResponseCookie('wants_mature_content', '1', $cookieAttributes));
     }
 }
