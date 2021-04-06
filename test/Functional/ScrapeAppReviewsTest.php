@@ -158,11 +158,25 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
         /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->importAsync(new AsyncImportSpecification(
             new ScrapeAppReviews(0)
-        ))->findFirstCollection();
+        ));
 
         $this->expectException(InvalidAppIdException::class);
 
         yield $reviews->advance();
+    }
+
+    /**
+     * Tests that an adult game, that is typically behind a login wall, is parsed successfully.
+     */
+    public function testAdultGame(): \Generator
+    {
+        /** @var AsyncGameReviewsRecords $reviews */
+        $reviews = $this->porter->importAsync(new AsyncImportSpecification(
+            new ScrapeAppReviews(1296770)
+        ));
+
+        self::assertTrue(yield $reviews->advance(), 'Has results.');
+        self::assertLooksLikeReview($review = $reviews->getCurrent());
     }
 
     private static function assertLooksLikeReview(array $review): void

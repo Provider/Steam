@@ -37,6 +37,7 @@ final class AppDetailsParser
         $languages = self::parseLanguages($crawler);
         $vrx = self::parseVrExclusive($crawler);
         $free = self::parseFree($crawler);
+        $adult = self::parseAdult($crawler);
 
         // Title area.
         $app_id = self::parseAppId($crawler);
@@ -107,6 +108,7 @@ final class AppDetailsParser
             'discount',
             'vrx',
             'free',
+            'adult',
             'videos',
             'positive_reviews',
             'negative_reviews',
@@ -283,6 +285,11 @@ final class AppDetailsParser
         }
 
         return (bool)preg_match('[\bfree\b]', $tooltip->attr('data-tooltip-text'));
+    }
+
+    private static function parseAdult(Crawler $crawler): bool
+    {
+        return $crawler->filter('.mature_content_notice')->count() === 1;
     }
 
     private static function parseVideoIds(Crawler $crawler): array

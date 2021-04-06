@@ -71,6 +71,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame($app['price'], 999);
         self::assertFalse($app['vrx']);
         self::assertFalse($app['free']);
+        self::assertFalse($app['adult']);
 
         self::assertCount(0, $app['videos']);
 
@@ -768,7 +769,7 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that an adult game behind a login wall can be accessed and parsed with a valid login.
+     * Tests that an adult game behind a login wall can be accessed and parsed.
      *
      * @see https://store.steampowered.com/app/1296770/Her_New_Memory__Hentai_Simulator/
      *
@@ -780,6 +781,7 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertSame('Her New Memory - Hentai Simulator', $app['name']);
         self::assertSame('game', $app['type']);
+        self::assertTrue($app['adult']);
         self::assertSame($appId, $app['app_id']);
         self::assertSame($appId, $app['canonical_id']);
         self::assertTrue($app['windows']);
