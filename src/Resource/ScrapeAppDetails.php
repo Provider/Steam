@@ -16,24 +16,25 @@ use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
+use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\AppDetailsParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 /**
  * Scrapes the Steam store page for App details.
  */
-final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, AsyncResource, Url
+final class ScrapeAppDetails extends SessionResource implements
+    ProviderResource,
+    AsyncResource,
+    SingleRecordResource,
+    Url
 {
     private $appId;
 
-    public function __construct(int $appId)
+    public function __construct(int $appId, CuratorSession $curatorSession = null)
     {
         $this->appId = $appId;
-    }
-
-    public function getProviderClassName(): string
-    {
-        return SteamProvider::class;
+        $curatorSession && $this->setSession($curatorSession);
     }
 
     public function fetch(ImportConnector $connector): \Iterator
@@ -43,7 +44,7 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         $this->validateResponse($response = $connector->fetch(
             (new HttpDataSource($this->getUrl()))
                 // Enable age-restricted and mature content.
-                ->addHeader('Cookie: birthtime=0; mature_content=1')
+                ->addHeader('Cookie: birthtime=0; wants_mature_content=1')
         ));
 
         yield AppDetailsParser::tryParseStorePage($response->getBody());
@@ -54,6 +55,13 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         $this->configureAsyncOptions($connector->findBaseConnector());
 
         return new Producer(function (\Closure $emit) use ($connector): \Generator {
+            $baseConnector = $connector->findBaseConnector();
+            if (!$baseConnector instanceof AsyncHttpConnector) {
+                throw new \InvalidArgumentException('Unexpected connector type.');
+            }
+
+            $this->applySessionCookies($baseConnector->getCookieJar());
+
             /** @var HttpResponse $response */
             $this->validateResponse($response = yield $connector->fetchAsync(
                 (new AsyncHttpDataSource($this->getUrl()))
@@ -99,6 +107,6 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         // Enable age-restricted content.
         $cookies->store(new ResponseCookie('birthtime', '0', $cookieAttributes));
         // Enable mature content.
-        $cookies->store(new ResponseCookie('mature_content', '1', $cookieAttributes));
+        $cookies->store(new ResponseCookie('wants_mature_content', '1', $cookieAttributes));
     }
 }

@@ -3,34 +3,22 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
-use Amp\Http\Client\Cookie\CookieJar;
 use Amp\Iterator;
 use Amp\Producer;
-use ScriptFUSION\Porter\Connector\AsyncDataSource;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
-use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
-use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
+use ScriptFUSION\Porter\Provider\Steam\Resource\SessionResource;
 
-abstract class CuratorResource implements AsyncResource
+abstract class CuratorResource extends SessionResource
 {
-    protected $session;
-
     protected $curatorId;
 
     public function __construct(CuratorSession $session, int $curatorId)
     {
-        $this->session = $session;
+        $this->setSession($session);
         $this->curatorId = $curatorId;
     }
-
-    public function getProviderClassName(): string
-    {
-        return SteamProvider::class;
-    }
-
-    abstract protected function getSource(): AsyncDataSource;
 
     public function fetchAsync(ImportConnector $connector): Iterator
     {
@@ -57,11 +45,5 @@ abstract class CuratorResource implements AsyncResource
         }
 
         yield $emit($json);
-    }
-
-    private function applySessionCookies(CookieJar $cookieJar): void
-    {
-        $cookieJar->store($this->session->getSecureLoginCookie());
-        $cookieJar->store($this->session->getStoreSessionCookie());
     }
 }

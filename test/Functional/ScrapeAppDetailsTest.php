@@ -3,15 +3,8 @@ declare(strict_types=1);
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
-use Amp\Http\Client\Cookie\InMemoryCookieJar;
-use Amp\Success;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use Mockery\Generator\MockConfigurationBuilder;
 use PHPUnit\Framework\TestCase;
-use ScriptFUSION\Porter\Connector\ImportConnectorFactory;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpOptions;
-use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppDetails;
@@ -19,10 +12,8 @@ use ScriptFUSION\Porter\Provider\Steam\Scrape\InvalidMarkupException;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\SteamStoreException;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSION\Porter\Specification\ImportSpecification;
-use ScriptFUSION\Retry\FailingTooHardException;
 use ScriptFUSIONTest\Porter\Provider\Steam\Fixture\ScrapeAppFixture;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
-use function Amp\Iterator\toArray;
 use function Amp\Promise\wait;
 
 /**
@@ -774,6 +765,33 @@ final class ScrapeAppDetailsTest extends TestCase
         // Although this information is present on the page, we are currently not parsing it due to its different form.
         self::assertNull($app['price']);
         self::assertNull($app['release_date']);
+    }
+
+    /**
+     * Tests that an adult game behind a login wall can be accessed and parsed with a valid login.
+     *
+     * @see https://store.steampowered.com/app/1296770/Her_New_Memory__Hentai_Simulator/
+     *
+     * @dataProvider provideAdultGameBisync
+     */
+    public function testAdultGame(\Closure $import): void
+    {
+        $app = \Closure::bind($import, $this)();
+
+        self::assertSame('Her New Memory - Hentai Simulator', $app['name']);
+        self::assertSame('game', $app['type']);
+        self::assertSame(1296770, $app['app_id']);
+        self::assertTrue($app['windows']);
+        self::assertNotEmpty($app['tags']);
+        self::assertNotEmpty($app['languages']);
+    }
+
+    /**
+     * Provides a game synchronously and asynchronously.
+     */
+    public function provideAdultGameBisync(): \Generator
+    {
+        return $this->provideAppBisync(1296770);
     }
 
     /**
