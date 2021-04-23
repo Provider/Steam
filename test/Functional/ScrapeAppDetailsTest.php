@@ -710,7 +710,7 @@ final class ScrapeAppDetailsTest extends TestCase
             'Quake III Arena' => [2200, 433],
             'Company of Heroes - Legacy Edition' => [4560, 403],
             'Spear of Destiny' => [9000, 417],
-            'Max Payne 2: The Fall of Max Payne' => [12150, 597],
+            'Max Payne 2: The Fall of Max Payne' => [12150, 603],
             'AaAaAA!!! - A Reckless Disregard for Gravity' => [15520, 2062],
             'LEGO® Batman™: The Videogame' => [21000, 1016],
             'King Arthur: Knights and Vassals DLC' => [24440, 2796],
