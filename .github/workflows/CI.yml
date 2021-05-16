@@ -1,5 +1,7 @@
 name: CI
 
+concurrency: steam
+
 on:
   push:
   pull_request:
