@@ -9,6 +9,7 @@ use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\UserProfileParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -33,9 +34,7 @@ final class ScrapeUserProfile implements AsyncResource, SingleRecordResource
                 new AsyncHttpDataSource("https://steamcommunity.com/profiles/{$this->steamId->ConvertToUInt64()}")
             );
 
-            $crawler = new Crawler($response->getBody());
-
-            yield $emit(['name' => $crawler->filter('.actual_persona_name')->text()]);
+            yield $emit(UserProfileParser::parse(new Crawler($response->getBody())));
         });
     }
 }

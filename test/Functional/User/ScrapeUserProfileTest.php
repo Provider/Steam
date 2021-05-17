@@ -25,5 +25,8 @@ final class ScrapeUserProfileTest extends AsyncTestCase
 
         self::assertArrayHasKey('name', $profile);
         self::assertSame('Rabscuttle', $profile['name']);
+
+        self::assertArrayHasKey('image_hash', $profile);
+        self::assertSame('c5d56249ee5d28a07db4ac9f7f60af961fab5426', $profile['image_hash']);
     }
 }
