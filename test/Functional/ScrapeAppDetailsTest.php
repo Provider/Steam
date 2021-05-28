@@ -188,13 +188,13 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * Tests that an app that is a child of another app points to the parent app ID but retains its own canonical ID.
      *
-     * @see https://store.steampowered.com/app/1313/SiN_Gold/
+     * @see https://store.steampowered.com/app/8780/RACE_On/
      */
     public function testChildApp(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId = 1313)));
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId = 8780)));
 
-        self::assertSame(1300, $app['app_id']);
+        self::assertSame(8600, $app['app_id']);
         self::assertSame($appId, $app['canonical_id']);
     }
 
