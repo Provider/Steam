@@ -49,7 +49,7 @@ final class AppDetailsParser
         $blurb = ($snippet = $crawler->filter('.game_description_snippet'))->count() ? trim($snippet->text()) : null;
 
         // Reviews area.
-        $reviewsArea = $crawler->filter('.user_reviews')->first();
+        $reviewsArea = $crawler->filter('.glance_ctn_responsive_left')->first();
         $release_date = self::parseReleaseDate($reviewsArea);
         $developers = iterator_to_array(self::parseDevelopers($reviewsArea));
         $publishers = iterator_to_array(self::parsePublishers($reviewsArea));
