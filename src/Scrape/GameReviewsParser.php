@@ -62,11 +62,12 @@ final class GameReviewsParser
     {
         $date = $crawler->filter('.postedDate')->text();
 
-        if (!StringType::startsWith($date, $prefix = 'Posted: ')) {
+        // Year is omitted when it matches the current year.
+        if (!preg_match('[^Posted: (\d\d? \w+(?:, \d{4})?)]', $date, $matches)) {
             throw new ParserException("Unexpected date: \"$date\".");
         }
 
-        return new \DateTimeImmutable(rtrim(strtr(substr($date, strlen($prefix)), [',' => ''])));
+        return new \DateTimeImmutable(str_replace(',', '', $matches[1]));
     }
 
     public static function extractSource(Crawler $crawler): ReviewSource

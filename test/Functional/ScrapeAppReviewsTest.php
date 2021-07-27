@@ -54,7 +54,7 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
             self::assertLooksLikeReview($review = $reviews->getCurrent());
 
             self::assertNotContains($uid = $review['user_id'], $uids, 'Unique user_ids only.');
-            $uids[] = $review['user_id'];
+            $uids[] = $uid;
         }
 
         self::assertGreaterThan(0, $count = count($uids));
@@ -80,7 +80,7 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
             self::assertLooksLikeReview($review = $reviews->getCurrent());
 
             self::assertNotContains($uid = $review['user_id'], $uids, 'Unique user_ids only.');
-            $uids[] = $review['user_id'];
+            $uids[] = $uid;
         }
 
         self::assertGreaterThan(self::REVIEWS_PER_PAGE, $count = count($uids));
@@ -105,7 +105,7 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
             self::assertLooksLikeReview($review = $reviews->getCurrent());
 
             self::assertNotContains($uid = $review['user_id'], $uids, 'Unique user_ids only.');
-            $uids[] = $review['user_id'];
+            $uids[] = $uid;
         }
 
         self::assertGreaterThan(self::REVIEWS_PER_PAGE * 4, $count = count($uids));
@@ -167,6 +167,8 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
 
     /**
      * Tests that an adult game, that is typically behind a login wall, is parsed successfully.
+     *
+     * @see https://store.steampowered.com/app/1296770/Her_New_Memory__Hentai_Simulator/
      */
     public function testAdultGame(): \Generator
     {
