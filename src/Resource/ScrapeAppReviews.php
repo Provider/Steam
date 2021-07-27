@@ -30,6 +30,8 @@ final class ScrapeAppReviews implements AsyncResource, Url
         'end_date' => -1,
         // Must be set to 'include' otherwise start/end date are ignored.
         'date_range_type' => 'include',
+        // Render dates in consistent format.
+        'cc' => 'us',
     ];
 
     /** @var int */

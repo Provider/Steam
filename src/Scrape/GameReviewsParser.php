@@ -63,7 +63,7 @@ final class GameReviewsParser
         $date = $crawler->filter('.postedDate')->text();
 
         // Year is omitted when it matches the current year.
-        if (!preg_match('[^Posted: (\d\d? \w+(?:, \d{4})?)]', $date, $matches)) {
+        if (!preg_match('[^Posted: (\w+ \d\d?(?:, \d{4})?)]', $date, $matches)) {
             throw new ParserException("Unexpected date: \"$date\".");
         }
 
