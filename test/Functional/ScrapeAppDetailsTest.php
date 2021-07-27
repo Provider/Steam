@@ -39,6 +39,8 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see http://store.steampowered.com/app/10/
      *
      * @dataProvider provideGameBisync
+     *
+     * @group type
      */
     public function testGame(\Closure $import): void
     {
@@ -226,6 +228,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * @see http://store.steampowered.com/app/1840/
+     *
+     * @group type
      */
     public function testSoftware(): void
     {
@@ -242,6 +246,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * @see http://store.steampowered.com/app/9070/
+     *
+     * @group type
      */
     public function testDlc(): void
     {
@@ -250,6 +256,81 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('DOOM 3 Resurrection of Evil', $app['name']);
         self::assertSame('dlc', $app['type']);
         self::assertEquals('2005-04-03', $app['release_date']->format('Y-m-d'));
+    }
+
+    /**
+     * @see https://store.steampowered.com/app/31500/COIL/
+     *
+     * @group type
+     */
+    public function testDemo(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(31500)));
+
+        self::assertSame('COIL', $app['name']);
+        self::assertSame('demo', $app['type']);
+    }
+
+    /**
+     * @see https://store.steampowered.com/app/1255980/Portal_Reloaded/
+     *
+     * @group type
+     */
+    public function testMod(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(1255980)));
+
+        self::assertSame('Portal Reloaded', $app['name']);
+        self::assertSame('mod', $app['type']);
+    }
+
+    /**
+     * @see https://store.steampowered.com/app/598190/Hollow_Knight__Official_Soundtrack/
+     *
+     * @group type
+     */
+    public function testSoundtrack(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(598190)));
+
+        self::assertSame('Hollow Knight - Official Soundtrack', $app['name']);
+        self::assertSame('soundtrack', $app['type']);
+    }
+
+    /**
+     * @see https://store.steampowered.com/app/697440/POSTAL_The_Movie/
+     *
+     * @group type
+     */
+    public function testVideo(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(697440)));
+
+        self::assertSame('POSTAL The Movie', $app['name']);
+        self::assertSame('video', $app['type']);
+    }
+
+    /**
+     * @dataProvider provideSeries
+     *
+     * @group type
+     */
+    public function testSeries(int $appId, string $appName): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+
+        self::assertSame($appName, $app['name']);
+        self::assertSame('series', $app['type']);
+    }
+
+    /**
+     * @see https://store.steampowered.com/app/413850
+     * @see https://store.steampowered.com/app/735940
+     */
+    public function provideSeries(): iterable
+    {
+        yield 'Single season' => [735940, 'Hina Logic - from Luck & Logic'];
+        yield 'Multiple seasons' => [413850, 'CS:GO Player Profiles'];
     }
 
     /**
@@ -744,6 +825,8 @@ final class ScrapeAppDetailsTest extends TestCase
      * This bizarre app page will mostly parse as nulls. Since we are not interested in parsing this, this is fine.
      *
      * @see https://store.steampowered.com/app/1059530/Valve_Index_Headset/
+     *
+     * @group type
      */
     public function testValveIndex(): void
     {
@@ -774,6 +857,8 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/1296770/Her_New_Memory__Hentai_Simulator/
      *
      * @dataProvider provideAdultGameBisync
+     *
+     * @group type
      */
     public function testAdultGame(\Closure $import, int $appId): void
     {
