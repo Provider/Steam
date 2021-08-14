@@ -167,18 +167,18 @@ final class AppDetailsParser
         $type = explode(' ', $breadcrumbs->first()->text(), 2)[1];
 
         if ($type === 'Games') {
-            if ($breadcrumbs->reduce(static function (Crawler $crawler): bool {
-                return $crawler->text() === 'Downloadable Content';
-            })->count() === 1) {
+            $categories = $crawler->filter('#category_block');
+
+            if ($categories->filter('img[src*=ico_dlc]')->count() === 1) {
                 return 'dlc';
+            }
+
+            if ($categories->filter('img[src*=ico_demo]')->count() === 1) {
+                return 'demo';
             }
 
             if ($crawler->filter('.game_area_mod_bubble')->count() === 1) {
                 return 'mod';
-            }
-
-            if ($crawler->filter('#category_block img[src*=ico_demo]')->count() === 1) {
-                return 'demo';
             }
         }
 
