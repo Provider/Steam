@@ -763,7 +763,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/546560/HalfLife_Alyx
      * @see https://store.steampowered.com/app/782330/DOOM_Eternal
      * @see https://store.steampowered.com/app/335300/DARK_SOULS_II_Scholar_of_the_First_Sin
-     * @see https://store.steampowered.com/app/3830/Psychonauts
      * @see https://store.steampowered.com/app/24400/King_Arthur__The_Roleplaying_Wargame
      * @see https://store.steampowered.com/app/26800/Braid
      * @see https://store.steampowered.com/app/221680/Rocksmith_2014_Edition__Remastered
@@ -807,7 +806,6 @@ final class ScrapeAppDetailsTest extends TestCase
             'Half-Life: Alyx' => [546560, 134870],
             'DOOM Eternal' => [782330, 235874],
             'DARK SOULS™ II: Scholar of the First Sin' => [335300, 55366],
-            'Psychonauts' => [3830, 172],
             'King Arthur - The Role-playing Wargame' => [24400, 2538],
             'Rocksmith® 2014 Edition - Remastered' => [221680, 131845],
             'Edge of Space' => [238240, 28923],
