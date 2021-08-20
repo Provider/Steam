@@ -744,7 +744,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * Tests that apps with multiple purchase areas are parsed correctly by picking the correct sub ID.
      *
      * @see https://store.steampowered.com/app/57620/Patrician_IV
-     * @see https://store.steampowered.com/app/2200/Quake_III_Arena
      * @see https://store.steampowered.com/app/4560/Company_of_Heroes__Legacy_Edition
      * @see https://store.steampowered.com/app/9000/Spear_of_Destiny
      * @see https://store.steampowered.com/app/12150/Max_Payne_2_The_Fall_of_Max_Payne
@@ -787,7 +786,6 @@ final class ScrapeAppDetailsTest extends TestCase
         return [
             // Purchase area appears first but title does not match.
             'Patrician IV' => [57620, 6089],
-            'Quake III Arena' => [2200, 433],
             'Company of Heroes - Legacy Edition' => [4560, 403],
             'Spear of Destiny' => [9000, 417],
             'Max Payne 2: The Fall of Max Payne' => [12150, 603],
