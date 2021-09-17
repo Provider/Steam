@@ -759,7 +759,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/519860/DUSK
      * @see https://store.steampowered.com/app/214560/Mark_of_the_Ninja
      * @see https://store.steampowered.com/app/620/Portal_2
-     * @see https://store.steampowered.com/app/546560/HalfLife_Alyx
      * @see https://store.steampowered.com/app/782330/DOOM_Eternal
      * @see https://store.steampowered.com/app/335300/DARK_SOULS_II_Scholar_of_the_First_Sin
      * @see https://store.steampowered.com/app/24400/King_Arthur__The_Roleplaying_Wargame
@@ -801,7 +800,6 @@ final class ScrapeAppDetailsTest extends TestCase
             'DUSK' => [519860, 329111],
             'Mark of the Ninja' => [214560, 271120],
             'Portal 2' => [620, 7877],
-            'Half-Life: Alyx' => [546560, 134870],
             'DOOM Eternal' => [782330, 235874],
             'DARK SOULS™ II: Scholar of the First Sin' => [335300, 55366],
             'King Arthur - The Role-playing Wargame' => [24400, 2538],
