@@ -741,6 +741,138 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a game that only appears in a package/"sub" purchase area is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/2200/Quake_III_Arena/
+     */
+    public function testPackage(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(2200)));
+
+        self::assertArrayHasKey('price', $app);
+        self::assertGreaterThan(0, $app['price']);
+    }
+
+    /**
+     * Tests that an EA Play subscription game with an additional regular purchase area is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/1237970/Titanfall_2
+     * @see https://store.steampowered.com/app/1454890/Titanfall
+     * @see https://store.steampowered.com/app/1426210/It_Takes_Two
+     * @see https://store.steampowered.com/app/1213210/Command__Conquer_Remastered_Collection
+     * @see https://store.steampowered.com/app/1222680/Need_for_Speed_Heat
+     * @see https://store.steampowered.com/app/1328660/Need_for_Speed_Hot_Pursuit_Remastered
+     * @see https://store.steampowered.com/app/1262540/Need_for_Speed
+     * @see https://store.steampowered.com/app/1262580/Need_for_Speed_Payback
+     * @see https://store.steampowered.com/app/1262560/Need_for_Speed_Most_Wanted
+     * @see https://store.steampowered.com/app/1262600/Need_for_Speed_Rivals
+     * @see https://store.steampowered.com/app/1237950/STAR_WARS_Battlefront_II
+     * @see https://store.steampowered.com/app/1237980/STAR_WARS_Battlefront
+     * @see https://store.steampowered.com/app/421020/DiRT_4
+     * @see https://store.steampowered.com/app/1238810/Battlefield_V
+     * @see https://store.steampowered.com/app/1238840/Battlefield_1
+     * @see https://store.steampowered.com/app/1238860/Battlefield_4
+     * @see https://store.steampowered.com/app/1238820/Battlefield_3
+     * @see https://store.steampowered.com/app/1238880/Battlefield_Hardline
+     * @see https://store.steampowered.com/app/1222690/Dragon_Age_Inquisition
+     * @see https://store.steampowered.com/app/1238040/Dragon_Age_II
+     * @see https://store.steampowered.com/app/1222700/A_Way_Out
+     * @see https://store.steampowered.com/app/17460/Mass_Effect_2007
+     * @see https://store.steampowered.com/app/1238020/Mass_Effect_3_N7_Digital_Deluxe_Edition_2012
+     * @see https://store.steampowered.com/app/1238000/Mass_Effect_Andromeda_Deluxe_Edition
+     * @see https://store.steampowered.com/app/47780/Dead_Space_2
+     * @see https://store.steampowered.com/app/1238060/Dead_Space_3
+     * @see https://store.steampowered.com/app/7110/Jade_Empire_Special_Edition
+     * @see https://store.steampowered.com/app/12830/Operation_Flashpoint_Dragon_Rising
+     * @see https://store.steampowered.com/app/3590/Plants_vs_Zombies_GOTY_Edition
+     * @see https://store.steampowered.com/app/1262240/Plants_vs_Zombies_Battle_for_Neighborville
+     * @see https://store.steampowered.com/app/24840/Medal_of_Honor_Airborne
+     * @see https://store.steampowered.com/app/1282690/Crysis_3
+     * @see https://store.steampowered.com/app/1238080/Burnout_Paradise_Remastered
+     * @see https://store.steampowered.com/app/203680/F1_RACE_STARS
+     * @see https://store.steampowered.com/app/1233570/Mirrors_Edge_Catalyst
+     * @see https://store.steampowered.com/app/1225580/Fe
+     * @see https://store.steampowered.com/app/1225590/Sea_of_Solitude
+     * @see https://store.steampowered.com/app/24780/SimCity_4_Deluxe_Edition
+     * @see https://store.steampowered.com/app/11590/Hospital_Tycoon
+     * @see https://store.steampowered.com/app/17390/SPORE
+     * @see https://store.steampowered.com/app/11450/Overlord
+     * @see https://store.steampowered.com/app/12810/Overlord_II
+     * @see https://store.steampowered.com/app/12710/Overlord_Raising_Hell
+     * @see https://store.steampowered.com/app/12770/Rise_of_the_Argonauts
+     * @see https://store.steampowered.com/app/1225560/Unravel
+     * @see https://store.steampowered.com/app/1225570/Unravel_Two
+     * @see https://store.steampowered.com/app/3480/Peggle_Deluxe
+     * @see https://store.steampowered.com/app/3540/Peggle_Nights
+     *
+     * @dataProvider provideEaPlayRegularPurchaseAreas
+     */
+    public function testEaPlayRegularPurchase(int $appId): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+
+        self::assertArrayHasKey('price', $app);
+        self::assertGreaterThan(0, $app['price']);
+    }
+
+    public static function provideEaPlayRegularPurchaseAreas(): iterable
+    {
+        return [
+            'Titanfall 2' => [1237970],
+            'Titanfall' => [1454890],
+            'It Takes Two' => [1426210],
+            'Command  Conquer Remastered Collection' => [1213210],
+            'Need for Speed Heat' => [1222680],
+            'Need for Speed Hot Pursuit Remastered' => [1328660],
+            'Need for Speed' => [1262540],
+            'Need for Speed Payback' => [1262580],
+            'Need for Speed Most Wanted' => [1262560],
+            'Need for Speed Rivals' => [1262600],
+            'STAR WARS Battlefront II' => [1237950],
+            'STAR WARS Battlefront' => [1237980],
+            'DiRT 4' => [421020],
+            'Battlefield V' => [1238810],
+            'Battlefield 1' => [1238840],
+            'Battlefield 4' => [1238860],
+            'Battlefield 3' => [1238820],
+            'Battlefield Hardline' => [1238880],
+            'Dragon Age Inquisition' => [1222690],
+            'Dragon Age II' => [1238040],
+            'A Way Out' => [1222700],
+            'Mass Effect 2007' => [17460],
+            'Mass Effect 3 N7 Digital Deluxe Edition 2012' => [1238020],
+            'Mass Effect Andromeda Deluxe Edition' => [1238000],
+            'Dead Space 2' => [47780],
+            'Dead Space 3' => [1238060],
+            'Jade Empire Special Edition' => [7110],
+            'Operation Flashpoint Dragon Rising' => [12830],
+            'Plants vs Zombies GOTY Edition' => [3590],
+            'Plants vs Zombies Battle for Neighborville' => [1262240],
+            'Medal of Honor' => [47790],
+            'Medal of Honor Airborne' => [24840],
+            'Crysis 2  Maximum Edition' => [108800],
+            'Crysis 3' => [1282690],
+            'Burnout Paradise Remastered' => [1238080],
+            'F1 RACE STARS' => [203680],
+            'Mirrors Edge' => [17410],
+            'Mirrors Edge Catalyst' => [1233570],
+            'Fe' => [1225580],
+            'Sea of Solitude' => [1225590],
+            'SimCity 4 Deluxe Edition' => [24780],
+            'Hospital Tycoon' => [11590],
+            'SPORE' => [17390],
+            'Overlord' => [11450],
+            'Overlord II' => [12810],
+            'Overlord Raising Hell' => [12710],
+            'Rise of the Argonauts' => [12770],
+            'Unravel' => [1225560],
+            'Unravel Two' => [1225570],
+            'Peggle Deluxe' => [3480],
+            'Peggle Nights' => [3540],
+        ];
+    }
+
+    /**
      * Tests that apps with multiple purchase areas are parsed correctly by picking the correct sub ID.
      *
      * @see https://store.steampowered.com/app/57620/Patrician_IV
@@ -780,6 +912,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertTrue($app['windows']);
         self::assertSame($subId, $app['DEBUG_primary_sub_id']);
     }
+
     public function provideMultiPurchaseAreas(): iterable
     {
         return [

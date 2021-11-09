@@ -42,6 +42,7 @@ jobs:
         with:
           path: vendor
           key: php-${{ matrix.php }}-${{ matrix.dependencies }}-${{ hashFiles('composer.json') }}
+          restore-keys: php-${{ matrix.php }}-${{ matrix.dependencies }}-
 
       - name: Install dependencies ${{ matrix.dependencies == 'lo' && '(lowest)' || '' }}
         run: composer update --no-interaction --no-progress

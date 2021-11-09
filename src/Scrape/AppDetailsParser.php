@@ -345,7 +345,6 @@ final class AppDetailsParser
      * @return array (Crawler|?int)[] [
      *     Crawler containing the primary purchase area node if found, otherwise a crawler with no nodes.,
      *     Primary sub ID.,
-     *     Levenshtein distance between the specified app title and sub title.,
      * ]
      */
     private static function findPrimaryPurchaseArea(Crawler $crawler, string $title): array
@@ -376,11 +375,11 @@ final class AppDetailsParser
             if (count(array_filter($titles, static function (string $purchaseAreaTitle) use ($title): bool {
                 return strpos($purchaseAreaTitle, $title) !== false;
             })) > 1) {
-                // If more than one, use purchase area with lowest sub ID.
+                // If more than one, use purchase area with the lowest sub ID.
                 ksort($titles);
             }
 
-            // Use first purchase area regardless of whether or not that area actually contains the title.
+            // Use first purchase area regardless of whether that area actually contains the title.
             // This is mostly applicable to non-game apps.
             return [
                 self::findPurchaseAreaBySubId($crawler, key($titles)),
@@ -398,7 +397,7 @@ final class AppDetailsParser
     {
         $purchaseAreas = $crawler->filter(
             '#game_area_purchase .game_area_purchase_game:not(.demo_above_purchase)
-                > .game_area_purchase_platform:not(:empty)'
+                > .game_area_purchase_platform > .platform_img'
         );
 
         if (!$purchaseAreas->count()) {
