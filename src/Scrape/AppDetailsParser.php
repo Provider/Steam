@@ -82,7 +82,7 @@ final class AppDetailsParser
 
         // VR platforms.
         $vrPlatforms = $crawler->filter(
-            '.block_title.vrsupport ~ .game_area_details_specs > a.name[href*="vrsupport=10"]'
+            '.block_title.vrsupport ~ .game_area_details_specs_ctn[href*="vrsupport=10"]'
         )->each(static function (Crawler $crawler): string {
             return preg_replace('[.*vrsupport=(\d+).*]', '$1', $crawler->attr('href'));
         });
