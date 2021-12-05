@@ -757,7 +757,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * Tests that an EA Play subscription game with an additional regular purchase area is parsed correctly.
      *
      * @see https://store.steampowered.com/app/1237970/Titanfall_2
-     * @see https://store.steampowered.com/app/1454890/Titanfall
      * @see https://store.steampowered.com/app/1426210/It_Takes_Two
      * @see https://store.steampowered.com/app/1213210/Command__Conquer_Remastered_Collection
      * @see https://store.steampowered.com/app/1222680/Need_for_Speed_Heat
@@ -819,7 +818,6 @@ final class ScrapeAppDetailsTest extends TestCase
     {
         return [
             'Titanfall 2' => [1237970],
-            'Titanfall' => [1454890],
             'It Takes Two' => [1426210],
             'Command  Conquer Remastered Collection' => [1213210],
             'Need for Speed Heat' => [1222680],
