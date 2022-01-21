@@ -785,7 +785,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/12830/Operation_Flashpoint_Dragon_Rising
      * @see https://store.steampowered.com/app/3590/Plants_vs_Zombies_GOTY_Edition
      * @see https://store.steampowered.com/app/1262240/Plants_vs_Zombies_Battle_for_Neighborville
-     * @see https://store.steampowered.com/app/24840/Medal_of_Honor_Airborne
      * @see https://store.steampowered.com/app/1282690/Crysis_3
      * @see https://store.steampowered.com/app/1238080/Burnout_Paradise_Remastered
      * @see https://store.steampowered.com/app/203680/F1_RACE_STARS
@@ -847,7 +846,6 @@ final class ScrapeAppDetailsTest extends TestCase
             'Plants vs Zombies GOTY Edition' => [3590],
             'Plants vs Zombies Battle for Neighborville' => [1262240],
             'Medal of Honor' => [47790],
-            'Medal of Honor Airborne' => [24840],
             'Crysis 2  Maximum Edition' => [108800],
             'Crysis 3' => [1282690],
             'Burnout Paradise Remastered' => [1238080],
