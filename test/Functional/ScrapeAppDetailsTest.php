@@ -787,7 +787,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/1262240/Plants_vs_Zombies_Battle_for_Neighborville
      * @see https://store.steampowered.com/app/1282690/Crysis_3
      * @see https://store.steampowered.com/app/1238080/Burnout_Paradise_Remastered
-     * @see https://store.steampowered.com/app/203680/F1_RACE_STARS
      * @see https://store.steampowered.com/app/1233570/Mirrors_Edge_Catalyst
      * @see https://store.steampowered.com/app/1225580/Fe
      * @see https://store.steampowered.com/app/1225590/Sea_of_Solitude
@@ -849,7 +848,6 @@ final class ScrapeAppDetailsTest extends TestCase
             'Crysis 2  Maximum Edition' => [108800],
             'Crysis 3' => [1282690],
             'Burnout Paradise Remastered' => [1238080],
-            'F1 RACE STARS' => [203680],
             'Mirrors Edge' => [17410],
             'Mirrors Edge Catalyst' => [1233570],
             'Fe' => [1225580],
