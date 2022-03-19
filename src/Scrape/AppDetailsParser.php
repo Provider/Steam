@@ -91,6 +91,9 @@ final class AppDetailsParser
         $wmr = in_array('104', $vrPlatforms, true);
         $valve_index = in_array('105', $vrPlatforms, true);
 
+        // Steam Deck.
+        $steam_deck = self::parseSteamDeckCompatibility($crawler);
+
         return compact(
             'name',
             'type',
@@ -120,6 +123,7 @@ final class AppDetailsParser
             'occulus',
             'wmr',
             'valve_index',
+            'steam_deck',
             'DEBUG_primary_sub_id',
         );
     }
@@ -434,5 +438,18 @@ final class AppDetailsParser
     private static function findPurchaseAreaBySubId(Crawler $crawler, int $subId): Crawler
     {
         return $crawler->filter("#game_area_purchase_section_add_to_cart_$subId");
+    }
+
+    private static function parseSteamDeckCompatibility(Crawler $crawler): ?SteamDeckCompatibility
+    {
+        $config = $crawler->filter('#application_config');
+
+        if (count($config) && $deckCompatJson = $config->attr('data-deckcompatibility')) {
+            $deckCompat = \json_decode($deckCompatJson, true, 512, JSON_THROW_ON_ERROR);
+
+            return SteamDeckCompatibility::fromId($deckCompat['resolved_category']);
+        }
+
+        return null;
     }
 }

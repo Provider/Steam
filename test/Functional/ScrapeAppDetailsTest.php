@@ -9,6 +9,7 @@ use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppDetails;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\InvalidMarkupException;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\SteamDeckCompatibility;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\SteamStoreException;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSION\Porter\Specification\ImportSpecification;
@@ -751,6 +752,54 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('price', $app);
         self::assertGreaterThan(0, $app['price']);
+    }
+
+    /**
+     * Tests that a game with no Steam Deck information presents Steam Deck compatibility as "null".
+     *
+     * @see https://store.steampowered.com/app/1572920/SuperTux/
+     */
+    public function testSteamDeckAbsent(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(1572920)));
+
+        self::assertNull($app['steam_deck']);
+    }
+
+    /**
+     * Tests that a game with Steam Deck "unsupported" compatibility is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/546560/HalfLife_Alyx/
+     */
+    public function testSteamDeckUnsupported(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(546560)));
+
+        self::assertSame(SteamDeckCompatibility::UNSUPPORTED(), $app['steam_deck']);
+    }
+
+    /**
+     * Tests that a game with Steam Deck "verified" compatibility is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/620/Portal_2/
+     */
+    public function testSteamDeckVerified(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(620)));
+
+        self::assertSame(SteamDeckCompatibility::VERIFIED(), $app['steam_deck']);
+    }
+
+    /**
+     * Tests that a game with Steam Deck "playable" compatibility is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/427520/Factorio/
+     */
+    public function testSteamDeckPlayable(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(427520)));
+
+        self::assertSame(SteamDeckCompatibility::PLAYABLE(), $app['steam_deck']);
     }
 
     /**
