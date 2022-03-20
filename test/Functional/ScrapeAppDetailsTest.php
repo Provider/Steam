@@ -767,6 +767,18 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a game with Steam Deck "unknown" compatibility is parsed correctly.
+     */
+    public function testSteamDeckUnknown(): void
+    {
+        $app = $this->porter->importOne(new ImportSpecification(
+            new ScrapeAppFixture('steam deck unknown compatibility.html')
+        ));
+
+        self::assertSame(SteamDeckCompatibility::UNKNOWN(), $app['steam_deck']);
+    }
+
+    /**
      * Tests that a game with Steam Deck "unsupported" compatibility is parsed correctly.
      *
      * @see https://store.steampowered.com/app/546560/HalfLife_Alyx/

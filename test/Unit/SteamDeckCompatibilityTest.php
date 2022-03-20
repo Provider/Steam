@@ -22,6 +22,6 @@ final class SteamDeckCompatibilityTest extends TestCase
 
     public function provideIds(): iterable
     {
-        yield from \iter\chunk(range(1, 3), 1);
+        yield from \iter\chunk(range(0, 3), 1);
     }
 }

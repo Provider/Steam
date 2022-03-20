@@ -6,17 +6,20 @@ namespace ScriptFUSION\Porter\Provider\Steam\Scrape;
 use Eloquent\Enumeration\AbstractEnumeration;
 
 /**
+ * @method static self UNKNOWN
  * @method static self UNSUPPORTED
  * @method static self VERIFIED
  * @method static self PLAYABLE
  */
 final class SteamDeckCompatibility extends AbstractEnumeration
 {
+    public const UNKNOWN = 'UNKNOWN';
     public const UNSUPPORTED = 'UNSUPPORTED';
     public const VERIFIED = 'VERIFIED';
     public const PLAYABLE = 'PLAYABLE';
 
     private const ID_MAP = [
+        0 => self::UNKNOWN,
         1 => self::UNSUPPORTED,
         2 => self::PLAYABLE,
         3 => self::VERIFIED,
