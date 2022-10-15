@@ -246,17 +246,17 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * @see http://store.steampowered.com/app/9070/
+     * @see https://store.steampowered.com/app/378648/The_Witcher_3_Wild_Hunt__Blood_and_Wine
      *
      * @group type
      */
     public function testDlc(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(9070)));
+        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(378648)));
 
-        self::assertSame('DOOM 3 Resurrection of Evil', $app['name']);
+        self::assertSame('The Witcher 3: Wild Hunt - Blood and Wine', $app['name']);
         self::assertSame('dlc', $app['type']);
-        self::assertEquals('2005-04-03', $app['release_date']->format('Y-m-d'));
+        self::assertEquals('2016-05-30', $app['release_date']->format('Y-m-d'));
     }
 
     /**
@@ -932,7 +932,6 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see https://store.steampowered.com/app/57620/Patrician_IV
      * @see https://store.steampowered.com/app/4560/Company_of_Heroes__Legacy_Edition
-     * @see https://store.steampowered.com/app/9000/Spear_of_Destiny
      * @see https://store.steampowered.com/app/12150/Max_Payne_2_The_Fall_of_Max_Payne
      * @see https://store.steampowered.com/app/15520/AaAaAA__A_Reckless_Disregard_for_Gravity
      * @see https://store.steampowered.com/app/21000/LEGO_Batman_The_Videogame
@@ -941,7 +940,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/202200/Galactic_Civilizations_II_Ultimate_Edition
      * @see https://store.steampowered.com/app/206480/Dungeons__Dragons_Online
      * @see https://store.steampowered.com/app/221001/FTL_Faster_Than_Light__Soundtrack
-     * @see https://store.steampowered.com/app/252150/Grimm
 
      * @see https://store.steampowered.com/app/519860/DUSK
      * @see https://store.steampowered.com/app/214560/Mark_of_the_Ninja
@@ -956,7 +954,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/274170/Hotline_Miami_2_Wrong_Number
      * @see https://store.steampowered.com/app/345660/RIDE
      * @see https://store.steampowered.com/app/355130/MotoGP15
-     * @see https://store.steampowered.com/app/901478/Prince_of_Persia_The_Forgotten_Sands_Digital_Deluxe_Edition
      *
      * @dataProvider provideMultiPurchaseAreas
      */
@@ -974,7 +971,6 @@ final class ScrapeAppDetailsTest extends TestCase
             // Purchase area appears first but title does not match.
             'Patrician IV' => [57620, 6089],
             'Company of Heroes - Legacy Edition' => [4560, 403],
-            'Spear of Destiny' => [9000, 417],
             'Max Payne 2: The Fall of Max Payne' => [12150, 603],
             'AaAaAA!!! - A Reckless Disregard for Gravity' => [15520, 2062],
             'LEGO® Batman™: The Videogame' => [21000, 1016],
@@ -982,7 +978,6 @@ final class ScrapeAppDetailsTest extends TestCase
             'Mortal Kombat 11 Kombat Pack 2' => [1449880, 510130],
             'Galactic Civilizations® II: Ultimate Edition' => [202200, 12481],
             'FTL: Faster Than Light - Soundtrack' => [221001, 16706],
-            'Grimm' => [252150, 33694],
 
             // Purchase area does not appear first.
             'DUSK' => [519860, 329111],
@@ -997,7 +992,6 @@ final class ScrapeAppDetailsTest extends TestCase
             'Hotline Miami 2: Wrong Number' => [274170, 37088],
             'RIDE' => [345660, 60272],
             'MotoGP™15' => [355130, 62485],
-            'Prince of Persia: The Forgotten Sands™ Digital Deluxe Edition' => [901478, 4487],
         ];
     }
 
