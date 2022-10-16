@@ -1,6 +1,7 @@
 <phpunit
     beStrictAboutOutputDuringTests="true"
     colors="true"
+    printerClass="NunoMaduro\Collision\Adapters\Phpunit\Printer"
 >
     <testsuite name="default">
         <directory>.</directory>
