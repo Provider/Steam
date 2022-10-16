@@ -18,12 +18,12 @@ final class GetCuratorLists extends CuratorResource
         );
     }
 
-    protected function emitResponses(\Closure $emit, HttpResponse $response): \Generator
+    protected function emitResponses(HttpResponse $response): \Generator
     {
         $json = \json_decode((string)$response, true);
 
         foreach ($json['list_details'] as $list) {
-            yield $emit($list);
+            yield $list;
         }
     }
 }

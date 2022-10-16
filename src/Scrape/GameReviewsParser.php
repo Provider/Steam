@@ -91,7 +91,7 @@ final class GameReviewsParser
             $hours = $hoursElement->first()->text();
 
             if (preg_match('[\(([\\d,.]+) hrs at review time\)]', $hours, $matches)) {
-                return strtr($matches[1], [',' => '']) * 60 | 0;
+                return (int)(strtr($matches[1], [',' => '']) * 60);
             }
         }
 

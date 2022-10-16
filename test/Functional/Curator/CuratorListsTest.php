@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional\Curator;
 
-use Amp\Iterator;
-use Amp\Promise;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\CuratorList;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\DeleteCuratorList;
@@ -17,8 +15,6 @@ use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\PutCuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\RecommendationState;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
-use function Amp\call;
-use function Amp\Promise\wait;
 
 /**
  * @see GetCuratorLists
@@ -164,13 +160,13 @@ final class CuratorListsTest extends CuratorTestCase
 
     private static function createReview(int $appId): void
     {
-        $review = wait(self::$porter->importOneAsync(new AsyncImportSpecification(
+        $review = self::$porter->importOneAsync(new AsyncImportSpecification(
             new PutCuratorReview(
                 self::$session,
                 self::CURATOR_ID,
                 new CuratorReview($appId, 'foo', RecommendationState::INFORMATIONAL())
             )
-        )));
+        ));
 
         self::assertArrayHasKey('success', $review);
         self::assertSame(1, $review['success']);
@@ -178,7 +174,7 @@ final class CuratorListsTest extends CuratorTestCase
 
     private static function fetchOneSync(AsyncResource $resource): array
     {
-        $response = wait(self::$porter->importOneAsync(new AsyncImportSpecification($resource)));
+        $response = self::$porter->importOneAsync(new AsyncImportSpecification($resource));
 
         self::assertArrayHasKey('success', $response);
         self::assertSame(1, $response['success']);
@@ -188,15 +184,11 @@ final class CuratorListsTest extends CuratorTestCase
 
     private static function fetchList(string $listId): array
     {
-        $listIterator = self::$porter->importAsync(new AsyncImportSpecification(
+        $lists = self::$porter->importAsync(new AsyncImportSpecification(
             new GetCuratorLists(self::$session, self::CURATOR_ID)
         ));
 
-        $lists = wait(self::iteratorToArray($listIterator));
-
-        $list = \iter\search(static function (array $list) use ($listId) {
-            return $list['listid'] === $listId;
-        }, $lists);
+        $list = \iter\search(fn (array $list) => $list['listid'] === $listId, $lists);
         self::assertNotNull($list, 'Find specified curator list in curator list collection.');
 
         return $list;
@@ -211,18 +203,5 @@ final class CuratorListsTest extends CuratorTestCase
 
         self::assertArrayHasKey('listid', $response);
         self::assertFalse($response['listid']);
-    }
-
-    private static function iteratorToArray(Iterator $iterator): Promise
-    {
-        return call(static function () use ($iterator): \Generator {
-            $aggregate = [];
-
-            while (yield $iterator->advance()) {
-                $aggregate[] = $iterator->getCurrent();
-            }
-
-            return $aggregate;
-        });
     }
 }

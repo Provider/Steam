@@ -15,7 +15,6 @@ use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSION\Porter\Specification\ImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\Fixture\ScrapeAppFixture;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
-use function Amp\Promise\wait;
 
 /**
  * @see ScrapeAppDetails
@@ -24,10 +23,7 @@ final class ScrapeAppDetailsTest extends TestCase
 {
     use MockeryPHPUnitIntegration;
 
-    /**
-     * @var Porter
-     */
-    private $porter;
+    private Porter $porter;
 
     protected function setUp(): void
     {
@@ -124,9 +120,7 @@ final class ScrapeAppDetailsTest extends TestCase
         }, $appId];
 
         yield 'async' => [function () use ($appId) {
-            return wait(
-                $this->porter->importOneAsync(new AsyncImportSpecification(new ScrapeAppDetails($appId)))
-            );
+            return $this->porter->importOneAsync(new AsyncImportSpecification(new ScrapeAppDetails($appId)));
         }, $appId];
     }
 

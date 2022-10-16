@@ -17,12 +17,12 @@ final class GetCuratorReviews extends CuratorResource
         ));
     }
 
-    protected function emitResponses(\Closure $emit, HttpResponse $response): \Generator
+    protected function emitResponses(HttpResponse $response): \Generator
     {
         $json = \json_decode((string)$response, true);
 
         foreach ($json['recommendations'] as $recommendation) {
-            yield $emit($recommendation);
+            yield $recommendation;
         }
     }
 }

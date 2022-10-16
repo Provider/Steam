@@ -2,7 +2,6 @@
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam;
 
-use Amp\Promise;
 use Mockery\MockInterface;
 use Psr\Container\ContainerInterface;
 use ScriptFUSION\Porter\Porter;
@@ -11,13 +10,12 @@ use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 use ScriptFUSION\StaticClass;
-use function Amp\call;
 
 final class FixtureFactory
 {
     use StaticClass;
 
-    private static $savedSession;
+    private static ?CuratorSession $savedSession = null;
 
     public static function createPorter(): Porter
     {
@@ -44,21 +42,19 @@ final class FixtureFactory
         ;
     }
 
-    public static function createSession(Porter $porter): Promise
+    public static function createSession(Porter $porter): CuratorSession
     {
         if (self::$savedSession) {
             return self::$savedSession;
         }
 
-        return self::$savedSession = call(static function () use ($porter): \Generator {
-            if (isset($_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD'])) {
-                return yield CuratorSession::create($porter, $_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD']);
-            }
+        if (isset($_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD'])) {
+            return CuratorSession::create($porter, $_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD']);
+        }
 
-            return yield CuratorSession::createFromCookie(
-                SecureLoginCookie::create($_SERVER['STEAM_COOKIE']),
-                $porter
-            );
-        });
+        return self::$savedSession = CuratorSession::createFromCookie(
+            SecureLoginCookie::create($_SERVER['STEAM_COOKIE']),
+            $porter
+        );
     }
 }

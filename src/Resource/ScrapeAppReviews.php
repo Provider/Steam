@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
-use Amp\Deferred;
-use Amp\Iterator;
-use Amp\Producer;
+use Amp\DeferredFuture;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
@@ -18,9 +16,9 @@ use Symfony\Component\DomCrawler\Crawler;
 
 final class ScrapeAppReviews implements AsyncResource, Url
 {
-    private $appId;
+    private int $appId;
 
-    private $query = [
+    private array $query = [
         'filter' => 'recent', // Order by date.
         'purchase_type' => 'all', // Steam and non-Steam.
         'language' => 'all',
@@ -34,11 +32,9 @@ final class ScrapeAppReviews implements AsyncResource, Url
         'cc' => 'us',
     ];
 
-    /** @var int */
-    private $total;
+    private int $total;
 
-    /** @var int */
-    private $count = 0;
+    private int $count = 0;
 
     public function __construct(int $appId, \DateTimeImmutable $startDate = null, \DateTimeImmutable $endDate = null)
     {
@@ -52,19 +48,20 @@ final class ScrapeAppReviews implements AsyncResource, Url
         return SteamProvider::class;
     }
 
-    public function fetchAsync(ImportConnector $connector): Iterator
+    public function fetchAsync(ImportConnector $connector): \Iterator
     {
-        $deferredTotal = new Deferred();
+        $deferredTotal = new DeferredFuture();
+        $deferredTotal->getFuture()->ignore();
         $resolved = false;
 
         return new AsyncGameReviewsRecords(
-            new Producer(function (\Closure $callable) use ($connector, $deferredTotal, $resolved): \Generator {
+            (function () use ($connector, $deferredTotal, $resolved): \Generator {
                 $try = 1;
 
                 do {
                     try {
                         /** @var HttpResponse $response */
-                        $response = yield $connector->fetchAsync(new AsyncHttpDataSource($this->getUrl()));
+                        $response = $connector->fetchAsync(new AsyncHttpDataSource($this->getUrl()));
 
                         if ($response->getStatusCode() !== 200) {
                             throw new \RuntimeException("Unexpected status code: {$response->getStatusCode()}.");
@@ -77,12 +74,12 @@ final class ScrapeAppReviews implements AsyncResource, Url
                         }
 
                         if (isset($json['review_score'])) {
-                            $deferredTotal->resolve($this->total = $this->parseResultsTotal($json['review_score']));
+                            $deferredTotal->complete($this->total = $this->parseResultsTotal($json['review_score']));
                             $resolved = true;
                         }
                     } catch (\Throwable $throwable) {
                         if (!$resolved) {
-                            $deferredTotal->fail($throwable);
+                            $deferredTotal->error($throwable);
                         }
 
                         throw $throwable;
@@ -94,7 +91,7 @@ final class ScrapeAppReviews implements AsyncResource, Url
                         foreach ($reviews as $review) {
                             ++$this->count;
 
-                            yield $callable($review);
+                            yield $review;
                         }
                     }
 
@@ -116,8 +113,8 @@ final class ScrapeAppReviews implements AsyncResource, Url
 
                     // Stop condition is an empty recommendation list. This is quicker and easier than parsing HTML.
                 } while ($json['recommendationids']);
-            }),
-            $deferredTotal->promise(),
+            })(),
+            $deferredTotal->getFuture(),
             $this
         );
     }

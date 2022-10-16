@@ -5,8 +5,6 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
 use Amp\Http\Cookie\CookieAttributes;
 use Amp\Http\Cookie\ResponseCookie;
-use Amp\Iterator;
-use Amp\Producer;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
@@ -49,18 +47,16 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         yield AppDetailsParser::tryParseStorePage($response->getBody());
     }
 
-    public function fetchAsync(ImportConnector $connector): Iterator
+    public function fetchAsync(ImportConnector $connector): \Iterator
     {
         $this->configureAsyncOptions($connector->findBaseConnector());
 
-        return new Producer(function (\Closure $emit) use ($connector): \Generator {
-            /** @var HttpResponse $response */
-            $this->validateResponse($response = yield $connector->fetchAsync(
-                (new AsyncHttpDataSource($this->getUrl()))
-            ));
+        /** @var HttpResponse $response */
+        $this->validateResponse($response = $connector->fetchAsync(
+            (new AsyncHttpDataSource($this->getUrl()))
+        ));
 
-            yield $emit(AppDetailsParser::tryParseStorePage($response->getBody()));
-        });
+        yield AppDetailsParser::tryParseStorePage($response->getBody());
     }
 
     private function validateResponse(HttpResponse $response): void

@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
-use function Amp\Promise\wait;
 
 abstract class CuratorTestCase extends TestCase
 {
@@ -26,6 +25,6 @@ abstract class CuratorTestCase extends TestCase
     public static function setUpBeforeClass(): void
     {
         self::$porter = FixtureFactory::createPorter();
-        self::$session = wait(FixtureFactory::createSession(self::$porter));
+        self::$session = FixtureFactory::createSession(self::$porter);
     }
 }

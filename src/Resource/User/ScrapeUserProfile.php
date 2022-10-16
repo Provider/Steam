@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\User;
 
-use Amp\Iterator;
-use Amp\Producer;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
@@ -15,11 +13,8 @@ use Symfony\Component\DomCrawler\Crawler;
 
 final class ScrapeUserProfile implements AsyncResource, SingleRecordResource
 {
-    private $steamId;
-
-    public function __construct(\SteamID $steamID)
+    public function __construct(private readonly \SteamID $steamId)
     {
-        $this->steamId = $steamID;
     }
 
     public function getProviderClassName(): string
@@ -27,14 +22,12 @@ final class ScrapeUserProfile implements AsyncResource, SingleRecordResource
         return SteamProvider::class;
     }
 
-    public function fetchAsync(ImportConnector $connector): Iterator
+    public function fetchAsync(ImportConnector $connector): \Iterator
     {
-        return new Producer(function (\Closure $emit) use ($connector): \Generator {
-            $response = yield $connector->fetchAsync(
-                new AsyncHttpDataSource("https://steamcommunity.com/profiles/{$this->steamId->ConvertToUInt64()}")
-            );
+        $response = $connector->fetchAsync(
+            new AsyncHttpDataSource("https://steamcommunity.com/profiles/{$this->steamId->ConvertToUInt64()}")
+        );
 
-            yield $emit(UserProfileParser::parse(new Crawler($response->getBody())));
-        });
+        yield UserProfileParser::parse(new Crawler($response->getBody()));
     }
 }

@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
-use Amp\PHPUnit\AsyncTestCase;
+use PHPUnit\Framework\TestCase;
+use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncGameReviewsRecords;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppReviews;
@@ -13,11 +14,11 @@ use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 /**
  * @see ScrapeAppReviews
  */
-final class ScrapeAppReviewsTest extends AsyncTestCase
+final class ScrapeAppReviewsTest extends TestCase
 {
     private const REVIEWS_PER_PAGE = 20;
 
-    private $porter;
+    private Porter $porter;
 
     protected function setUp(): void
     {
@@ -29,29 +30,29 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
     /**
      * @link https://store.steampowered.com/app/256611/CSX_SD70MAC_Addon_Livery/
      */
-    public function testZeroReviews(): \Generator
+    public function testZeroReviews(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(256611)))
             ->findFirstCollection();
 
-        self::assertSame(0, yield $reviews->getTotal());
-        self::assertFalse(yield $reviews->advance(), 'No results.');
+        self::assertSame(0, $reviews->getTotal()->await());
+        self::assertFalse($reviews->valid(), 'No results.');
     }
 
     /**
      * @link https://store.steampowered.com/app/719070/BlowOut/
      */
-    public function testOnePage(): \Generator
+    public function testOnePage(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(719070)))
             ->findFirstCollection();
-        $total = yield $reviews->getTotal();
+        $total = $reviews->getTotal()->await();
         $uids = [];
 
-        while (yield $reviews->advance()) {
-            self::assertLooksLikeReview($review = $reviews->getCurrent());
+        foreach ($reviews as $review) {
+            self::assertLooksLikeReview($review);
 
             self::assertNotContains($uid = $review['user_id'], $uids, 'Unique user_ids only.');
             $uids[] = $uid;
@@ -68,16 +69,16 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
      *
      * @link https://store.steampowered.com/app/347270/Knights_of_the_Sky/
      */
-    public function testTwoPages(): \Generator
+    public function testTwoPages(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(347270)))
             ->findFirstCollection();
-        $total = yield $reviews->getTotal();
+        $total = $reviews->getTotal()->await();
         $uids = [];
 
-        while (yield $reviews->advance()) {
-            self::assertLooksLikeReview($review = $reviews->getCurrent());
+        foreach ($reviews as $review) {
+            self::assertLooksLikeReview($review);
 
             self::assertNotContains($uid = $review['user_id'], $uids, 'Unique user_ids only.');
             $uids[] = $uid;
@@ -94,40 +95,41 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
      *
      * @link https://store.steampowered.com/app/302160/The_Egyptian_Prophecy_The_Fate_of_Ramses/
      */
-    public function testMultiplePages(): \Generator
+    public function testMultiplePages(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(302160)))
             ->findFirstCollection();
         $uids = [];
 
-        while (yield $reviews->advance()) {
-            self::assertLooksLikeReview($review = $reviews->getCurrent());
+        foreach ($reviews as $review) {
+            self::assertLooksLikeReview($review);
 
             self::assertNotContains($uid = $review['user_id'], $uids, 'Unique user_ids only.');
             $uids[] = $uid;
         }
 
-        self::assertGreaterThan(self::REVIEWS_PER_PAGE * 4, $count = count($uids));
+        self::assertGreaterThan(self::REVIEWS_PER_PAGE * 4, count($uids));
 
-        self::assertCount(yield $reviews->getTotal(), $uids);
+        self::assertCount($reviews->getTotal()->await(), $uids);
     }
 
     /**
      * Tests that an app with multiple reviews can be narrowed down to a single one with an appropriate date range.
      */
-    public function testDateRange(): \Generator
+    public function testDateRange(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->importAsync(new AsyncImportSpecification(
             new ScrapeAppReviews(302160, new \DateTimeImmutable('2014-07-01'), new \DateTimeImmutable('2014-07-02'))
         ))->findFirstCollection();
 
-        self::assertSame(1, yield $reviews->getTotal());
+        self::assertSame(1, $reviews->getTotal()->await());
 
-        self::assertTrue(yield $reviews->advance(), 'Has one review.');
-        self::assertLooksLikeReview($reviews->getCurrent());
-        self::assertFalse(yield $reviews->advance());
+        self::assertTrue($reviews->valid(), 'Has one review.');
+        self::assertLooksLikeReview($reviews->current());
+        $reviews->next();
+        self::assertFalse($reviews->valid());
     }
 
     /**
@@ -135,15 +137,15 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
      *
      * @link https://store.steampowered.com/app/730/CounterStrike_Global_Offensive/
      */
-    public function testLargeTotal(): \Generator
+    public function testLargeTotal(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->importAsync(new AsyncImportSpecification(
             new ScrapeAppReviews(730)
         ))->findFirstCollection();
 
-        self::assertGreaterThan(3800000, yield $reviews->getTotal());
-        self::assertTrue(yield $reviews->advance(), 'Has results.');
+        self::assertGreaterThan(3800000, $reviews->getTotal()->await());
+        self::assertTrue($reviews->valid(), 'Has results.');
     }
 
     /**
@@ -153,16 +155,11 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
      * unsuccessful to successful but with no results. Generally this exception is no longer thrown unless the ID
      * is totally invalid, i.e. out of range.
      */
-    public function testInvalidAppId(): \Generator
+    public function testInvalidAppId(): void
     {
-        /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(
-            new ScrapeAppReviews(0)
-        ));
-
         $this->expectException(InvalidAppIdException::class);
 
-        yield $reviews->advance();
+        $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(0)));
     }
 
     /**
@@ -170,15 +167,14 @@ final class ScrapeAppReviewsTest extends AsyncTestCase
      *
      * @see https://store.steampowered.com/app/1296770/Her_New_Memory__Hentai_Simulator/
      */
-    public function testAdultGame(): \Generator
+    public function testAdultGame(): void
     {
-        /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->importAsync(new AsyncImportSpecification(
             new ScrapeAppReviews(1296770)
         ));
 
-        self::assertTrue(yield $reviews->advance(), 'Has results.');
-        self::assertLooksLikeReview($review = $reviews->getCurrent());
+        self::assertTrue($reviews->valid(), 'Has results.');
+        self::assertLooksLikeReview($reviews->current());
     }
 
     private static function assertLooksLikeReview(array $review): void

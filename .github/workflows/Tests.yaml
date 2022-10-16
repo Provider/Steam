@@ -1,16 +1,17 @@
-name: CI
+name: Tests
 
 concurrency: steam
 
 on:
   push:
   pull_request:
+  workflow_dispatch:
   schedule:
     - cron: 0 6 * * *
 
 jobs:
   Test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       max-parallel: 1

@@ -7,7 +7,6 @@ use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\PutCuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\RecommendationState;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
-use function Amp\Promise\wait;
 
 /**
  * @see PutCuratorReview
@@ -16,7 +15,7 @@ final class PutCuratorReviewTest extends CuratorTestCase
 {
     public function testPutCuratorReview(): void
     {
-        $response = wait(self::$porter->importOneAsync(new AsyncImportSpecification(new PutCuratorReview(
+        $response = self::$porter->importOneAsync(new AsyncImportSpecification(new PutCuratorReview(
             self::$session,
             self::CURATOR_ID,
             new CuratorReview(
@@ -24,7 +23,7 @@ final class PutCuratorReviewTest extends CuratorTestCase
                 'foo',
                 RecommendationState::RECOMMENDED()
             )
-        ))));
+        )));
 
         self::assertIsArray($response);
         self::assertArrayHasKey('success', $response);

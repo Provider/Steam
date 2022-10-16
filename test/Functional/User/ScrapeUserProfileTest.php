@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional\User;
 
-use Amp\PHPUnit\AsyncTestCase;
+use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Provider\Steam\Resource\User\ScrapeUserProfile;
 use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
@@ -11,15 +11,15 @@ use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 /**
  * @see ScrapeUserProfile
  */
-final class ScrapeUserProfileTest extends AsyncTestCase
+final class ScrapeUserProfileTest extends TestCase
 {
     /**
-     * Tests that scraping GabeN's user profile returns his user name.
+     * Tests that scraping GabeN's user profile returns his username.
      */
-    public function testScrapeGabenProfile(): \Generator
+    public function testScrapeGabenProfile(): void
     {
         $porter = FixtureFactory::createPorter();
-        $profile = yield $porter->importOneAsync(new AsyncImportSpecification(
+        $profile = $porter->importOneAsync(new AsyncImportSpecification(
             new ScrapeUserProfile(new \SteamID('76561197960287930'))
         ));
 

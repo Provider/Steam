@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
-use Amp\Deferred;
+use Amp\DeferredFuture;
 use Amp\Http\Cookie\ResponseCookie;
-use Amp\Iterator;
-use Amp\Producer;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
@@ -22,21 +20,21 @@ final class CreateSteamStoreSession implements AsyncResource
         return SteamProvider::class;
     }
 
-    public function fetchAsync(ImportConnector $connector): Iterator
+    public function fetchAsync(ImportConnector $connector): \Iterator
     {
-        $sessionCookie = new Deferred;
+        $sessionCookie = new DeferredFuture();
 
         return new AsyncSteamStoreSessionRecord(
-            new Producer(static function () use ($connector, $sessionCookie): \Generator {
+            (static function () use ($connector, $sessionCookie): \Generator {
                 try {
                     $baseConnector = $connector->findBaseConnector();
                     if (!$baseConnector instanceof AsyncHttpConnector) {
                         throw new \InvalidArgumentException('Unexpected connector type.');
                     }
 
-                    yield $connector->fetchAsync(new AsyncHttpDataSource(SteamProvider::buildStoreApiUrl('/')));
+                    $connector->fetchAsync(new AsyncHttpDataSource(SteamProvider::buildStoreApiUrl('/')));
                 } catch (\Throwable $throwable) {
-                    $sessionCookie->fail($throwable);
+                    $sessionCookie->error($throwable);
 
                     throw $throwable;
                 }
@@ -50,9 +48,11 @@ final class CreateSteamStoreSession implements AsyncResource
 
                 assert($steamSession);
 
-                $sessionCookie->resolve(new StoreSessionCookie($steamSession));
-            }),
-            $sessionCookie->promise(),
+                $sessionCookie->complete(new StoreSessionCookie($steamSession));
+
+                yield [];
+            })(),
+            $sessionCookie->getFuture(),
             $this
         );
     }
