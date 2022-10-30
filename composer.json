@@ -8,14 +8,15 @@
     }
   ],
   "minimum-stability": "beta",
+  "prefer-stable": true,
   "require": {
     "php": "^8.1",
     "ext-json": "*",
-    "connectors/http": "^4.2",
+    "connectors/http": "^5",
     "eloquent/enumeration": "^5|^6",
     "phpseclib/phpseclib": "^2",
     "psr/log": "^1",
-    "scriptfusion/porter": "dev-master as 6.0.x-dev",
+    "scriptfusion/porter": "^6",
     "symfony/css-selector": "^5.3",
     "symfony/dom-crawler": "^5.4",
     "xpaw/steamid": "^2.0"
