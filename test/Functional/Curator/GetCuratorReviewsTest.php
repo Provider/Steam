@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional\Curator;
 
+use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\GetCuratorReviews;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\PutCuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\RecommendationState;
-use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 
 /**
  * @see GetCuratorReviews
@@ -16,7 +16,7 @@ final class GetCuratorReviewsTest extends CuratorTestCase
 {
     public function testListCuratorReviews(): void
     {
-        $response = self::$porter->importOneAsync(new AsyncImportSpecification(new PutCuratorReview(
+        $response = self::$porter->importOne(new Import(new PutCuratorReview(
             self::$session,
             self::CURATOR_ID,
             new CuratorReview(
@@ -32,7 +32,7 @@ final class GetCuratorReviewsTest extends CuratorTestCase
 
         $foundAppId = false;
 
-        $reviews = self::$porter->importAsync(new AsyncImportSpecification(
+        $reviews = self::$porter->import(new Import(
             new GetCuratorReviews(self::$session, self::CURATOR_ID)
         ));
 

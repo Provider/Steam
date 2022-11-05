@@ -8,10 +8,7 @@ use Amp\Http\Cookie\ResponseCookie;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
-use ScriptFUSION\Porter\Net\Http\HttpConnector;
-use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
-use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\AppDetailsParser;
@@ -20,13 +17,10 @@ use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 /**
  * Scrapes the Steam store page for App details.
  */
-final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, AsyncResource, Url
+final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, Url
 {
-    private $appId;
-
-    public function __construct(int $appId)
+    public function __construct(private readonly int $appId)
     {
-        $this->appId = $appId;
     }
 
     public function getProviderClassName(): string
@@ -36,23 +30,10 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
 
     public function fetch(ImportConnector $connector): \Iterator
     {
-        $this->configureOptions($connector->findBaseConnector());
-
-        $this->validateResponse($response = $connector->fetch(
-            (new HttpDataSource($this->getUrl()))
-                // Enable age-restricted and mature content.
-                ->addHeader('Cookie: birthtime=0; wants_mature_content=1')
-        ));
-
-        yield AppDetailsParser::tryParseStorePage($response->getBody());
-    }
-
-    public function fetchAsync(ImportConnector $connector): \Iterator
-    {
         $this->configureAsyncOptions($connector->findBaseConnector());
 
         /** @var HttpResponse $response */
-        $this->validateResponse($response = $connector->fetchAsync(
+        $this->validateResponse($response = $connector->fetch(
             (new AsyncHttpDataSource($this->getUrl()))
         ));
 
@@ -75,18 +56,10 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         return SteamProvider::buildStoreApiUrl("/app/$this->appId/?cc=us");
     }
 
-    private function configureOptions(HttpConnector $connector): void
-    {
-        $connector->getOptions()
-            // We want to capture redirects so do not follow them automatically.
-            ->setFollowLocation(false)
-        ;
-    }
-
     private function configureAsyncOptions(AsyncHttpConnector $connector): void
     {
         $connector->getOptions()
-            // Do not follow redirects.
+            // We want to capture redirects so do not follow them automatically.
             ->setMaxRedirects(0)
         ;
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional\User;
 
 use PHPUnit\Framework\TestCase;
+use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Provider\Steam\Resource\User\ScrapeUserProfile;
-use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 /**
@@ -19,9 +19,7 @@ final class ScrapeUserProfileTest extends TestCase
     public function testScrapeGabenProfile(): void
     {
         $porter = FixtureFactory::createPorter();
-        $profile = $porter->importOneAsync(new AsyncImportSpecification(
-            new ScrapeUserProfile(new \SteamID('76561197960287930'))
-        ));
+        $profile = $porter->importOne(new Import(new ScrapeUserProfile(new \SteamID('76561197960287930'))));
 
         self::assertArrayHasKey('name', $profile);
         self::assertSame('Rabscuttle', $profile['name']);

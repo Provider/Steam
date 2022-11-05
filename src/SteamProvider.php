@@ -3,27 +3,21 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam;
 
-use ScriptFUSION\Porter\Connector\AsyncConnector;
 use ScriptFUSION\Porter\Connector\Connector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
-use ScriptFUSION\Porter\Net\Http\HttpConnector;
-use ScriptFUSION\Porter\Provider\AsyncProvider;
 use ScriptFUSION\Porter\Provider\Provider;
 
-final class SteamProvider implements Provider, AsyncProvider
+final class SteamProvider implements Provider
 {
     public const STORE_DOMAIN = 'store.steampowered.com';
     private const STEAMWORKS_API_URL = 'https://api.steampowered.com';
     private const STORE_API_URL = 'https://' . self::STORE_DOMAIN;
 
-    private $connector;
+    private Connector $connector;
 
-    private $asyncConnector;
-
-    public function __construct(Connector $connector = null, AsyncConnector $asyncConnector = null)
+    public function __construct(Connector $connector = null)
     {
-        $this->connector = $connector ?: new HttpConnector;
-        $this->asyncConnector = $asyncConnector ?: new AsyncHttpConnector;
+        $this->connector = $connector ?? new AsyncHttpConnector;
     }
 
     public static function buildSteamworksApiUrl(string $url): string
@@ -39,10 +33,5 @@ final class SteamProvider implements Provider, AsyncProvider
     public function getConnector(): Connector
     {
         return $this->connector;
-    }
-
-    public function getAsyncConnector(): AsyncConnector
-    {
-        return $this->asyncConnector;
     }
 }

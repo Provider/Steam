@@ -11,7 +11,7 @@ use phpseclib\Math\BigInteger;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
-use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
+use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncLoginRecord;
 use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
@@ -19,7 +19,7 @@ use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 /**
  * TODO: 2FA support.
  */
-final class SteamLogin implements AsyncResource
+final class SteamLogin implements ProviderResource
 {
     public function __construct(private readonly string $username, private readonly string $password)
     {
@@ -30,7 +30,7 @@ final class SteamLogin implements AsyncResource
         return SteamProvider::class;
     }
 
-    public function fetchAsync(ImportConnector $connector): \Iterator
+    public function fetch(ImportConnector $connector): \Iterator
     {
         $loginCookie = new DeferredFuture();
 
@@ -68,7 +68,7 @@ final class SteamLogin implements AsyncResource
         $body->addField('donotcache', (string)((int)microtime(true) * 1000));
 
         $json = json_decode(
-            (string)$connector->fetchAsync($source),
+            (string)$connector->fetch($source),
             true
         );
 
@@ -89,7 +89,7 @@ final class SteamLogin implements AsyncResource
         ]);
 
         $json = json_decode(
-            (string)$response = $connector->fetchAsync(
+            (string)$response = $connector->fetch(
                 (new AsyncHttpDataSource(SteamProvider::buildStoreApiUrl('/login/dologin/')))
                     ->setMethod('POST')
                     ->setBody($body)

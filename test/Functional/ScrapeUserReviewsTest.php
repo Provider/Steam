@@ -4,10 +4,10 @@ declare(strict_types=1);
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
 use PHPUnit\Framework\TestCase;
+use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeUserReviews;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\ParserException;
-use ScriptFUSION\Porter\Specification\ImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 final class ScrapeUserReviewsTest extends TestCase
@@ -27,7 +27,7 @@ final class ScrapeUserReviewsTest extends TestCase
      */
     public function testPaginatedReviews(): void
     {
-        $reviews = $this->porter->import(new ImportSpecification(
+        $reviews = $this->porter->import(new Import(
             new ScrapeUserReviews('http://steamcommunity.com/id/afarnsworth')
         ));
 
@@ -57,7 +57,7 @@ final class ScrapeUserReviewsTest extends TestCase
     {
         $this->expectException(ParserException::class);
 
-        $this->porter->import(new ImportSpecification(
+        $this->porter->import(new Import(
             new ScrapeUserReviews('http://steamcommunity.com/id/SteamTop250')
         ));
     }

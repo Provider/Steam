@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
 use PHPUnit\Framework\TestCase;
+use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Provider\Steam\Collection\UserReviewsRecords;
 use ScriptFUSION\Porter\Provider\Steam\Resource\GetUserReviewsList;
-use ScriptFUSION\Porter\Specification\ImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 /**
@@ -21,7 +21,7 @@ final class GetUserReviewsListTest extends TestCase
     {
         /** @var UserReviewsRecords $reviews */
         $reviews = FixtureFactory::createPorter()->import(
-            new ImportSpecification(new GetUserReviewsList(10))
+            new Import(new GetUserReviewsList(10))
         )->findFirstCollection();
 
         self::assertInstanceOf(UserReviewsRecords::class, $reviews);
@@ -51,7 +51,7 @@ final class GetUserReviewsListTest extends TestCase
     {
         /** @var UserReviewsRecords $reviews */
         $reviews = FixtureFactory::createPorter()->import(
-            new ImportSpecification(new GetUserReviewsList(698780))
+            new Import(new GetUserReviewsList(698780))
         )->findFirstCollection();
 
         self::assertInstanceOf(UserReviewsRecords::class, $reviews);

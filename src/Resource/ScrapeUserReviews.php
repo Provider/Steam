@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
 use ScriptFUSION\Porter\Connector\ImportConnector;
-use ScriptFUSION\Porter\Net\Http\HttpDataSource;
+use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\UsersReviewsRecords;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\UserReviewsParser;
@@ -16,11 +16,8 @@ use Symfony\Component\DomCrawler\Crawler;
  */
 final class ScrapeUserReviews implements ProviderResource, Url
 {
-    private $profileUrl;
-
-    public function __construct(string $profileUrl)
+    public function __construct(private readonly string $profileUrl)
     {
-        $this->profileUrl = $profileUrl;
     }
 
     public function getProviderClassName(): string
@@ -46,7 +43,9 @@ final class ScrapeUserReviews implements ProviderResource, Url
         $next = null;
 
         do {
-            $html = $connector->fetch(new HttpDataSource($this->getUrl($next ? $next->attr('href') : '')))->getBody();
+            $html = $connector->fetch(
+                new AsyncHttpDataSource($this->getUrl($next ? $next->attr('href') : ''))
+            )->getBody();
             $crawler = new Crawler($html);
 
             yield from UserReviewsParser::parse($crawler);

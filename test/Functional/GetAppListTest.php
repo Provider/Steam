@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
 use PHPUnit\Framework\TestCase;
+use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Provider\Steam\Resource\GetAppList;
-use ScriptFUSION\Porter\Specification\ImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 /**
@@ -23,7 +23,7 @@ final class GetAppListTest extends TestCase
     {
         $porter = FixtureFactory::createPorter();
 
-        $apps = $porter->import(new ImportSpecification(new GetAppList($key)));
+        $apps = $porter->import(new Import(new GetAppList($key)));
 
         $count = 0;
         foreach ($apps as $app) {

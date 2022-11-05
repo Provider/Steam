@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Unit;
 
-use ScriptFUSION\Porter\Provider\Steam\Scrape\SteamDeckCompatibility;
 use PHPUnit\Framework\TestCase;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\SteamDeckCompatibility;
 
 /**
  * @see SteamDeckCompatibility

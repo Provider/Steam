@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Scrape;
 
 use ScriptFUSION\StaticClass;
-use ScriptFUSION\Type\StringType;
 use Symfony\Component\DomCrawler\Crawler;
 
 final class GameReviewsParser
@@ -74,11 +73,11 @@ final class GameReviewsParser
     {
         $source = $crawler->filter('.review_source')->attr('src');
 
-        if (StringType::endsWith($source, 'icon_review_steam.png')) {
+        if (str_ends_with($source, 'icon_review_steam.png')) {
             return ReviewSource::STEAM();
         }
 
-        if (StringType::endsWith($source, 'icon_review_key.png')) {
+        if (str_ends_with($source, 'icon_review_key.png')) {
             return ReviewSource::STEAM_KEY();
         }
 

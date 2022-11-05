@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
 use PHPUnit\Framework\TestCase;
+use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncGameReviewsRecords;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppReviews;
-use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 /**
@@ -28,12 +28,12 @@ final class ScrapeAppReviewsTest extends TestCase
     }
 
     /**
-     * @link https://store.steampowered.com/app/256611/CSX_SD70MAC_Addon_Livery/
+     * @see https://store.steampowered.com/app/256611/CSX_SD70MAC_Addon_Livery/
      */
     public function testZeroReviews(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(256611)))
+        $reviews = $this->porter->import(new Import(new ScrapeAppReviews(256611)))
             ->findFirstCollection();
 
         self::assertSame(0, $reviews->getTotal()->await());
@@ -41,12 +41,12 @@ final class ScrapeAppReviewsTest extends TestCase
     }
 
     /**
-     * @link https://store.steampowered.com/app/719070/BlowOut/
+     * @see https://store.steampowered.com/app/719070/BlowOut/
      */
     public function testOnePage(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(719070)))
+        $reviews = $this->porter->import(new Import(new ScrapeAppReviews(719070)))
             ->findFirstCollection();
         $total = $reviews->getTotal()->await();
         $uids = [];
@@ -67,12 +67,12 @@ final class ScrapeAppReviewsTest extends TestCase
     /**
      * Tests that an app with two review pages is parsed correctly.
      *
-     * @link https://store.steampowered.com/app/347270/Knights_of_the_Sky/
+     * @see https://store.steampowered.com/app/347270/Knights_of_the_Sky/
      */
     public function testTwoPages(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(347270)))
+        $reviews = $this->porter->import(new Import(new ScrapeAppReviews(347270)))
             ->findFirstCollection();
         $total = $reviews->getTotal()->await();
         $uids = [];
@@ -93,12 +93,12 @@ final class ScrapeAppReviewsTest extends TestCase
     /**
      * Tests that an app with multiple review pages is parsed correctly.
      *
-     * @link https://store.steampowered.com/app/302160/The_Egyptian_Prophecy_The_Fate_of_Ramses/
+     * @see https://store.steampowered.com/app/302160/The_Egyptian_Prophecy_The_Fate_of_Ramses/
      */
     public function testMultiplePages(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(302160)))
+        $reviews = $this->porter->import(new Import(new ScrapeAppReviews(302160)))
             ->findFirstCollection();
         $uids = [];
 
@@ -120,7 +120,7 @@ final class ScrapeAppReviewsTest extends TestCase
     public function testDateRange(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(
+        $reviews = $this->porter->import(new Import(
             new ScrapeAppReviews(302160, new \DateTimeImmutable('2014-07-01'), new \DateTimeImmutable('2014-07-02'))
         ))->findFirstCollection();
 
@@ -135,12 +135,12 @@ final class ScrapeAppReviewsTest extends TestCase
     /**
      * Tests that an app with a large total number of review is parsed successfully.
      *
-     * @link https://store.steampowered.com/app/730/CounterStrike_Global_Offensive/
+     * @see https://store.steampowered.com/app/730/CounterStrike_Global_Offensive/
      */
     public function testLargeTotal(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(
+        $reviews = $this->porter->import(new Import(
             new ScrapeAppReviews(730)
         ))->findFirstCollection();
 
@@ -159,7 +159,7 @@ final class ScrapeAppReviewsTest extends TestCase
     {
         $this->expectException(InvalidAppIdException::class);
 
-        $this->porter->importAsync(new AsyncImportSpecification(new ScrapeAppReviews(0)));
+        $this->porter->import(new Import(new ScrapeAppReviews(0)));
     }
 
     /**
@@ -169,7 +169,7 @@ final class ScrapeAppReviewsTest extends TestCase
      */
     public function testAdultGame(): void
     {
-        $reviews = $this->porter->importAsync(new AsyncImportSpecification(
+        $reviews = $this->porter->import(new Import(
             new ScrapeAppReviews(1296770)
         ));
 

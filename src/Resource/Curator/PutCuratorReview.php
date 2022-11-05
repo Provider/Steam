@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
 use Amp\Http\Client\Body\FormBody;
-use ScriptFUSION\Porter\Connector\AsyncDataSource;
+use ScriptFUSION\Porter\Connector\DataSource;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
@@ -16,17 +16,14 @@ final class PutCuratorReview extends CuratorResource implements SingleRecordReso
 {
     private $review;
 
-    public function __construct(
-        CuratorSession $session,
-        int $curatorId,
-        CuratorReview $review
-    ) {
+    public function __construct(CuratorSession $session, int $curatorId, CuratorReview $review)
+    {
         parent::__construct($session, $curatorId);
 
         $this->review = $review;
     }
 
-    protected function getSource(): AsyncDataSource
+    protected function getSource(): DataSource
     {
         $body = new FormBody;
         $body->addFields([

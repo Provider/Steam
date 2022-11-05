@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional\Curator;
 
-use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
+use ScriptFUSION\Porter\Import\Import;
+use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\CuratorList;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\DeleteCuratorList;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\DeleteCuratorListApp;
@@ -14,7 +15,6 @@ use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\PutCuratorLi
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\PutCuratorReview;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\RecommendationState;
-use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 
 /**
  * @see GetCuratorLists
@@ -160,7 +160,7 @@ final class CuratorListsTest extends CuratorTestCase
 
     private static function createReview(int $appId): void
     {
-        $review = self::$porter->importOneAsync(new AsyncImportSpecification(
+        $review = self::$porter->importOne(new Import(
             new PutCuratorReview(
                 self::$session,
                 self::CURATOR_ID,
@@ -172,9 +172,9 @@ final class CuratorListsTest extends CuratorTestCase
         self::assertSame(1, $review['success']);
     }
 
-    private static function fetchOneSync(AsyncResource $resource): array
+    private static function fetchOneSync(ProviderResource $resource): array
     {
-        $response = self::$porter->importOneAsync(new AsyncImportSpecification($resource));
+        $response = self::$porter->importOne(new Import($resource));
 
         self::assertArrayHasKey('success', $response);
         self::assertSame(1, $response['success']);
@@ -184,7 +184,7 @@ final class CuratorListsTest extends CuratorTestCase
 
     private static function fetchList(string $listId): array
     {
-        $lists = self::$porter->importAsync(new AsyncImportSpecification(
+        $lists = self::$porter->import(new Import(
             new GetCuratorLists(self::$session, self::CURATOR_ID)
         ));
 

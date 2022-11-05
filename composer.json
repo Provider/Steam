@@ -12,11 +12,11 @@
   "require": {
     "php": "^8.1",
     "ext-json": "*",
-    "connectors/http": "^5",
+    "connectors/http": "dev-master as 6",
     "eloquent/enumeration": "^5|^6",
     "phpseclib/phpseclib": "^2",
     "psr/log": "^1",
-    "scriptfusion/porter": "^6",
+    "scriptfusion/porter": "dev-master as 7",
     "symfony/css-selector": "^5.3",
     "symfony/dom-crawler": "^5.4",
     "xpaw/steamid": "^2.0"

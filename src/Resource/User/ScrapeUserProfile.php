@@ -5,13 +5,13 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource\User;
 
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
-use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
+use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\UserProfileParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 use Symfony\Component\DomCrawler\Crawler;
 
-final class ScrapeUserProfile implements AsyncResource, SingleRecordResource
+final class ScrapeUserProfile implements ProviderResource, SingleRecordResource
 {
     public function __construct(private readonly \SteamID $steamId)
     {
@@ -22,9 +22,9 @@ final class ScrapeUserProfile implements AsyncResource, SingleRecordResource
         return SteamProvider::class;
     }
 
-    public function fetchAsync(ImportConnector $connector): \Iterator
+    public function fetch(ImportConnector $connector): \Iterator
     {
-        $response = $connector->fetchAsync(
+        $response = $connector->fetch(
             new AsyncHttpDataSource("https://steamcommunity.com/profiles/{$this->steamId->ConvertToUInt64()}")
         );
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
 use Amp\Http\Cookie\ResponseCookie;
+use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncLoginRecord;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncSteamStoreSessionRecord;
@@ -11,7 +12,6 @@ use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
 use ScriptFUSION\Porter\Provider\Steam\Cookie\StoreSessionCookie;
 use ScriptFUSION\Porter\Provider\Steam\Resource\CreateSteamStoreSession;
 use ScriptFUSION\Porter\Provider\Steam\Resource\SteamLogin;
-use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 
 final class CuratorSession
 {
@@ -28,9 +28,7 @@ final class CuratorSession
     public static function create(Porter $porter, string $username, string $password): self
     {
         /** @var AsyncLoginRecord $steamLogin */
-        $steamLogin = $porter->importAsync(new AsyncImportSpecification(
-            new SteamLogin($username, $password)
-        ))->findFirstCollection();
+        $steamLogin = $porter->import(new Import(new SteamLogin($username, $password)))->findFirstCollection();
 
         $secureLoginCookie = $steamLogin->getSecureLoginCookie()->await();
 
@@ -44,9 +42,7 @@ final class CuratorSession
     public static function createFromCookie(SecureLoginCookie $secureLoginCookie, Porter $porter): self
     {
         /** @var AsyncSteamStoreSessionRecord $storeSession */
-        $storeSession = $porter->importAsync(new AsyncImportSpecification(
-            new CreateSteamStoreSession
-        ))->findFirstCollection();
+        $storeSession = $porter->import(new Import(new CreateSteamStoreSession))->findFirstCollection();
 
         $storeSessionCookie = $storeSession->getSessionCookie()->await();
 

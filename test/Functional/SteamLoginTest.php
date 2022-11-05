@@ -5,10 +5,10 @@ namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
 use Amp\Http\Cookie\ResponseCookie;
 use PHPUnit\Framework\TestCase;
+use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncLoginRecord;
 use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
 use ScriptFUSION\Porter\Provider\Steam\Resource\SteamLogin;
-use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 final class SteamLoginTest extends TestCase
@@ -25,7 +25,7 @@ final class SteamLoginTest extends TestCase
         $porter = FixtureFactory::createPorter();
 
         /** @var AsyncLoginRecord $steamLogin */
-        $steamLogin = $porter->importAsync(new AsyncImportSpecification(
+        $steamLogin = $porter->import(new Import(
             new SteamLogin($_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD'])
         ))->findFirstCollection();
 

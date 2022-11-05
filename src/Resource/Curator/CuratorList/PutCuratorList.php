@@ -5,7 +5,7 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList;
 
 use Amp\Http\Client\Body\FormBody;
 use Amp\Http\Client\RequestBody;
-use ScriptFUSION\Porter\Connector\AsyncDataSource;
+use ScriptFUSION\Porter\Connector\DataSource;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorResource;
@@ -26,7 +26,7 @@ final class PutCuratorList extends CuratorResource implements SingleRecordResour
         $this->list = $list;
     }
 
-    protected function getSource(): AsyncDataSource
+    protected function getSource(): DataSource
     {
         return (new AsyncHttpDataSource(
             SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxeditlist/")

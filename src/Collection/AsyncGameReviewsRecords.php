@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Collection;
 
 use Amp\Future;
-use ScriptFUSION\Porter\Collection\AsyncProviderRecords;
-use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
+use ScriptFUSION\Porter\Collection\ProviderRecords;
+use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 
-class AsyncGameReviewsRecords extends AsyncProviderRecords
+class AsyncGameReviewsRecords extends ProviderRecords
 {
-    public function __construct(\Iterator $records, private readonly Future $totalReviews, AsyncResource $resource)
+    public function __construct(\Iterator $records, private readonly Future $totalReviews, ProviderResource $resource)
     {
         parent::__construct($records, $resource);
     }

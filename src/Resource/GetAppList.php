@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
 use ScriptFUSION\Porter\Connector\ImportConnector;
-use ScriptFUSION\Porter\Net\Http\HttpDataSource;
+use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 use ScriptFUSION\Retry\ExceptionHandler\ExponentialBackoffExceptionHandler;
@@ -39,7 +39,7 @@ final class GetAppList implements ProviderResource, Url
                 10,
                 function () use ($connector, &$lastId): array {
                     $json = \json_decode(
-                        (string)$connector->fetch(new HttpDataSource(
+                        (string)$connector->fetch(new AsyncHttpDataSource(
                             $this->getUrl() . (isset($lastId) ? "&last_appid=$lastId" : '')
                         )),
                         true

@@ -5,14 +5,13 @@ namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
+use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppDetails;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\InvalidMarkupException;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\SteamDeckCompatibility;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\SteamStoreException;
-use ScriptFUSION\Porter\Specification\AsyncImportSpecification;
-use ScriptFUSION\Porter\Specification\ImportSpecification;
 use ScriptFUSIONTest\Porter\Provider\Steam\Fixture\ScrapeAppFixture;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
@@ -35,13 +34,11 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see http://store.steampowered.com/app/10/
      *
-     * @dataProvider provideGameBisync
-     *
      * @group type
      */
-    public function testGame(\Closure $import): void
+    public function testGame(): void
     {
-        $app = \Closure::bind($import, $this)();
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(10)));
 
         self::assertSame('Counter-Strike', $app['name']);
         self::assertSame(10, $app['app_id']);
@@ -106,80 +103,40 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Provides a game synchronously and asynchronously.
-     */
-    public function provideGameBisync(): \Generator
-    {
-        return $this->provideAppBisync(10);
-    }
-
-    private function provideAppBisync(int $appId): \Generator
-    {
-        yield 'sync' => [function () use ($appId) {
-            return $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
-        }, $appId];
-
-        yield 'async' => [function () use ($appId) {
-            return $this->porter->importOneAsync(new AsyncImportSpecification(new ScrapeAppDetails($appId)));
-        }, $appId];
-    }
-
-    /**
      * Tests that apps redirecting to another page throw an exception.
      *
      * @see http://store.steampowered.com/app/5/
-     *
-     * @dataProvider provideHiddenAppBisync
      */
-    public function testHiddenApp(\Closure $import, int $appId): void
+    public function testHiddenApp(): void
     {
         $this->expectException(InvalidAppIdException::class);
-        $this->expectExceptionMessage("$appId");
+        $this->expectExceptionMessage((string)$appId = 5);
 
-        \Closure::bind($import, $this)();
-    }
-
-    public function provideHiddenAppBisync(): \Generator
-    {
-        return $this->provideAppBisync(5);
+        $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
     }
 
     /**
      * Tests that age-restricted content can be scraped.
      *
      * @see http://store.steampowered.com/app/232770/
-     *
-     * @dataProvider provideAgeRestrictedContentBisync
      */
-    public function testAgeRestrictedContent(\Closure $import): void
+    public function testAgeRestrictedContent(): void
     {
-        $app = \Closure::bind($import, $this)();
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(232770)));
 
         self::assertSame('POSTAL', $app['name']);
-    }
-
-    public function provideAgeRestrictedContentBisync(): \Generator
-    {
-        return $this->provideAppBisync(232770);
     }
 
     /**
      * Tests that mature content can be scraped.
      *
      * @see http://store.steampowered.com/app/292030/
-     *
-     * @dataProvider provideMatureContentBisync
      */
-    public function testMatureContent(\Closure $import): void
+    public function testMatureContent(): void
     {
-        $app = \Closure::bind($import, $this)();
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(292030)));
 
         self::assertSame('The Witcher® 3: Wild Hunt', $app['name']);
-    }
-
-    public function provideMatureContentBisync(): \Generator
-    {
-        return $this->provideAppBisync(292030);
     }
 
     /**
@@ -189,7 +146,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testChildApp(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId = 8780)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId = 8780)));
 
         self::assertSame(8600, $app['app_id']);
         self::assertSame($appId, $app['canonical_id']);
@@ -202,7 +159,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testAliasedApp(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(900883)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(900883)));
 
         self::assertSame($parentId = 22330, $app['app_id']);
         self::assertSame($parentId, $app['canonical_id']);
@@ -215,7 +172,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testNoReleaseDate(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(219740)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(219740)));
 
         self::assertSame('Don\'t Starve', $app['name']);
         self::assertNull($app['release_date']);
@@ -228,7 +185,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testSoftware(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(1840)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1840)));
 
         self::assertSame('Source Filmmaker', $app['name']);
         self::assertSame('software', $app['type']);
@@ -246,11 +203,11 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testDlc(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(378648)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(378648)));
 
         self::assertSame('The Witcher 3: Wild Hunt - Blood and Wine', $app['name']);
         self::assertSame('dlc', $app['type']);
-        self::assertEquals('2016-05-30', $app['release_date']->format('Y-m-d'));
+        self::assertSame('2016-05-30', $app['release_date']->format('Y-m-d'));
     }
 
     /**
@@ -260,7 +217,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testDemo(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(31500)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(31500)));
 
         self::assertSame('COIL', $app['name']);
         self::assertSame('demo', $app['type']);
@@ -273,7 +230,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testMod(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(1255980)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1255980)));
 
         self::assertSame('Portal Reloaded', $app['name']);
         self::assertSame('mod', $app['type']);
@@ -286,7 +243,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testSoundtrack(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(598190)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(598190)));
 
         self::assertSame('Hollow Knight - Official Soundtrack', $app['name']);
         self::assertSame('soundtrack', $app['type']);
@@ -299,7 +256,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testVideo(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(697440)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(697440)));
 
         self::assertSame('POSTAL The Movie', $app['name']);
         self::assertSame('video', $app['type']);
@@ -312,7 +269,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testSeries(int $appId, string $appName): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
 
         self::assertSame($appName, $app['name']);
         self::assertSame('series', $app['type']);
@@ -335,7 +292,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testWindowsOnly(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(630)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(630)));
 
         self::assertTrue($app['windows']);
         self::assertFalse($app['linux']);
@@ -349,7 +306,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testMacOnly(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(694180)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(694180)));
 
         self::assertFalse($app['windows']);
         self::assertFalse($app['linux']);
@@ -367,7 +324,7 @@ final class ScrapeAppDetailsTest extends TestCase
         $this->expectException(SteamStoreException::class);
         $this->expectExceptionMessage('This item is currently unavailable in your region');
 
-        $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(217980)));
+        $this->porter->importOne(new Import(new ScrapeAppDetails(217980)));
     }
 
     /**
@@ -377,7 +334,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testNoReviews(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(1620)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1620)));
 
         self::assertSame(0, $app['positive_reviews']);
         self::assertSame(0, $app['negative_reviews']);
@@ -390,7 +347,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testInvalidDate(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('invalid date.html')));
+        $app = $this->porter->importOne(new Import(new ScrapeAppFixture('invalid date.html')));
 
         self::assertArrayHasKey('release_date', $app);
         self::assertNull($app['release_date']);
@@ -403,7 +360,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testInvalidDateYearOnly(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('invalid date (year only).html')));
+        $app = $this->porter->importOne(new Import(new ScrapeAppFixture('invalid date (year only).html')));
 
         self::assertArrayHasKey('release_date', $app);
         self::assertNull($app['release_date']);
@@ -416,7 +373,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testDevelopers(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(606680)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(606680)));
 
         self::assertArrayHasKey('developers', $app);
         self::assertCount(3, $developers = $app['developers']);
@@ -435,7 +392,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testNoDeveloper(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(211202)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(211202)));
 
         self::assertArrayHasKey('developers', $app);
         self::assertCount(0, $app['developers']);
@@ -453,7 +410,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testPublishers(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(748490)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(748490)));
 
         self::assertArrayHasKey('publishers', $app);
         self::assertCount(2, $publishers = $app['publishers']);
@@ -470,7 +427,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testNoPublisher(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(253630)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(253630)));
 
         self::assertArrayHasKey('developers', $app);
         self::assertCount(1, $developers = $app['developers']);
@@ -489,7 +446,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testPlatformsWithDemo(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(206190)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(206190)));
 
         self::assertTrue($app['windows']);
         self::assertTrue($app['mac']);
@@ -503,7 +460,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testVrPlatforms(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(552440)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(552440)));
 
         self::assertTrue($app['vive']);
         self::assertTrue($app['occulus']);
@@ -516,7 +473,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testTags(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('tags.html')));
+        $app = $this->porter->importOne(new Import(new ScrapeAppFixture('tags.html')));
 
         self::assertArrayHasKey('tags', $app);
         self::assertCount(5, $tags = $app['tags']);
@@ -543,7 +500,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testGenres(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(1840)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1840)));
 
         self::assertArrayHasKey('genres', $app);
         self::assertCount(2, $genres = $app['genres']);
@@ -558,7 +515,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testLanguages(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(473460)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(473460)));
 
         self::assertGreaterThanOrEqual(2, \count($languages = $app['languages']));
         self::assertContains('Simplified Chinese', $languages);
@@ -570,7 +527,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testDiscountedGame(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('discounted.html')));
+        $app = $this->porter->importOne(new Import(new ScrapeAppFixture('discounted.html')));
 
         self::assertArrayHasKey('price', $app);
         self::assertSame(999, $app['price']);
@@ -589,7 +546,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testZeroDiscount(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(698780)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(698780)));
 
         self::assertArrayHasKey('discount_price', $app);
         self::assertNull($app['discount_price']);
@@ -605,7 +562,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testEarlyAccess(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(15540)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(15540)));
 
         self::assertArrayHasKey('genres', $app);
         self::assertNotEmpty($genres = $app['genres']);
@@ -620,7 +577,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testVrExclusive(int $appId): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
 
         self::assertArrayHasKey('vrx', $app);
         self::assertTrue($app['vrx']);
@@ -647,7 +604,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testDiscontinuedGames(int $appId): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
 
         self::assertArrayHasKey('price', $app);
         self::assertNull($app['price']);
@@ -673,7 +630,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testFreeGames(int $appId): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
 
         self::assertArrayHasKey('free', $app);
         self::assertTrue($app['free']);
@@ -687,6 +644,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertArrayHasKey('discount', $app);
         self::assertSame(0, $app['discount']);
     }
+
     /**
      * @see http://store.steampowered.com/app/630/
      * @see http://store.steampowered.com/app/570/
@@ -714,7 +672,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testVideoIds(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(32400)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(32400)));
 
         self::assertArrayHasKey('videos', $app);
         self::assertCount(2, $videos = $app['videos']);
@@ -729,7 +687,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testGameDemo(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(766280)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(766280)));
 
         self::assertArrayHasKey('price', $app);
         self::assertGreaterThan(0, $app['price']);
@@ -742,7 +700,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testPackage(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(2200)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(2200)));
 
         self::assertArrayHasKey('price', $app);
         self::assertGreaterThan(0, $app['price']);
@@ -755,7 +713,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testSteamDeckAbsent(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(1572920)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1572920)));
 
         self::assertNull($app['steam_deck']);
     }
@@ -765,7 +723,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testSteamDeckUnknown(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(
+        $app = $this->porter->importOne(new Import(
             new ScrapeAppFixture('steam deck unknown compatibility.html')
         ));
 
@@ -779,7 +737,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testSteamDeckUnsupported(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(546560)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(546560)));
 
         self::assertSame(SteamDeckCompatibility::UNSUPPORTED(), $app['steam_deck']);
     }
@@ -791,7 +749,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testSteamDeckVerified(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(620)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(620)));
 
         self::assertSame(SteamDeckCompatibility::VERIFIED(), $app['steam_deck']);
     }
@@ -803,7 +761,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testSteamDeckPlayable(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails(427520)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(427520)));
 
         self::assertSame(SteamDeckCompatibility::PLAYABLE(), $app['steam_deck']);
     }
@@ -861,7 +819,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testEaPlayRegularPurchase(int $appId): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
 
         self::assertArrayHasKey('price', $app);
         self::assertGreaterThan(0, $app['price']);
@@ -953,7 +911,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testMultiPurchaseArea(int $appId, int $subId): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
 
         self::assertTrue($app['windows']);
         self::assertSame($subId, $app['DEBUG_primary_sub_id']);
@@ -1000,7 +958,7 @@ final class ScrapeAppDetailsTest extends TestCase
      */
     public function testValveIndex(): void
     {
-        $app = $this->porter->importOne(new ImportSpecification(new ScrapeAppDetails($appId = 1059530)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId = 1059530)));
 
         self::assertSame('hardware', $app['type']);
         self::assertSame('Valve Index® Headset', $app['name']);
@@ -1026,13 +984,11 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see https://store.steampowered.com/app/1296770/Her_New_Memory__Hentai_Simulator/
      *
-     * @dataProvider provideAdultGameBisync
-     *
      * @group type
      */
-    public function testAdultGame(\Closure $import, int $appId): void
+    public function testAdultGame(): void
     {
-        $app = \Closure::bind($import, $this)();
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId = 1296770)));
 
         self::assertSame('Her New Memory - Hentai Simulator', $app['name']);
         self::assertSame('game', $app['type']);
@@ -1044,11 +1000,6 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertNotEmpty($app['languages']);
     }
 
-    public function provideAdultGameBisync(): \Generator
-    {
-        return $this->provideAppBisync(1296770);
-    }
-
     /**
      * Tests that when non-HTML markup is returned, InvalidMarkupException is thrown.
      */
@@ -1056,6 +1007,6 @@ final class ScrapeAppDetailsTest extends TestCase
     {
         $this->expectException(InvalidMarkupException::class);
 
-        $this->porter->importOne(new ImportSpecification(new ScrapeAppFixture('scuffed.xml')));
+        $this->porter->importOne(new Import(new ScrapeAppFixture('scuffed.xml')));
     }
 }

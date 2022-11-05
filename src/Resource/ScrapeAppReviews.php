@@ -7,14 +7,14 @@ use Amp\DeferredFuture;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
-use ScriptFUSION\Porter\Provider\Resource\AsyncResource;
+use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncGameReviewsRecords;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\GameReviewsParser;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\ParserException;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 use Symfony\Component\DomCrawler\Crawler;
 
-final class ScrapeAppReviews implements AsyncResource, Url
+final class ScrapeAppReviews implements ProviderResource, Url
 {
     private int $appId;
 
@@ -48,7 +48,7 @@ final class ScrapeAppReviews implements AsyncResource, Url
         return SteamProvider::class;
     }
 
-    public function fetchAsync(ImportConnector $connector): \Iterator
+    public function fetch(ImportConnector $connector): \Iterator
     {
         $deferredTotal = new DeferredFuture();
         $deferredTotal->getFuture()->ignore();
@@ -61,7 +61,7 @@ final class ScrapeAppReviews implements AsyncResource, Url
                 do {
                     try {
                         /** @var HttpResponse $response */
-                        $response = $connector->fetchAsync(new AsyncHttpDataSource($this->getUrl()));
+                        $response = $connector->fetch(new AsyncHttpDataSource($this->getUrl()));
 
                         if ($response->getStatusCode() !== 200) {
                             throw new \RuntimeException("Unexpected status code: {$response->getStatusCode()}.");

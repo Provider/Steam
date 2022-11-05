@@ -4,19 +4,15 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
 use Amp\Http\Client\Body\FormBody;
-use ScriptFUSION\Porter\Connector\AsyncDataSource;
+use ScriptFUSION\Porter\Connector\DataSource;
 use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 final class DeleteCuratorReviews extends CuratorResource
 {
-    private $appIds;
-
-    public function __construct(CuratorSession $session, int $curatorId, array $appIds)
+    public function __construct(CuratorSession $session, int $curatorId, private readonly array $appIds)
     {
         parent::__construct($session, $curatorId);
-
-        $this->appIds = $appIds;
     }
 
     protected function getUrl(): string
@@ -24,7 +20,7 @@ final class DeleteCuratorReviews extends CuratorResource
         return SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxupdatemultiplecurations/");
     }
 
-    protected function getSource(): AsyncDataSource
+    protected function getSource(): DataSource
     {
         $body = new FormBody;
 
