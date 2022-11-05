@@ -5,7 +5,7 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList;
 
 use Amp\Http\Client\Body\FormBody;
 use ScriptFUSION\Porter\Connector\DataSource;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
+use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
@@ -34,7 +34,7 @@ final class PutCuratorListApp extends CuratorResource implements SingleRecordRes
             'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
         ]);
 
-        return (new AsyncHttpDataSource(
+        return (new HttpDataSource(
             SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxaddtolist/")
         ))
             ->setMethod('POST')

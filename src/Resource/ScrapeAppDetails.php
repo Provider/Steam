@@ -6,8 +6,8 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 use Amp\Http\Cookie\CookieAttributes;
 use Amp\Http\Cookie\ResponseCookie;
 use ScriptFUSION\Porter\Connector\ImportConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
+use ScriptFUSION\Porter\Net\Http\HttpConnector;
+use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
@@ -34,7 +34,7 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
 
         /** @var HttpResponse $response */
         $this->validateResponse($response = $connector->fetch(
-            (new AsyncHttpDataSource($this->getUrl()))
+            (new HttpDataSource($this->getUrl()))
         ));
 
         yield AppDetailsParser::tryParseStorePage($response->getBody());
@@ -56,7 +56,7 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         return SteamProvider::buildStoreApiUrl("/app/$this->appId/?cc=us");
     }
 
-    private function configureAsyncOptions(AsyncHttpConnector $connector): void
+    private function configureAsyncOptions(HttpConnector $connector): void
     {
         $connector->getOptions()
             // We want to capture redirects so do not follow them automatically.

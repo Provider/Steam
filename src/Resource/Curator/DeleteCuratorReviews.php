@@ -5,7 +5,7 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
 use Amp\Http\Client\Body\FormBody;
 use ScriptFUSION\Porter\Connector\DataSource;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
+use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 final class DeleteCuratorReviews extends CuratorResource
@@ -33,7 +33,7 @@ final class DeleteCuratorReviews extends CuratorResource
             $body->addField('appids', $appId);
         }
 
-        return (new AsyncHttpDataSource($this->getUrl()))
+        return (new HttpDataSource($this->getUrl()))
             ->setMethod('POST')
             ->setBody($body)
         ;

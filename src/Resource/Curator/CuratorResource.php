@@ -6,7 +6,7 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 use Amp\Http\Client\Cookie\CookieJar;
 use ScriptFUSION\Porter\Connector\DataSource;
 use ScriptFUSION\Porter\Connector\ImportConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
+use ScriptFUSION\Porter\Net\Http\HttpConnector;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
@@ -27,7 +27,7 @@ abstract class CuratorResource implements ProviderResource
     public function fetch(ImportConnector $connector): \Iterator
     {
         $baseConnector = $connector->findBaseConnector();
-        if (!$baseConnector instanceof AsyncHttpConnector) {
+        if (!$baseConnector instanceof HttpConnector) {
             throw new \InvalidArgumentException('Unexpected connector type.');
         }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam;
 
 use ScriptFUSION\Porter\Connector\Connector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
+use ScriptFUSION\Porter\Net\Http\HttpConnector;
 use ScriptFUSION\Porter\Provider\Provider;
 
 final class SteamProvider implements Provider
@@ -17,7 +17,7 @@ final class SteamProvider implements Provider
 
     public function __construct(Connector $connector = null)
     {
-        $this->connector = $connector ?? new AsyncHttpConnector;
+        $this->connector = $connector ?? new HttpConnector();
     }
 
     public static function buildSteamworksApiUrl(string $url): string

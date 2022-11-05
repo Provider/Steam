@@ -5,7 +5,7 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
 use Amp\DeferredFuture;
 use ScriptFUSION\Porter\Connector\ImportConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
+use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncGameReviewsRecords;
@@ -61,7 +61,7 @@ final class ScrapeAppReviews implements ProviderResource, Url
                 do {
                     try {
                         /** @var HttpResponse $response */
-                        $response = $connector->fetch(new AsyncHttpDataSource($this->getUrl()));
+                        $response = $connector->fetch(new HttpDataSource($this->getUrl()));
 
                         if ($response->getStatusCode() !== 200) {
                             throw new \RuntimeException("Unexpected status code: {$response->getStatusCode()}.");

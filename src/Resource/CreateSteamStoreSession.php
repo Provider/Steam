@@ -6,8 +6,8 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 use Amp\DeferredFuture;
 use Amp\Http\Cookie\ResponseCookie;
 use ScriptFUSION\Porter\Connector\ImportConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
+use ScriptFUSION\Porter\Net\Http\HttpConnector;
+use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncSteamStoreSessionRecord;
 use ScriptFUSION\Porter\Provider\Steam\Cookie\StoreSessionCookie;
@@ -28,11 +28,11 @@ final class CreateSteamStoreSession implements ProviderResource
             (static function () use ($connector, $sessionCookie): \Generator {
                 try {
                     $baseConnector = $connector->findBaseConnector();
-                    if (!$baseConnector instanceof AsyncHttpConnector) {
+                    if (!$baseConnector instanceof HttpConnector) {
                         throw new \InvalidArgumentException('Unexpected connector type.');
                     }
 
-                    $connector->fetch(new AsyncHttpDataSource(SteamProvider::buildStoreApiUrl('/')));
+                    $connector->fetch(new HttpDataSource(SteamProvider::buildStoreApiUrl('/')));
                 } catch (\Throwable $throwable) {
                     $sessionCookie->error($throwable);
 

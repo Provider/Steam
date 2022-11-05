@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
 use ScriptFUSION\Porter\Connector\ImportConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
+use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\UsersReviewsRecords;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\UserReviewsParser;
@@ -44,7 +44,7 @@ final class ScrapeUserReviews implements ProviderResource, Url
 
         do {
             $html = $connector->fetch(
-                new AsyncHttpDataSource($this->getUrl($next ? $next->attr('href') : ''))
+                new HttpDataSource($this->getUrl($next ? $next->attr('href') : ''))
             )->getBody();
             $crawler = new Crawler($html);
 

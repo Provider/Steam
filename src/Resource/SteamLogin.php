@@ -9,8 +9,8 @@ use Amp\Http\Cookie\ResponseCookie;
 use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 use ScriptFUSION\Porter\Connector\ImportConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpConnector;
-use ScriptFUSION\Porter\Net\Http\AsyncHttpDataSource;
+use ScriptFUSION\Porter\Net\Http\HttpConnector;
+use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncLoginRecord;
 use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
@@ -56,11 +56,11 @@ final class SteamLogin implements ProviderResource
     private function login(ImportConnector $connector): array
     {
         $baseConnector = $connector->findBaseConnector();
-        if (!$baseConnector instanceof AsyncHttpConnector) {
+        if (!$baseConnector instanceof HttpConnector) {
             throw new \InvalidArgumentException('Unexpected connector type.');
         }
 
-        $source = (new AsyncHttpDataSource(SteamProvider::buildStoreApiUrl('/login/getrsakey/')))
+        $source = (new HttpDataSource(SteamProvider::buildStoreApiUrl('/login/getrsakey/')))
             ->setMethod('POST')
             ->setBody($body = new FormBody)
         ;
@@ -90,7 +90,7 @@ final class SteamLogin implements ProviderResource
 
         $json = json_decode(
             (string)$response = $connector->fetch(
-                (new AsyncHttpDataSource(SteamProvider::buildStoreApiUrl('/login/dologin/')))
+                (new HttpDataSource(SteamProvider::buildStoreApiUrl('/login/dologin/')))
                     ->setMethod('POST')
                     ->setBody($body)
             ),
