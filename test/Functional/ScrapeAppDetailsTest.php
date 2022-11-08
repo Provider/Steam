@@ -828,7 +828,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/1262600/Need_for_Speed_Rivals
      * @see https://store.steampowered.com/app/1237950/STAR_WARS_Battlefront_II
      * @see https://store.steampowered.com/app/1237980/STAR_WARS_Battlefront
-     * @see https://store.steampowered.com/app/421020/DiRT_4
      * @see https://store.steampowered.com/app/1238810/Battlefield_V
      * @see https://store.steampowered.com/app/1238840/Battlefield_1
      * @see https://store.steampowered.com/app/1238860/Battlefield_4
@@ -887,7 +886,6 @@ final class ScrapeAppDetailsTest extends TestCase
             'Need for Speed Rivals' => [1262600],
             'STAR WARS Battlefront II' => [1237950],
             'STAR WARS Battlefront' => [1237980],
-            'DiRT 4' => [421020],
             'Battlefield V' => [1238810],
             'Battlefield 1' => [1238840],
             'Battlefield 4' => [1238860],
