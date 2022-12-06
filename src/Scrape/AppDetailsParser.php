@@ -272,7 +272,10 @@ final class AppDetailsParser
     private static function parseVrExclusive(Crawler $crawler): bool
     {
         foreach ($crawler->filter('.notice_box_content') as $element) {
-            if (preg_match('[Requires.+virtual reality headset]', $element->textContent)) {
+            if (preg_match(
+                '[Requires.+virtual reality headset|#Store_VR_HMD_Only_Purchase_Note_Multiple]',
+                $element->textContent
+            )) {
                 return true;
             }
         }
