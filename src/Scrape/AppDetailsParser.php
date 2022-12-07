@@ -87,7 +87,7 @@ final class AppDetailsParser
             return preg_replace('[.*vrsupport=(\d+).*]', '$1', $crawler->attr('href'));
         });
         $vive = in_array('101', $vrPlatforms, true);
-        $occulus = in_array('102', $vrPlatforms, true);
+        $oculus = in_array('102', $vrPlatforms, true);
         $wmr = in_array('104', $vrPlatforms, true);
         $valve_index = in_array('105', $vrPlatforms, true);
 
@@ -120,7 +120,7 @@ final class AppDetailsParser
             'linux',
             'mac',
             'vive',
-            'occulus',
+            'oculus',
             'wmr',
             'valve_index',
             'steam_deck',

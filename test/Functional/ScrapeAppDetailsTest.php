@@ -81,7 +81,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertTrue($app['linux']);
         self::assertTrue($app['mac']);
         self::assertFalse($app['vive']);
-        self::assertFalse($app['occulus']);
+        self::assertFalse($app['oculus']);
         self::assertFalse($app['wmr']);
 
         foreach ($app['tags'] as $tag) {
@@ -463,7 +463,7 @@ final class ScrapeAppDetailsTest extends TestCase
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(552440)));
 
         self::assertTrue($app['vive']);
-        self::assertTrue($app['occulus']);
+        self::assertTrue($app['oculus']);
         self::assertTrue($app['wmr']);
         self::assertTrue($app['valve_index']);
     }
