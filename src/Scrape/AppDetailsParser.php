@@ -80,17 +80,6 @@ final class AppDetailsParser
         $linux = $platforms->filter('.linux')->count() > 0;
         $mac = $platforms->filter('.mac')->count() > 0;
 
-        // VR platforms.
-        $vrPlatforms = $crawler->filter(
-            '.block_title.vrsupport ~ .game_area_details_specs_ctn[href*="vrsupport=10"]'
-        )->each(static function (Crawler $crawler): string {
-            return preg_replace('[.*vrsupport=(\d+).*]', '$1', $crawler->attr('href'));
-        });
-        $vive = in_array('101', $vrPlatforms, true);
-        $oculus = in_array('102', $vrPlatforms, true);
-        $wmr = in_array('104', $vrPlatforms, true);
-        $valve_index = in_array('105', $vrPlatforms, true);
-
         // Steam Deck.
         $steam_deck = self::parseSteamDeckCompatibility($crawler);
 
@@ -119,10 +108,6 @@ final class AppDetailsParser
             'windows',
             'linux',
             'mac',
-            'vive',
-            'oculus',
-            'wmr',
-            'valve_index',
             'steam_deck',
             'DEBUG_primary_sub_id',
         );

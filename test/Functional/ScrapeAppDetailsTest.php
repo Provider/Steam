@@ -80,9 +80,11 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertTrue($app['windows']);
         self::assertTrue($app['linux']);
         self::assertTrue($app['mac']);
-        self::assertFalse($app['vive']);
-        self::assertFalse($app['oculus']);
-        self::assertFalse($app['wmr']);
+        // https://twitter.com/SteamVR/status/1600663221731749888
+        self::assertArrayNotHasKey('vive', $app, 'VR platforms removed by Valve on December 7th, 2022.');
+        self::assertArrayNotHasKey('oculus', $app);
+        self::assertArrayNotHasKey('wmr', $app);
+        self::assertArrayNotHasKey('valve_index', $app);
 
         foreach ($app['tags'] as $tag) {
             self::assertArrayHasKey('name', $tag);
@@ -451,21 +453,6 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertTrue($app['windows']);
         self::assertTrue($app['mac']);
         self::assertTrue($app['linux']);
-    }
-
-    /**
-     * Tests that a game with all VR platforms is correctly identified.
-     *
-     * @see http://store.steampowered.com/app/552440/
-     */
-    public function testVrPlatforms(): void
-    {
-        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(552440)));
-
-        self::assertTrue($app['vive']);
-        self::assertTrue($app['oculus']);
-        self::assertTrue($app['wmr']);
-        self::assertTrue($app['valve_index']);
     }
 
     /**
