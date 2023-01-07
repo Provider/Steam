@@ -66,6 +66,11 @@ final class GameReviewsParser
             throw new ParserException("Unexpected date: \"$date\".");
         }
 
+        /*
+         * TODO: There is a bug here during the New Year when our computer's clock is ahead of Steam's clock: since year
+         * is omitted during the "current" year, we may misrepresent December 31st XXX1 as December 31st XXX2 on January
+         * 1st.
+        */
         return new \DateTimeImmutable(str_replace(',', '', $matches[1]));
     }
 

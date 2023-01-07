@@ -17,12 +17,13 @@
     "phpseclib/phpseclib": "^2",
     "psr/log": "^1",
     "scriptfusion/porter": "^7",
-    "symfony/css-selector": "^5.3",
-    "symfony/dom-crawler": "^5.4",
+    "symfony/css-selector": "^5.3|^6",
+    "symfony/dom-crawler": "^5.4|^6",
     "xpaw/steamid": "^2.0"
   },
   "require-dev": {
     "amphp/http": "^1.6@stable",
+    "amphp/byte-stream": "v2.0.0-beta.14",
     "amphp/socket": "v2.0.0-beta.6",
     "mockery/mockery": "^1.3.3",
     "nikic/iter": "^2.2",
