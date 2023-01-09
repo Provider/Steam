@@ -22,9 +22,8 @@
     "xpaw/steamid": "^2.0"
   },
   "require-dev": {
-    "amphp/http": "^1.6@stable",
-    "amphp/byte-stream": "v2.0.0-beta.14",
-    "amphp/socket": "v2.0.0-beta.6",
+    "amphp/http-client": "v5.0.0-beta.7",
+    "amphp/socket": "v2.0.0-beta.8",
     "mockery/mockery": "^1.3.3",
     "nikic/iter": "^2.2",
     "nunomaduro/collision": "^6.3",
