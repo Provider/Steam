@@ -26,7 +26,7 @@ final class DeleteCuratorListApp extends CuratorResource implements SingleRecord
     {
         $body = new FormBody;
         $body->addFields([
-            'appid' => $this->appId,
+            'appid' => (string)$this->appId,
             'listid' => $this->listId,
             'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
         ]);

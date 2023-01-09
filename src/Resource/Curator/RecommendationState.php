@@ -6,9 +6,9 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 use Eloquent\Enumeration\AbstractEnumeration;
 
 /**
- * @method static RECOMMENDED()
- * @method static INFORMATIONAL()
- * @method static NOT_RECOMMENDED()
+ * @method static self RECOMMENDED
+ * @method static self INFORMATIONAL
+ * @method static self NOT_RECOMMENDED
  */
 final class RecommendationState extends AbstractEnumeration
 {
@@ -18,13 +18,10 @@ final class RecommendationState extends AbstractEnumeration
 
     public function toInt(): int
     {
-        switch ($this) {
-            case self::RECOMMENDED:
-                return 0;
-            case self::INFORMATIONAL:
-                return 2;
-            case self::NOT_RECOMMENDED:
-                return 1;
-        }
+        return match ($this) {
+            self::RECOMMENDED() => 0,
+            self::INFORMATIONAL() => 2,
+            self::NOT_RECOMMENDED() => 1,
+        };
     }
 }

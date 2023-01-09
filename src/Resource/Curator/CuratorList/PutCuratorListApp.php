@@ -29,7 +29,7 @@ final class PutCuratorListApp extends CuratorResource implements SingleRecordRes
     {
         $body = new FormBody;
         $body->addFields([
-            'appid' => $this->appId,
+            'appid' => (string)$this->appId,
             'listid' => $this->listId,
             'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
         ]);

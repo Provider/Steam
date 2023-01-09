@@ -45,11 +45,11 @@ final class PutCuratorList extends CuratorResource implements SingleRecordResour
             'listid' => $list->getListId(),
             'order' => 'specified',
             'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
-            'showtitleanddesc' => 1,
-            'state' => $list->getTitle() === '' ? 0 : 1,
+            'showtitleanddesc' => '1',
+            'state' => $list->getTitle() === '' ? '0' : '1',
             'title' => $list->getTitle(),
             'title_blurb_locs' => '{}',
-            'type' => 2,
+            'type' => '2',
         ]);
 
         return $body;

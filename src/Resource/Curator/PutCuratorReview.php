@@ -27,10 +27,10 @@ final class PutCuratorReview extends CuratorResource implements SingleRecordReso
     {
         $body = new FormBody;
         $body->addFields([
-            'appid' => $this->review->getAppId(),
+            'appid' => (string)$this->review->getAppId(),
             'blurb' => $this->review->getBody(),
             'link_url' => $this->review->getUrl(),
-            'recommendation_state' => $this->review->getRecommendationState()->toInt(),
+            'recommendation_state' => (string)$this->review->getRecommendationState()->toInt(),
             'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
         ]);
 
