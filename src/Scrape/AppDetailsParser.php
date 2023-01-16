@@ -83,6 +83,9 @@ final class AppDetailsParser
         // Steam Deck.
         $steam_deck = self::parseSteamDeckCompatibility($crawler);
 
+        // Demo.
+        $demo_id = self::parserDemoId($crawler);
+
         return compact(
             'name',
             'type',
@@ -109,6 +112,7 @@ final class AppDetailsParser
             'linux',
             'mac',
             'steam_deck',
+            'demo_id',
             'DEBUG_primary_sub_id',
         );
     }
@@ -362,7 +366,7 @@ final class AppDetailsParser
 
             // Count how many purchase areas contain product title.
             if (count(array_filter($titles, static function (string $purchaseAreaTitle) use ($title): bool {
-                return strpos($purchaseAreaTitle, $title) !== false;
+                return str_contains($purchaseAreaTitle, $title);
             })) > 1) {
                 // If more than one, use purchase area with the lowest sub ID.
                 ksort($titles);
@@ -433,6 +437,18 @@ final class AppDetailsParser
             $deckCompat = \json_decode($deckCompatJson, true, 512, JSON_THROW_ON_ERROR);
 
             return SteamDeckCompatibility::fromId($deckCompat['resolved_category']);
+        }
+
+        return null;
+    }
+
+    private static function parserDemoId(Crawler $crawler): ?int
+    {
+        // Type 1: demo button in purchase area, type 2: demo button in sidebar.
+        $demoLink = $crawler->filter('#demoGameBtn > a, .download_demo_button a');
+
+        if (count($demoLink) && $demoId = preg_replace('[.*?steam://install/(\d+).*]', '$1', $demoLink->attr('href'))) {
+            return +$demoId;
         }
 
         return null;

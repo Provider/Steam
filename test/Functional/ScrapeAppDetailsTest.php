@@ -86,6 +86,8 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertArrayNotHasKey('wmr', $app);
         self::assertArrayNotHasKey('valve_index', $app);
 
+        self::assertNull($app['demo_id']);
+
         foreach ($app['tags'] as $tag) {
             self::assertArrayHasKey('name', $tag);
             self::assertIsString($tagName = $tag['name']);
@@ -983,6 +985,26 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertTrue($app['windows']);
         self::assertNotEmpty($app['tags']);
         self::assertNotEmpty($app['languages']);
+    }
+
+    /**
+     * Tests that an app with a demo app ID is parsed correctly.
+     *
+     * @dataProvider provideDemoIds
+     */
+    public function testDemoGame(int $appId, int $demoId): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
+
+        self::assertSame($app['demo_id'], $demoId);
+    }
+
+    public static function provideDemoIds(): iterable
+    {
+        return [
+            'Demo area and purchase area (game)' => [221910, 247750],
+            'Demo button in sidebar only (game)' => [1336490, 1400860],
+        ];
     }
 
     /**
