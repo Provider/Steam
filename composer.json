@@ -18,7 +18,7 @@
     "psr/log": "^1",
     "scriptfusion/porter": "^7",
     "symfony/css-selector": "^5.3|^6",
-    "symfony/dom-crawler": "^5.4|^6",
+    "symfony/dom-crawler": "^5.4",
     "xpaw/steamid": "^2.0"
   },
   "require-dev": {
