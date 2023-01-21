@@ -5,7 +5,6 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
 use Amp\DeferredFuture;
 use Amp\Http\Client\Body\FormBody;
-use Amp\Http\Cookie\ResponseCookie;
 use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 use ScriptFUSION\Porter\Connector\ImportConnector;
@@ -60,57 +59,63 @@ final class SteamLogin implements ProviderResource
             throw new \InvalidArgumentException('Unexpected connector type.');
         }
 
-        $source = (new HttpDataSource(SteamProvider::buildStoreApiUrl('/login/getrsakey/')))
-            ->setMethod('POST')
-            ->setBody($body = new FormBody)
-        ;
-        $body->addField('username', $this->username);
-        $body->addField('donotcache', (string)((int)microtime(true) * 1000));
+        $source = new HttpDataSource(SteamProvider::buildSteamworksApiUrl(
+            '/IAuthenticationService/GetPasswordRSAPublicKey/v1/?account_name=' . urlencode($this->username)
+        ));
 
         $json = json_decode(
-            (string)$connector->fetch($source),
+            (string)$response = $connector->fetch($source),
             true
         );
 
-        if (!($json['success'] ?? false)) {
+        if (!isset($json['response']['publickey_mod'])) {
             throw new SteamLoginException('Unable to fetch RSA key.');
         }
 
         $rsa = new RSA;
         $rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
         $rsa->loadKey([
-            'n' => new BigInteger($json['publickey_mod'], 16),
-            'e' => new BigInteger($json['publickey_exp'], 16),
+            'n' => new BigInteger($json['response']['publickey_mod'], 16),
+            'e' => new BigInteger($json['response']['publickey_exp'], 16),
         ]);
 
+        $body = new FormBody();
         $body->addFields([
-            'password' => base64_encode($rsa->encrypt($this->password)),
-            'rsatimestamp' => $json['timestamp'],
+            'account_name' => $this->username,
+            'encrypted_password' => base64_encode($rsa->encrypt($this->password)),
+            'encryption_timestamp' => $json['response']['timestamp'],
         ]);
 
         $json = json_decode(
             (string)$response = $connector->fetch(
-                (new HttpDataSource(SteamProvider::buildStoreApiUrl('/login/dologin/')))
+                (new HttpDataSource(SteamProvider::buildSteamworksApiUrl(
+                    '/IAuthenticationService/BeginAuthSessionViaCredentials/v1/'
+                )))
                     ->setMethod('POST')
                     ->setBody($body)
             ),
             true
         );
 
-        if (!($json['success'] ?? false)) {
-            $message = $json['message'] ?? '';
-            throw new SteamLoginException("Unable to log in using supplied credentials.\n$message");
+        if (!isset($json['response']['client_id'])) {
+            throw new SteamLoginException("Unable to log in using supplied credentials.");
         }
+        $sessionParams = $json['response'];
 
-        $steamLoginCookie = current(array_filter(
-            $baseConnector->getCookieJar()->getAll(),
-            static function (ResponseCookie $cookie) {
-                return $cookie->getName() === 'steamLoginSecure';
-            }
-        ));
+        $body = new FormBody();
+        $body->addFields(array_intersect_key($sessionParams, ['client_id' => 1, 'request_id' => 1]));
 
-        assert($steamLoginCookie);
+        $json = json_decode(
+            (string)$response = $connector->fetch(
+                (new HttpDataSource(SteamProvider::buildSteamworksApiUrl(
+                    '/IAuthenticationService/PollAuthSessionStatus/v1/'
+                )))
+                    ->setMethod('POST')
+                    ->setBody($body)
+            ),
+            true,
+        );
 
-        return [$json, new SecureLoginCookie($steamLoginCookie)];
+        return [$json, SecureLoginCookie::create("$sessionParams[steamid]||{$json['response']['access_token']}")];
     }
 }
