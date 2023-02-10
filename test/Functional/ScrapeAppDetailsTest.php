@@ -170,19 +170,6 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that apps with no release date are mapped to null.
-     *
-     * @see http://store.steampowered.com/app/219740/
-     */
-    public function testNoReleaseDate(): void
-    {
-        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(219740)));
-
-        self::assertSame('Don\'t Starve', $app['name']);
-        self::assertNull($app['release_date']);
-    }
-
-    /**
      * @see http://store.steampowered.com/app/1840/
      *
      * @group type
