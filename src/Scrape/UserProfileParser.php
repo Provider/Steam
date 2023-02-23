@@ -14,7 +14,7 @@ final class UserProfileParser
     {
         return [
             'name' => $crawler->filter('.actual_persona_name')->text(),
-            'image_hash' => self::parseImageHash($crawler->filter('.playerAvatar img')->attr('src')),
+            'image_hash' => self::parseImageHash($crawler->filter('.playerAvatarAutoSizeInner > img')->attr('src')),
         ];
     }
 

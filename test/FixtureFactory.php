@@ -17,15 +17,12 @@ final class FixtureFactory
 
     private static ?CuratorSession $savedSession = null;
 
-    public static function createPorter(): Porter
+    public static function createPorter(ContainerInterface $container = null): Porter
     {
-        return new Porter(self::mockPorterContainer());
+        return new Porter($container ?? self::mockPorterContainer());
     }
 
-    /**
-     * @return ContainerInterface|MockInterface
-     */
-    public static function mockPorterContainer(): ContainerInterface
+    public static function mockPorterContainer(): ContainerInterface|MockInterface
     {
         return \Mockery::mock(ContainerInterface::class)
             ->shouldReceive('has')

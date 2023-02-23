@@ -3,16 +3,23 @@ declare(strict_types=1);
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional\User;
 
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
+use ScriptFUSION\Porter\Connector\Connector;
 use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Provider\Steam\Resource\User\ScrapeUserProfile;
+use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
+use ScriptFUSIONTest\Porter\Provider\Steam\Fixture\ScrapeAppFixture;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
+use ScriptFUSIONTest\Porter\Provider\Steam\MockFactory;
 
 /**
  * @see ScrapeUserProfile
  */
 final class ScrapeUserProfileTest extends TestCase
 {
+    use MockeryPHPUnitIntegration;
+
     /**
      * Tests that scraping GabeN's user profile returns his username.
      */
@@ -26,5 +33,23 @@ final class ScrapeUserProfileTest extends TestCase
 
         self::assertArrayHasKey('image_hash', $profile);
         self::assertSame('c5d56249ee5d28a07db4ac9f7f60af961fab5426', $profile['image_hash']);
+    }
+
+    /**
+     * Tests that scraping a profile that has a fancy animated border around the avatar fetches the correct image hash.
+     */
+    public function testScrapeFancyProfile(): void
+    {
+        $porter = FixtureFactory::createPorter($container = FixtureFactory::mockPorterContainer());
+        $container->expects('get')->with(SteamProvider::class)
+            ->andReturn(new SteamProvider($connector = \Mockery::mock(Connector::class)));
+        MockFactory::mockConnectorResponse(
+            $connector,
+            ScrapeAppFixture::getFixture('user profile fancy avatar border.html')
+        );
+
+        $profile = $porter->importOne(new Import(new ScrapeUserProfile(new \SteamID(1))));
+
+        self::assertSame('8cb62010a27329ef8f5bf6d2f8e5dba79d1940ab', $profile['image_hash']);
     }
 }
