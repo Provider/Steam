@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
 use Amp\DeferredFuture;
-use Amp\Http\Client\Body\FormBody;
+use Amp\Http\Client\Form;
 use phpseclib\Crypt\RSA;
 use phpseclib\Math\BigInteger;
 use ScriptFUSION\Porter\Connector\ImportConnector;
@@ -79,12 +79,10 @@ final class SteamLogin implements ProviderResource
             'e' => new BigInteger($json['response']['publickey_exp'], 16),
         ]);
 
-        $body = new FormBody();
-        $body->addFields([
-            'account_name' => $this->username,
-            'encrypted_password' => base64_encode($rsa->encrypt($this->password)),
-            'encryption_timestamp' => $json['response']['timestamp'],
-        ]);
+        $body = new Form();
+        $body->addField('account_name', $this->username);
+        $body->addField('encrypted_password', base64_encode($rsa->encrypt($this->password)));
+        $body->addField('encryption_timestamp', $json['response']['timestamp']);
 
         $json = json_decode(
             (string)$response = $connector->fetch(
@@ -102,8 +100,10 @@ final class SteamLogin implements ProviderResource
         }
         $sessionParams = $json['response'];
 
-        $body = new FormBody();
-        $body->addFields(array_intersect_key($sessionParams, ['client_id' => 1, 'request_id' => 1]));
+        $body = new Form();
+        foreach (['client_id', 'request_id'] as $field) {
+            $body->addField($field, $sessionParams[$field]);
+        }
 
         $json = json_decode(
             (string)$response = $connector->fetch(

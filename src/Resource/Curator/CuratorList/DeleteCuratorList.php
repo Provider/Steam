@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList;
 
 use Amp\Http\Client\Body\FormBody;
+use Amp\Http\Client\Form;
 use ScriptFUSION\Porter\Connector\DataSource;
 use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
@@ -24,11 +25,13 @@ final class DeleteCuratorList extends CuratorResource implements SingleRecordRes
 
     protected function getSource(): DataSource
     {
-        $body = new FormBody;
-        $body->addFields([
+        $body = new Form;
+        foreach ([
             'listid' => $this->listId,
             'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
-        ]);
+        ] as $name => $value) {
+            $body->addField($name, $value);
+        }
 
         return (new HttpDataSource(
             SteamProvider::buildStoreApiUrl("/curator/$this->curatorId/admin/ajaxdeletelist/")

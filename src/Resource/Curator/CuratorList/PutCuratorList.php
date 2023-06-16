@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList;
 
-use Amp\Http\Client\Body\FormBody;
-use Amp\Http\Client\RequestBody;
+use Amp\Http\Client\Form;
+use Amp\Http\Client\HttpContent;
 use ScriptFUSION\Porter\Connector\DataSource;
 use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
@@ -36,11 +36,11 @@ final class PutCuratorList extends CuratorResource implements SingleRecordResour
         ;
     }
 
-    private function toFormBody(CuratorList $list): RequestBody
+    private function toFormBody(CuratorList $list): HttpContent
     {
-        $body = new FormBody;
+        $body = new Form;
 
-        $body->addFields([
+        foreach ([
             'blurb' => $list->getDescription(),
             'listid' => $list->getListId(),
             'order' => 'specified',
@@ -50,7 +50,9 @@ final class PutCuratorList extends CuratorResource implements SingleRecordResour
             'title' => $list->getTitle(),
             'title_blurb_locs' => '{}',
             'type' => '2',
-        ]);
+        ] as $name => $value) {
+            $body->addField($name, $value);
+        }
 
         return $body;
     }

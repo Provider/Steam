@@ -19,7 +19,7 @@ final class MockFactory
     {
         $connector->expects('fetch')->andReturn(new HttpResponse(new Response(
             '1.0',
-            2,
+            200,
             null,
             [],
             new ReadableBuffer($response),
