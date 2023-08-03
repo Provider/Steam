@@ -25,6 +25,6 @@ abstract class CuratorTestCase extends TestCase
     public static function setUpBeforeClass(): void
     {
         self::$porter = FixtureFactory::createPorter();
-        self::$session = FixtureFactory::createSession(self::$porter);
+        self::$session = FixtureFactory::createCuratorSession(self::$porter);
     }
 }

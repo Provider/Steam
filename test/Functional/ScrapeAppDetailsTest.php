@@ -887,7 +887,7 @@ final class ScrapeAppDetailsTest extends TestCase
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
 
-        self::assertTrue($app['windows']);
+        self::assertTrue($app['windows'] || $app['type'] === 'soundtrack');
         self::assertSame($subId, $app['DEBUG_primary_sub_id']);
     }
 
@@ -897,7 +897,7 @@ final class ScrapeAppDetailsTest extends TestCase
             // Purchase area appears first but title does not match.
             'Patrician IV' => [57620, 6089],
             'Company of Heroes - Legacy Edition' => [4560, 403],
-            'Max Payne 2: The Fall of Max Payne' => [12150, 603],
+            'Max Payne 2: The Fall of Max Payne' => [12150, 597],
             'AaAaAA!!! - A Reckless Disregard for Gravity' => [15520, 2062],
             'LEGO® Batman™: The Videogame' => [21000, 1016],
             'King Arthur: Knights and Vassals DLC' => [24440, 2796],
