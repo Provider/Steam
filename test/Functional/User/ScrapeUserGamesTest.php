@@ -6,6 +6,7 @@ namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional\User;
 use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Provider\Steam\Resource\User\ScrapeUserGames;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\ParserException;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 final class ScrapeUserGamesTest extends TestCase
@@ -36,5 +37,37 @@ final class ScrapeUserGamesTest extends TestCase
         }
 
         self::assertGreaterThan(990, $counter, 'More than 990 games.');
+    }
+
+    /**
+     * Tests that scraping a public profile with a private games list throws an appropriate exception.
+     *
+     * @see https://steamcommunity.com/profiles/76561197972755855
+     */
+    public function testScrapePublicProfilePrivateGames(): void
+    {
+        $porter = FixtureFactory::createPorter();
+        $session = FixtureFactory::createCommunitySession($porter);
+
+        $this->expectException(ParserException::class);
+        $this->expectExceptionCode(ParserException::EMPTY_GAMES_LIST);
+
+        $results = $porter->import(new Import(new ScrapeUserGames($session, new \SteamID('76561197972755855'))));
+    }
+
+    /**
+     * Tests that scraping a private profile throws an appropriate exception.
+     *
+     * @see https://steamcommunity.com/id/vAcquiredTaste
+     */
+    public function testScrapePrivateProfile(): void
+    {
+        $porter = FixtureFactory::createPorter();
+        $session = FixtureFactory::createCommunitySession($porter);
+
+        $this->expectException(ParserException::class);
+        $this->expectExceptionCode(ParserException::UNEXPECTED_CONTENT);
+
+        $results = $porter->import(new Import(new ScrapeUserGames($session, new \SteamID('76561197993329385'))));
     }
 }
