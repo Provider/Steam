@@ -7,8 +7,10 @@ use Amp\Http\Client\Cookie\CookieJar;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\HttpConnector;
 use ScriptFUSION\Porter\Net\Http\HttpDataSource;
+use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\CommunitySession;
+use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidSessionException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Url;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\UserGamesParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
@@ -34,7 +36,14 @@ final class ScrapeUserGames implements ProviderResource, Url
 
         $this->applySessionCookies($baseConnector->getCookieJar());
 
+        /** @var HttpResponse $response */
         $response = $connector->fetch(new HttpDataSource($this->getUrl()));
+
+        if (($previousResponse = $response->getPrevious())
+            && strpos($previousResponse->getHeader('location')[0], 'msg=loginfirst')
+        ) {
+            throw new InvalidSessionException('Session expired.');
+        }
 
         yield from UserGamesParser::parse(new Crawler($response->getBody()));
     }
