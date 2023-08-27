@@ -7,6 +7,7 @@ use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\UsersReviewsRecords;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\NativeCrawler;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\UserReviewsParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 use Symfony\Component\DomCrawler\Crawler;
@@ -46,7 +47,7 @@ final class ScrapeUserReviews implements ProviderResource, Url
             $html = $connector->fetch(
                 new HttpDataSource($this->getUrl($next ? $next->attr('href') : ''))
             )->getBody();
-            $crawler = new Crawler($html);
+            $crawler = new NativeCrawler($html);
 
             yield from UserReviewsParser::parse($crawler);
 

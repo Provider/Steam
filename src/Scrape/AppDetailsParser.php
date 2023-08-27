@@ -26,7 +26,7 @@ final class AppDetailsParser
 
     private static function parseStorePage(string $html): array
     {
-        $crawler = new Crawler($html);
+        $crawler = new NativeCrawler($html);
 
         self::validate($crawler, $html);
 
@@ -400,7 +400,7 @@ final class AppDetailsParser
 
         return $firstOnly
             ? $purchaseAreas->closest('.game_area_purchase_game')
-            : new Crawler($purchaseAreas->each(function (Crawler $crawler) {
+            : new NativeCrawler($purchaseAreas->each(function (Crawler $crawler) {
                 return $crawler->closest('.game_area_purchase_game')->getNode(0);
             }))
         ;

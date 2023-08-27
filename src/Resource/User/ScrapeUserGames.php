@@ -12,9 +12,9 @@ use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\CommunitySession;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidSessionException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Url;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\NativeCrawler;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\UserGamesParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
-use Symfony\Component\DomCrawler\Crawler;
 
 final class ScrapeUserGames implements ProviderResource, Url
 {
@@ -45,7 +45,7 @@ final class ScrapeUserGames implements ProviderResource, Url
             throw new InvalidSessionException('Session expired.');
         }
 
-        yield from UserGamesParser::parse(new Crawler($response->getBody()));
+        yield from UserGamesParser::parse(new NativeCrawler($response->getBody()));
     }
 
     public function getUrl(): string

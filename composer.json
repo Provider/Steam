@@ -11,6 +11,7 @@
   "prefer-stable": true,
   "require": {
     "php": "^8.1",
+    "ext-dom": "*",
     "ext-json": "*",
     "connectors/http": "^7",
     "eloquent/enumeration": "^5|^6",
@@ -18,7 +19,7 @@
     "psr/log": "^1",
     "scriptfusion/porter": "^7",
     "symfony/css-selector": "^5.3|^6",
-    "symfony/dom-crawler": "^5.4",
+    "symfony/dom-crawler": "^5.4|^6.3",
     "xpaw/steamid": "^2.0"
   },
   "require-dev": {

@@ -10,9 +10,9 @@ use ScriptFUSION\Porter\Net\Http\HttpResponse;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncGameReviewsRecords;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\GameReviewsParser;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\NativeCrawler;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\ParserException;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
-use Symfony\Component\DomCrawler\Crawler;
 
 final class ScrapeAppReviews implements ProviderResource, Url
 {
@@ -86,7 +86,7 @@ final class ScrapeAppReviews implements ProviderResource, Url
                     }
 
                     if ($json['recommendationids']) {
-                        $reviews = GameReviewsParser::parse(new Crawler($json['html']));
+                        $reviews = GameReviewsParser::parse(new NativeCrawler($json['html']));
 
                         foreach ($reviews as $review) {
                             ++$this->count;

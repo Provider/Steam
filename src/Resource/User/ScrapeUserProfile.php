@@ -7,9 +7,9 @@ use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\HttpDataSource;
 use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\NativeCrawler;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\UserProfileParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
-use Symfony\Component\DomCrawler\Crawler;
 
 final class ScrapeUserProfile implements ProviderResource, SingleRecordResource
 {
@@ -28,6 +28,6 @@ final class ScrapeUserProfile implements ProviderResource, SingleRecordResource
             new HttpDataSource("https://steamcommunity.com/profiles/{$this->steamId->ConvertToUInt64()}")
         );
 
-        yield UserProfileParser::parse(new Crawler($response->getBody()));
+        yield UserProfileParser::parse(new NativeCrawler($response->getBody()));
     }
 }
