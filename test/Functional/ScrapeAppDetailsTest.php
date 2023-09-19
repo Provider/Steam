@@ -733,11 +733,11 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * Tests that a game with Steam Deck "playable" compatibility is parsed correctly.
      *
-     * @see https://store.steampowered.com/app/427520/Factorio/
+     * @see https://store.steampowered.com/app/227380/Dragons_Lair/
      */
     public function testSteamDeckPlayable(): void
     {
-        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(427520)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(227380)));
 
         self::assertSame(SteamDeckCompatibility::PLAYABLE(), $app['steam_deck']);
     }
