@@ -208,14 +208,14 @@ final class AppDetailsParser
     private static function parseGenres(Crawler $crawler): array
     {
         return $crawler->filter('.details_block a[href*="/genre/"]')->each(
-            \Closure::fromCallable('self::trimNodeText')
+            self::trimNodeText(...)
         );
     }
 
     private static function parseLanguages(Crawler $crawler): array
     {
         return $crawler->filter('.game_language_options tr:not(.unsupported) > td:first-child')->each(
-            \Closure::fromCallable('self::trimNodeText')
+            self::trimNodeText(...)
         );
     }
 
