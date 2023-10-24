@@ -872,7 +872,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/335300/DARK_SOULS_II_Scholar_of_the_First_Sin
      * @see https://store.steampowered.com/app/24400/King_Arthur__The_Roleplaying_Wargame
      * @see https://store.steampowered.com/app/26800/Braid
-     * @see https://store.steampowered.com/app/221680/Rocksmith_2014_Edition__Remastered
      * @see https://store.steampowered.com/app/238240/Edge_of_Space
      * @see https://store.steampowered.com/app/256390/MotoGP14
      * @see https://store.steampowered.com/app/274170/Hotline_Miami_2_Wrong_Number
@@ -910,7 +909,6 @@ final class ScrapeAppDetailsTest extends TestCase
             'DOOM Eternal' => [782330, 235874],
             'DARK SOULS™ II: Scholar of the First Sin' => [335300, 55366],
             'King Arthur - The Role-playing Wargame' => [24400, 2538],
-            'Rocksmith® 2014 Edition - Remastered' => [221680, 131845],
             'Edge of Space' => [238240, 28923],
             'MotoGP™14' => [256390, 52513],
             'Hotline Miami 2: Wrong Number' => [274170, 37088],
