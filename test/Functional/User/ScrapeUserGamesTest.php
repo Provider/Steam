@@ -60,7 +60,7 @@ final class ScrapeUserGamesTest extends TestCase
     /**
      * Tests that scraping a public profile with a private games list throws an appropriate exception.
      *
-     * @see https://steamcommunity.com/profiles/76561197972755855
+     * @see https://steamcommunity.com/profiles/76561197989728462
      */
     public function testScrapePublicProfilePrivateGames(): void
     {
@@ -70,7 +70,7 @@ final class ScrapeUserGamesTest extends TestCase
         $this->expectException(ParserException::class);
         $this->expectExceptionCode(ParserException::EMPTY_GAMES_LIST);
 
-        $results = $porter->import(new Import(new ScrapeUserGames($session, new \SteamID('76561197972755855'))));
+        $results = $porter->import(new Import(new ScrapeUserGames($session, new \SteamID('76561197989728462'))));
     }
 
     /**
