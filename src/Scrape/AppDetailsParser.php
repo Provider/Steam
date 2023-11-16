@@ -260,13 +260,7 @@ final class AppDetailsParser
 
     private static function parseVrExclusive(Crawler $crawler): bool
     {
-        foreach ($crawler->filter('.notice_box_content') as $element) {
-            if (preg_match('[Requires.+virtual reality headset]', $element->textContent)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $crawler->filter('[data-featuretarget=game-notice-vr-required]')->count() > 0;
     }
 
     private static function parseFree(Crawler $crawler): ?bool
