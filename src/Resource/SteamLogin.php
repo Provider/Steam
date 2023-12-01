@@ -5,8 +5,9 @@ namespace ScriptFUSION\Porter\Provider\Steam\Resource;
 
 use Amp\DeferredFuture;
 use Amp\Http\Client\Form;
-use phpseclib\Crypt\RSA;
-use phpseclib\Math\BigInteger;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Math\BigInteger;
 use ScriptFUSION\Porter\Connector\ImportConnector;
 use ScriptFUSION\Porter\Net\Http\HttpConnector;
 use ScriptFUSION\Porter\Net\Http\HttpDataSource;
@@ -72,12 +73,10 @@ final class SteamLogin implements ProviderResource
             throw new SteamLoginException('Unable to fetch RSA key.');
         }
 
-        $rsa = new RSA;
-        $rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
-        $rsa->loadKey([
+        $rsa = PublicKeyLoader::loadPublicKey([
             'n' => new BigInteger($json['response']['publickey_mod'], 16),
             'e' => new BigInteger($json['response']['publickey_exp'], 16),
-        ]);
+        ])->withPadding(RSA::ENCRYPTION_PKCS1);
 
         $body = new Form();
         $body->addField('account_name', $this->username);
