@@ -16,7 +16,6 @@
     "connectors/http": "^7",
     "eloquent/enumeration": "^5|^6",
     "phpseclib/phpseclib": "^3.0.34",
-    "psr/log": "^1",
     "scriptfusion/porter": "^7",
     "symfony/css-selector": "^5.3|^6",
     "symfony/dom-crawler": "^5.4|^6.3",
