@@ -78,11 +78,11 @@ final class GameReviewsParser
     {
         $source = $crawler->filter('.review_source')->attr('src');
 
-        if (str_ends_with($source, 'icon_review_steam.png')) {
+        if (str_ends_with($source, 'icon_review_counted.png')) {
             return ReviewSource::STEAM();
         }
 
-        if (str_ends_with($source, 'icon_review_key.png')) {
+        if (str_ends_with($source, 'icon_review_notcounted.png')) {
             return ReviewSource::STEAM_KEY();
         }
 
