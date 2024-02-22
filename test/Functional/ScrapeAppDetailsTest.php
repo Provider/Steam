@@ -971,6 +971,9 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * Tests that an app with a demo app ID is parsed correctly.
      *
+     * @see https://store.steampowered.com/app/221910/The_Stanley_Parable/
+     * @see https://store.steampowered.com/app/3590/Plants_vs_Zombies_GOTY_Edition/
+     *
      * @dataProvider provideDemoIds
      */
     public function testDemoGame(int $appId, int $demoId): void
@@ -984,7 +987,7 @@ final class ScrapeAppDetailsTest extends TestCase
     {
         return [
             'Demo area and purchase area (game)' => [221910, 247750],
-            'Demo button in sidebar only (game)' => [1336490, 1400860],
+            'Demo button in sidebar only (game)' => [3590, 3592],
         ];
     }
 
