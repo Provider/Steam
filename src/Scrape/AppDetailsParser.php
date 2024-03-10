@@ -59,7 +59,8 @@ final class AppDetailsParser
 
         // Purchase area.
         [$purchaseArea, $DEBUG_primary_sub_id] = self::findPrimaryPurchaseArea($crawler, $name);
-        $price = $free ? 0 : self::parsePrice($purchaseArea);
+        $bundle_id = self::parseBundleId($purchaseArea);
+        $price = $free ? 0 : ($bundle_id ? self::calculateBundlePrice($purchaseArea) : self::parsePrice($purchaseArea));
         $discount_price = $free ? null : self::parseDiscountPrice($purchaseArea);
         $discount = $free ? 0 : self::parseDiscountPercentage($purchaseArea);
 
@@ -113,6 +114,7 @@ final class AppDetailsParser
             'mac',
             'steam_deck',
             'demo_id',
+            'bundle_id',
             'DEBUG_primary_sub_id',
         );
     }
@@ -220,12 +222,17 @@ final class AppDetailsParser
     }
 
     /**
-     * @param Crawler $purchaseArea
+     * Parses the price in the specified purchase area.
+     *
+     * The price is the regular purchase price when not discounted, or the original price when discounted.
+     *
+     * @param Crawler $purchaseArea Purchase area.
      *
      * @return int|null Price if integer, 0 if app is free and null if app has no price (i.e. not for sale).
      */
     private static function parsePrice(Crawler $purchaseArea): ?int
     {
+        // Not present when discounted.
         $priceElement = $purchaseArea->filter('.game_purchase_price');
         $discountElement = $purchaseArea->filter('.discount_original_price');
 
@@ -253,9 +260,30 @@ final class AppDetailsParser
 
     private static function parseDiscountPercentage(Crawler $purchaseArea): int
     {
-        $element = $purchaseArea->filter('.discount_pct');
+        $element = $purchaseArea->filter('.discount_pct, .bundle_base_discount');
 
         return $element->count() ? self::filterNumbers($element->text()) : 0;
+    }
+
+    private static function parseBundleId(Crawler $purchaseArea): ?int
+    {
+        if (!($input = $purchaseArea->filter('input[name=bundleid]'))->count()) {
+            return null;
+        }
+
+        return +$input->attr('value');
+    }
+
+    private static function calculateBundlePrice(Crawler $purchaseArea): int
+    {
+        $data = $purchaseArea->getNode(0)->parentNode->getAttribute('data-ds-bundle-data');
+        $json = json_decode($data, true, flags: JSON_THROW_ON_ERROR);
+
+        return array_reduce(
+            $json['m_rgItems'],
+            static fn (int $acc, array $item) => $acc + $item['m_nBasePriceInCents'],
+            0
+        );
     }
 
     private static function parseVrExclusive(Crawler $crawler): bool
@@ -329,7 +357,7 @@ final class AppDetailsParser
      * @param Crawler $crawler Crawler instance.
      * @param string $title App title.
      *
-     * @return array (Crawler|?int)[] [
+     * @return (Crawler|?int)[] [
      *     Crawler containing the primary purchase area node if found, otherwise a crawler with no nodes.,
      *     Primary sub ID.,
      * ]

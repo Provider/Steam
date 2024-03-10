@@ -87,6 +87,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertArrayNotHasKey('valve_index', $app);
 
         self::assertNull($app['demo_id']);
+        self::assertNull($app['bundle_id'], 'App is not sold exclusively as a bundle.');
 
         foreach ($app['tags'] as $tag) {
             self::assertArrayHasKey('name', $tag);
@@ -849,6 +850,23 @@ final class ScrapeAppDetailsTest extends TestCase
             'Peggle Deluxe' => [3480],
             'Peggle Nights' => [3540],
         ];
+    }
+
+    /**
+     * Tests that an EA Play subscrption game that can also be purchased as part of a bundle, but cannot be purchased
+     * separately, has its price parsed and calculated correctly.
+     *
+     * @see https://store.steampowered.com/app/2229850/Command__Conquer_Red_Alert_2_and_Yuris_Revenge/
+     */
+    public function testEaPlayBundlePurchase(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(2229850)));
+
+        self::assertSame(39394, $app['bundle_id'], 'Game is only available in a bundle.');
+
+        self::assertSame(988, $app['discount_price']);
+        self::assertSame(50, $app['discount']);
+        self::assertSame(1988, $app['price']);
     }
 
     /**
