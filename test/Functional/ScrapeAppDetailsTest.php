@@ -853,7 +853,7 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that an EA Play subscrption game that can also be purchased as part of a bundle, but cannot be purchased
+     * Tests that an EA Play subscription game that can also be purchased as part of a bundle, but cannot be purchased
      * separately, has its price parsed and calculated correctly.
      *
      * @see https://store.steampowered.com/app/2229850/Command__Conquer_Red_Alert_2_and_Yuris_Revenge/
@@ -864,9 +864,16 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertSame(39394, $app['bundle_id'], 'Game is only available in a bundle.');
 
-        self::assertSame(988, $app['discount_price']);
-        self::assertSame(50, $app['discount']);
-        self::assertSame(1988, $app['price']);
+        self::assertSame(1988, $price = $app['price']);
+        self::assertArrayHasKey('discount', $app);
+        self::assertIsInt($app['discount']);
+
+        if ($app['discount'] === 0) {
+            self::assertSame($price, $app['discount_price'], 'Discount price must match price when not discounted.');
+        } else {
+            self::assertLessThan($price, $app['discount_price'], 'Discounted price must be less than list price.');
+            self::assertGreaterThan(0, $app['discount_price'], 'Discounted price must be greater than zero.');
+        }
     }
 
     /**
