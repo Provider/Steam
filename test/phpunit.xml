@@ -2,7 +2,6 @@
     beStrictAboutOutputDuringTests="true"
     executionOrder="random"
     colors="true"
-    printerClass="NunoMaduro\Collision\Adapters\Phpunit\Printer"
 >
     <testsuite name="default">
         <directory>.</directory>
