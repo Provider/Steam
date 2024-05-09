@@ -39,10 +39,12 @@ final class GetAppList implements ProviderResource, Url
                 10,
                 function () use ($connector, &$lastId): array {
                     $json = \json_decode(
-                        (string)$connector->fetch(new HttpDataSource(
-                            $this->getUrl() . (isset($lastId) ? "&last_appid=$lastId" : '')
-                        )),
-                        true
+                        (string)$connector->fetch(
+                            (new HttpDataSource($this->getUrl() . (isset($lastId) ? "&last_appid=$lastId" : '')))
+                                ->setMaxBodyLength(0x100_000 * 20)
+                        ),
+                        true,
+                        flags: JSON_THROW_ON_ERROR,
                     );
 
                     $apps = $json['applist']['apps'] ?? $json['response']['apps'] ?? null;

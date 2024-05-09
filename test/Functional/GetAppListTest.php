@@ -41,8 +41,8 @@ final class GetAppListTest extends TestCase
     public function provideAppListApiKeys(): iterable
     {
         return [
-            'No key' => [null, 100000],
-            'Api key' => [$_SERVER['STEAM_API_KEY'], 71000],
+            'No key' => [null, 190_000],
+            'Api key' => [$_SERVER['STEAM_API_KEY'], 150_000],
         ];
     }
 }
