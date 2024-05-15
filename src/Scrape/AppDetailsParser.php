@@ -158,13 +158,33 @@ final class AppDetailsParser
 
     private static function parseAppType(Crawler $crawler): string
     {
-        return mb_strtolower(
+        $type = mb_strtolower(
             preg_replace(
-                '[.*Is this (\S+)\b.*]',
+                '[^All (\w+?)s?$]',
                 '$1',
-                $crawler->filter('.responsive_apppage_details_right.heading')->text()
+                $crawler->filter('.breadcrumbs a:first-of-type')->text()
             )
         );
+
+        if ($type === 'game') {
+            if ($crawler->filter('.game_area_dlc_bubble')->count()) {
+                return 'dlc';
+            }
+
+            if ($crawler->filter('.category_icon[src$="/ico_demo.gif"]')->count()) {
+                return 'demo';
+            }
+
+            if ($crawler->filter('.game_area_mod_bubble')->count()) {
+                return 'mod';
+            }
+        }
+
+        if ($type === 'video' && $crawler->filter('.series_seasons:not(.extra_content_spacer)')->count()) {
+            return 'series';
+        }
+
+        return $type;
     }
 
     private static function parseReleaseDate(Crawler $crawler): ?\DateTimeImmutable
