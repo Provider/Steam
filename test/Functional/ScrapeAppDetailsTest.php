@@ -203,6 +203,20 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that DLC that is no longer available for purchase is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/1258510/DEATH_STRANDING_Digital_Art_Book/
+     *
+     * @group type
+     */
+    public function testRetiredDlc()
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1258510)));
+
+        self::assertSame('dlc', $app['type']);
+    }
+
+    /**
      * @see https://store.steampowered.com/app/31500/COIL/
      *
      * @group type

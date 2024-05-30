@@ -167,7 +167,7 @@ final class AppDetailsParser
         );
 
         if ($type === 'game') {
-            if ($crawler->filter('.game_area_dlc_bubble')->count()) {
+            if ($crawler->filter('.category_icon[src$="/ico_dlc.png"]')->count()) {
                 return 'dlc';
             }
 
