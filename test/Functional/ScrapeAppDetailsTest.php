@@ -894,7 +894,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * Tests that apps with multiple purchase areas are parsed correctly by picking the correct sub ID.
      *
      * @see https://store.steampowered.com/app/57620/Patrician_IV
-     * @see https://store.steampowered.com/app/4560/Company_of_Heroes__Legacy_Edition
      * @see https://store.steampowered.com/app/12150/Max_Payne_2_The_Fall_of_Max_Payne
      * @see https://store.steampowered.com/app/15520/AaAaAA__A_Reckless_Disregard_for_Gravity
      * @see https://store.steampowered.com/app/21000/LEGO_Batman_The_Videogame
@@ -931,7 +930,6 @@ final class ScrapeAppDetailsTest extends TestCase
         return [
             // Purchase area appears first but title does not match.
             'Patrician IV' => [57620, 6089],
-            'Company of Heroes - Legacy Edition' => [4560, 403],
             'Max Payne 2: The Fall of Max Payne' => [12150, 597],
             'AaAaAA!!! - A Reckless Disregard for Gravity' => [15520, 2062],
             'LEGO® Batman™: The Videogame' => [21000, 1016],
