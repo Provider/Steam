@@ -53,6 +53,8 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('valve', current($app['publishers']));
         self::assertSame('Valve', key($app['publishers']));
         self::assertContains('Action', $app['genres']);
+        self::assertNotEmpty($app['capsule_url']);
+        self::assertNull($app['capsule_hash']);
 
         self::assertCount(8, $languages = $app['languages']);
         self::assertContains('English', $languages);
@@ -1027,6 +1029,18 @@ final class ScrapeAppDetailsTest extends TestCase
             'Demo area and purchase area (game)' => [221910, 247750],
             'Demo button in sidebar only (game)' => [3590, 3592],
         ];
+    }
+
+    /**
+     * Tests that a new app has the capsule hash set.
+     *
+     * @see https://store.steampowered.com/app/3156770/Witchfire/
+     */
+    public function testCapsuleHash(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(3156770)));
+
+        self::assertSame(40, strlen($app['capsule_hash']));
     }
 
     /**
