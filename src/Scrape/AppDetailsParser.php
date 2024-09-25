@@ -385,51 +385,47 @@ final class AppDetailsParser
     private static function findPrimaryPurchaseArea(Crawler $crawler, string $title): array
     {
         // Detect if game is multi-sub.
-        if (count($labels = $crawler->filter('#widget_create label'))) {
+        if (count($purchaseAreas = self::filterPurchaseAreas($crawler))) {
             // Collect purchase area titles.
-            foreach ($labels as $label) {
-                $subId = self::filterNumbers($label->attributes['for']->value);
-
-                // Use sub if title matches exactly.
-                if ($title === $label->textContent) {
-                    return [
-                        self::findPurchaseAreaBySubId($crawler, $subId),
-                        $subId,
-                    ];
+            foreach ($purchaseAreas as $purchaseArea) {
+                if (!$subId = self::findPurchaseAreaSubId($purchaseArea = new NativeCrawler($purchaseArea))) {
+                    continue;
                 }
 
-                $titles[$subId] = $label->textContent;
+                // Use sub if title matches exactly.
+                if (($titles[$subId] = $purchaseArea->filter('h1')->text()) === "Buy $title") {
+                    return [$purchaseArea, $subId];
+                }
             }
 
-            // If there is exactly one non-package, pick it.
-            if (count($nonPackage = self::filterNonPackages($crawler)) === 1) {
-                return [$nonPackage, self::findPurchaseAreaSubId($nonPackage)];
-            }
+            if (isset($titles)) {
+                // If there is exactly one non-package, pick it.
+                if (count($titles) === 1) {
+                    return [self::findPurchaseAreaBySubId($purchaseAreas, key($titles)), key($titles)];
+                }
 
-            // Count how many purchase areas contain product title.
-            if (count(array_filter($titles, static function (string $purchaseAreaTitle) use ($title): bool {
-                return str_contains($purchaseAreaTitle, $title);
-            })) > 1) {
-                // If more than one, use purchase area with the lowest sub ID.
-                ksort($titles);
-            }
+                // Count how many purchase areas contain product title.
+                if (count(array_filter($titles, static fn (string $t) => str_contains($t, $title))) > 1) {
+                    // If more than one, use purchase area with the lowest sub ID.
+                    ksort($titles);
+                }
 
-            // Use first purchase area regardless of whether that area actually contains the title.
-            // This is mostly applicable to non-game apps.
-            return [
-                self::findPurchaseAreaBySubId($crawler, key($titles)),
-                key($titles),
-            ];
+                // Use first purchase area regardless of whether that area actually contains the title.
+                // This is mostly applicable to non-game apps.
+                return [
+                    self::findPurchaseAreaBySubId($purchaseAreas, key($titles)),
+                    key($titles),
+                ];
+            }
         }
 
         // Pick first purchase area with platforms defined that is not a demo area.
-        $purchaseArea = self::filterPurchaseAreas($crawler, true);
-
-        return [$purchaseArea, null];
+        return [$purchaseAreas->eq(0), null];
     }
 
     private static function filterPurchaseAreas(Crawler $crawler, bool $firstOnly = false): Crawler
     {
+        // Pick purchase areas with platform icons.
         $purchaseAreas = $crawler->filter(
             '#game_area_purchase .game_area_purchase_game:not(.demo_above_purchase)
                 > .game_area_purchase_platform > .platform_img'
@@ -442,19 +438,10 @@ final class AppDetailsParser
 
         return $firstOnly
             ? $purchaseAreas->closest('.game_area_purchase_game')
-            : new NativeCrawler($purchaseAreas->each(function (Crawler $crawler) {
-                return $crawler->closest('.game_area_purchase_game')->getNode(0);
-            }))
+            : new NativeCrawler($purchaseAreas->each(
+                static fn (Crawler $crawler) => $crawler->closest('.game_area_purchase_game')->getNode(0)
+            ))
         ;
-    }
-
-    private static function filterNonPackages(Crawler $crawler): Crawler
-    {
-        $purchaseAreas = self::filterPurchaseAreas($crawler);
-
-        return $purchaseAreas->reduce(function (Crawler $crawler) {
-            return !$crawler->filter('.btn_packageinfo')->count();
-        });
     }
 
     private static function findPurchaseAreaSubId(Crawler $crawler): ?int

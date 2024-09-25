@@ -698,13 +698,14 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that a game with no Steam Deck information presents Steam Deck compatibility as "null".
+     * Tests that DLC with no Steam Deck information presents Steam Deck compatibility as "null".
+     * Note that games will never have null compatibility anymore.
      *
-     * @see https://store.steampowered.com/app/1572920/SuperTux/
+     * @see https://store.steampowered.com/app/836840/Simon_the_Sorcerer__Legacy_Edition_English/
      */
     public function testSteamDeckAbsent(): void
     {
-        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1572920)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(836840)));
 
         self::assertNull($app['steam_deck']);
     }
@@ -902,8 +903,8 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/202200/Galactic_Civilizations_II_Ultimate_Edition
      * @see https://store.steampowered.com/app/206480/Dungeons__Dragons_Online
      * @see https://store.steampowered.com/app/221001/FTL_Faster_Than_Light__Soundtrack
-
      * @see https://store.steampowered.com/app/519860/DUSK
+
      * @see https://store.steampowered.com/app/214560/Mark_of_the_Ninja
      * @see https://store.steampowered.com/app/782330/DOOM_Eternal
      * @see https://store.steampowered.com/app/335300/DARK_SOULS_II_Scholar_of_the_First_Sin
@@ -937,9 +938,9 @@ final class ScrapeAppDetailsTest extends TestCase
             'Mortal Kombat 11 Kombat Pack 2' => [1449880, 510130],
             'Galactic Civilizations® II: Ultimate Edition' => [202200, 12481],
             'FTL: Faster Than Light - Soundtrack' => [221001, 16706],
+            'DUSK' => [519860, 329111],
 
             // Purchase area does not appear first.
-            'DUSK' => [519860, 329111],
             'Mark of the Ninja' => [214560, 271120],
             'DOOM Eternal' => [782330, 235874],
             'DARK SOULS™ II: Scholar of the First Sin' => [335300, 55366],
