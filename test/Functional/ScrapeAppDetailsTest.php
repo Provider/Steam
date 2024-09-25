@@ -894,6 +894,18 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that an app that is only available via regular subscription is parsed without errors.
+     *
+     * @see https://store.steampowered.com/app/1202520/Fallout_1st/
+     */
+    public function testSubscriptionOnly(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1202520)));
+
+        self::assertNull($app['DEBUG_primary_sub_id']);
+    }
+
+    /**
      * Tests that apps with multiple purchase areas are parsed correctly by picking the correct sub ID.
      *
      * @see https://store.steampowered.com/app/57620/Patrician_IV

@@ -451,7 +451,7 @@ final class AppDetailsParser
     private static function findPurchaseAreaSubId(Crawler $crawler): ?int
     {
         if (count($subId = $crawler->filter('input[name=subid]'))) {
-            return +$subId->attr('value');
+            return (int)$subId->attr('value') ?: null;
         }
 
         return null;
