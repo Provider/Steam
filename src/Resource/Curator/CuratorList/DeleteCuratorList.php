@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList;
 
-use Amp\Http\Client\Body\FormBody;
 use Amp\Http\Client\Form;
 use ScriptFUSION\Porter\Connector\DataSource;
 use ScriptFUSION\Porter\Net\Http\HttpDataSource;

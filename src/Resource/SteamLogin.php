@@ -95,7 +95,7 @@ final class SteamLogin implements ProviderResource
         );
 
         if (!isset($json['response']['client_id'])) {
-            throw new SteamLoginException("Unable to log in using supplied credentials.");
+            throw new SteamLoginException('Unable to log in using supplied credentials.');
         }
         $sessionParams = $json['response'];
 

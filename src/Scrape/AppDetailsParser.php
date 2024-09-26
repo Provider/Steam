@@ -485,7 +485,7 @@ final class AppDetailsParser
         return null;
     }
 
-    private static function parseCapsuleUrl(NativeCrawler $crawler): string
+    private static function parseCapsuleUrl(Crawler $crawler): string
     {
         return $crawler->filter('meta[itemprop=image]')->attr('content');
     }
