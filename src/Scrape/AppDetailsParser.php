@@ -39,7 +39,6 @@ final class AppDetailsParser
         $free = self::parseFree($crawler);
         $adult = self::parseAdult($crawler);
         $capsule_url = self::parseCapsuleUrl($crawler);
-        $capsule_hash = self::parseCapsuleHash($capsule_url);
 
         // Title area.
         $app_id = self::parseAppId($crawler);
@@ -118,7 +117,6 @@ final class AppDetailsParser
             'demo_id',
             'bundle_id',
             'capsule_url',
-            'capsule_hash',
             'DEBUG_primary_sub_id',
         );
     }
@@ -490,14 +488,5 @@ final class AppDetailsParser
     private static function parseCapsuleUrl(NativeCrawler $crawler): string
     {
         return $crawler->filter('meta[itemprop=image]')->attr('content');
-    }
-
-    private static function parseCapsuleHash(string $capsule_url): ?string
-    {
-        if (preg_match('[/([\da-f]{40})/]', $capsule_url, $matches)) {
-            return $matches[1];
-        }
-
-        return null;
     }
 }
