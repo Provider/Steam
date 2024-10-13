@@ -44,7 +44,7 @@ final class AppDetailsParser
         $app_id = self::parseAppId($crawler);
 
         // Media area.
-        $videos = self::parseVideoIds($crawler);
+        $videos = self::parseVideoThumbnails($crawler);
 
         // Header area.
         $blurb = ($snippet = $crawler->filter('.game_description_snippet'))->count() ? trim($snippet->text()) : null;
@@ -329,12 +329,10 @@ final class AppDetailsParser
         return $crawler->filter('.mature_content_notice')->count() === 1;
     }
 
-    private static function parseVideoIds(Crawler $crawler): array
+    private static function parseVideoThumbnails(Crawler $crawler): array
     {
-        return $crawler->filter('#highlight_strip_scroll > .highlight_strip_movie')->each(
-            static function (Crawler $crawler): int {
-                return self::filterNumbers($crawler->attr('id'));
-            }
+        return $crawler->filter('#highlight_strip_scroll .movie_thumb')->each(
+            static fn (Crawler $crawler) => $crawler->attr('src')
         );
     }
 

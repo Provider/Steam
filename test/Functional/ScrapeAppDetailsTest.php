@@ -512,6 +512,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertGreaterThanOrEqual(2, \count($languages = $app['languages']));
         self::assertContains('Simplified Chinese', $languages);
         self::assertContains('Traditional Chinese', $languages);
+        self::assertNotContains('English', $languages);
     }
 
     /**
@@ -668,8 +669,9 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('videos', $app);
         self::assertCount(2, $videos = $app['videos']);
-        self::assertContains(256662547, $videos);
-        self::assertContains(256662555, $videos);
+
+        self::assertStringContainsString('/256662547/', $videos[0]);
+        self::assertStringContainsString('/256662555/', $videos[1]);
     }
 
     /**
