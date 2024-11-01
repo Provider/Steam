@@ -400,8 +400,8 @@ final class AppDetailsParser
 
             if (isset($titles)) {
                 // If there is exactly one non-package, pick it.
-                if (count($titles) === 1) {
-                    return [self::findPurchaseAreaBySubId($purchaseAreas, key($titles)), key($titles)];
+                if (count($nonPackage = self::filterNonPackages($purchaseAreas)) === 1) {
+                    return [$nonPackage, self::findPurchaseAreaSubId($nonPackage)];
                 }
 
                 // Count how many purchase areas contain product title.
@@ -442,6 +442,11 @@ final class AppDetailsParser
                 static fn (Crawler $crawler) => $crawler->closest('.game_area_purchase_game')->getNode(0)
             ))
         ;
+    }
+
+    private static function filterNonPackages(Crawler $purchaseAreas): Crawler
+    {
+        return $purchaseAreas->reduce(fn (Crawler $crawler) => !$crawler->filter('.btn_packageinfo')->count());
     }
 
     private static function findPurchaseAreaSubId(Crawler $crawler): ?int
