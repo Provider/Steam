@@ -604,13 +604,13 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * @see http://store.steampowered.com/app/340/
+     * @see https://store.steampowered.com/app/2700/RollerCoaster_Tycoon_3_Platinum/
      * @see http://store.steampowered.com/app/261570/
      */
     public function provideDiscontinuedGames(): array
     {
         return [
-            'No purchase area' => [340],
+            'No purchase area' => [2700],
             'Purchase area' => [261570],
         ];
     }
