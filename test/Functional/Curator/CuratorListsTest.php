@@ -164,7 +164,7 @@ final class CuratorListsTest extends CuratorTestCase
             new PutCuratorReview(
                 self::$session,
                 self::CURATOR_ID,
-                new CuratorReview($appId, 'foo', RecommendationState::INFORMATIONAL())
+                new CuratorReview($appId, 'foo', RecommendationState::INFORMATIONAL)
             )
         ));
 

@@ -605,7 +605,7 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * @see https://store.steampowered.com/app/2700/RollerCoaster_Tycoon_3_Platinum/
-     * @see http://store.steampowered.com/app/261570/
+     * @see https://store.steampowered.com/app/261570/Ori_and_the_Blind_Forest/
      */
     public function provideDiscontinuedGames(): array
     {
@@ -722,7 +722,7 @@ final class ScrapeAppDetailsTest extends TestCase
             new ScrapeAppFixture('steam deck unknown compatibility.html')
         ));
 
-        self::assertSame(SteamDeckCompatibility::UNKNOWN(), $app['steam_deck']);
+        self::assertSame(SteamDeckCompatibility::UNKNOWN, $app['steam_deck']);
     }
 
     /**
@@ -734,7 +734,7 @@ final class ScrapeAppDetailsTest extends TestCase
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(546560)));
 
-        self::assertSame(SteamDeckCompatibility::UNSUPPORTED(), $app['steam_deck']);
+        self::assertSame(SteamDeckCompatibility::UNSUPPORTED, $app['steam_deck']);
     }
 
     /**
@@ -746,7 +746,7 @@ final class ScrapeAppDetailsTest extends TestCase
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(620)));
 
-        self::assertSame(SteamDeckCompatibility::VERIFIED(), $app['steam_deck']);
+        self::assertSame(SteamDeckCompatibility::VERIFIED, $app['steam_deck']);
     }
 
     /**
@@ -758,7 +758,7 @@ final class ScrapeAppDetailsTest extends TestCase
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(227380)));
 
-        self::assertSame(SteamDeckCompatibility::PLAYABLE(), $app['steam_deck']);
+        self::assertSame(SteamDeckCompatibility::PLAYABLE, $app['steam_deck']);
     }
 
     /**

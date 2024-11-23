@@ -20,11 +20,8 @@ final class GetAppList implements ProviderResource, Url
     private const PAGINATED_APP_LIST_PATH = '/IStoreService/GetAppList/v1/?max_results=50000&include_dlc=1'
         . '&include_software=1&include_videos=1&include_hardware=1';
 
-    private $apiKey;
-
-    public function __construct(string $apiKey = null)
+    public function __construct(private ?string $apiKey = null)
     {
-        $this->apiKey = $apiKey;
     }
 
     public function getProviderClassName(): string

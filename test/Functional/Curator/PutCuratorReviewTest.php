@@ -21,7 +21,7 @@ final class PutCuratorReviewTest extends CuratorTestCase
             new CuratorReview(
                 60,
                 'foo',
-                RecommendationState::RECOMMENDED()
+                RecommendationState::RECOMMENDED
             )
         )));
 

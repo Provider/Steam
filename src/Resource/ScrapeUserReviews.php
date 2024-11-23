@@ -55,7 +55,7 @@ final class ScrapeUserReviews implements ProviderResource, Url
         } while (\count($next));
     }
 
-    public function getUrl(string $page = null): string
+    public function getUrl(?string $page = null): string
     {
         return "$this->profileUrl/reviews/$page";
     }

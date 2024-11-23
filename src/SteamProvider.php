@@ -17,7 +17,7 @@ final class SteamProvider implements Provider
 
     private Connector $connector;
 
-    public function __construct(Connector $connector = null)
+    public function __construct(?Connector $connector = null)
     {
         $this->connector = $connector ?? new HttpConnector();
     }

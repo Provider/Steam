@@ -3,14 +3,8 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Scrape;
 
-use Eloquent\Enumeration\AbstractEnumeration;
-
-/**
- * @method static self STEAM
- * @method static self STEAM_KEY
- */
-final class ReviewSource extends AbstractEnumeration
+enum ReviewSource
 {
-    public const STEAM = 'STEAM';
-    public const STEAM_KEY = 'STEAM_KEY';
+    case STEAM;
+    case STEAM_KEY;
 }

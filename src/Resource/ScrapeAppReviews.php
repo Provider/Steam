@@ -36,7 +36,7 @@ final class ScrapeAppReviews implements ProviderResource, Url
 
     private int $count = 0;
 
-    public function __construct(int $appId, \DateTimeImmutable $startDate = null, \DateTimeImmutable $endDate = null)
+    public function __construct(int $appId, ?\DateTimeImmutable $startDate = null, ?\DateTimeImmutable $endDate = null)
     {
         $this->appId = $appId;
         $startDate && $this->query['start_date'] = $startDate->getTimestamp();

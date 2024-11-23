@@ -22,7 +22,7 @@ final class GetCuratorReviewsTest extends CuratorTestCase
             new CuratorReview(
                 $appId = 130,
                 'foo',
-                $state = RecommendationState::NOT_RECOMMENDED()
+                $state = RecommendationState::NOT_RECOMMENDED
             )
         )));
 

@@ -20,7 +20,7 @@ final class FixtureFactory
 
     private static ResponseCookie $secureLoginCookie;
 
-    public static function createPorter(ContainerInterface $container = null): Porter
+    public static function createPorter(?ContainerInterface $container = null): Porter
     {
         return new Porter($container ?? self::mockPorterContainer());
     }

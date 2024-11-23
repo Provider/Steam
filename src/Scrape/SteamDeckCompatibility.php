@@ -3,35 +3,20 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Scrape;
 
-use Eloquent\Enumeration\AbstractEnumeration;
-
-/**
- * @method static self UNKNOWN
- * @method static self UNSUPPORTED
- * @method static self VERIFIED
- * @method static self PLAYABLE
- */
-final class SteamDeckCompatibility extends AbstractEnumeration
+enum SteamDeckCompatibility: int
 {
-    public const UNKNOWN = 'UNKNOWN';
-    public const UNSUPPORTED = 'UNSUPPORTED';
-    public const VERIFIED = 'VERIFIED';
-    public const PLAYABLE = 'PLAYABLE';
-
-    private const ID_MAP = [
-        0 => self::UNKNOWN,
-        1 => self::UNSUPPORTED,
-        2 => self::PLAYABLE,
-        3 => self::VERIFIED,
-    ];
+    case UNKNOWN = 0;
+    case UNSUPPORTED = 1;
+    case PLAYABLE = 2;
+    case VERIFIED = 3;
 
     public static function fromId(int $id): self
     {
-        return self::memberByKey(self::ID_MAP[$id]);
+        return self::from($id);
     }
 
     public function toId(): int
     {
-        return array_search($this->key(), self::ID_MAP, true);
+        return $this->value;
     }
 }
