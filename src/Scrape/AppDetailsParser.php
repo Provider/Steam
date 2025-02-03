@@ -26,6 +26,7 @@ final class AppDetailsParser
 
     private static function parseStorePage(string $html): array
     {
+        $html = self::sanitize($html);
         $crawler = new NativeCrawler($html);
 
         self::validate($crawler, $html);
@@ -426,6 +427,8 @@ final class AppDetailsParser
     private static function filterPurchaseAreas(Crawler $crawler, bool $firstOnly = false): Crawler
     {
         // Pick purchase areas with platform icons.
+        // TODO: Use :has when supported, since there may be multiple platform_img elements, duplicating work.
+        //     https://github.com/symfony/symfony/pull/49388
         $purchaseAreas = $crawler->filter(
             '#game_area_purchase .game_area_purchase_game:not(.demo_above_purchase)
                 > .game_area_purchase_platform > .platform_img'
@@ -491,5 +494,17 @@ final class AppDetailsParser
     private static function parseCapsuleUrl(Crawler $crawler): string
     {
         return $crawler->filter('meta[itemprop=image]')->attr('content');
+    }
+
+    /**
+     * Strips the script containing the ShowComparisonDialog function from the specified HTML source. This JS function
+     * includes quoted markup, which breaks the parser on pages where games are sold in "editions". This should not
+     * be necessary once a proper native parser is implemented.
+     *
+     * @see https://github.com/symfony/symfony/pull/54383
+     */
+    private static function sanitize(string $html): string
+    {
+        return preg_replace('[<script>(.(?!</script>))*function ShowComparisonDialog.*?</script>]s', '', $html);
     }
 }

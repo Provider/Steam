@@ -659,6 +659,30 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that when a game is sold in "editions", the price is parsed correctly.
+     *
+     * @dataProvider provideEditions
+     */
+    public function testEditions(int $appId): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
+
+        self::assertNotNull($app['price']);
+    }
+
+    /**
+     * @see https://store.steampowered.com/app/2495100/Hello_Kitty_Island_Adventure
+     * @see https://store.steampowered.com/app/690830/Foundation
+     */
+    public function provideEditions(): iterable
+    {
+        return [
+            'Single edition' => [2495100],
+            'Multiple editions' => [690830],
+        ];
+    }
+
+    /**
      * Tests that a game with multiple videos has its video IDs parsed correctly.
      *
      * @see https://store.steampowered.com/app/32400/
