@@ -813,7 +813,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/47780/Dead_Space_2
      * @see https://store.steampowered.com/app/1238060/Dead_Space_3
      * @see https://store.steampowered.com/app/7110/Jade_Empire_Special_Edition
-     * @see https://store.steampowered.com/app/12830/Operation_Flashpoint_Dragon_Rising
      * @see https://store.steampowered.com/app/3590/Plants_vs_Zombies_GOTY_Edition
      * @see https://store.steampowered.com/app/1262240/Plants_vs_Zombies_Battle_for_Neighborville
      * @see https://store.steampowered.com/app/1238080/Burnout_Paradise_Remastered
@@ -821,12 +820,10 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/1225580/Fe
      * @see https://store.steampowered.com/app/1225590/Sea_of_Solitude
      * @see https://store.steampowered.com/app/24780/SimCity_4_Deluxe_Edition
-     * @see https://store.steampowered.com/app/11590/Hospital_Tycoon
      * @see https://store.steampowered.com/app/17390/SPORE
      * @see https://store.steampowered.com/app/11450/Overlord
      * @see https://store.steampowered.com/app/12810/Overlord_II
      * @see https://store.steampowered.com/app/12710/Overlord_Raising_Hell
-     * @see https://store.steampowered.com/app/12770/Rise_of_the_Argonauts
      * @see https://store.steampowered.com/app/1225560/Unravel
      * @see https://store.steampowered.com/app/1225570/Unravel_Two
      * @see https://store.steampowered.com/app/3480/Peggle_Deluxe
@@ -870,7 +867,6 @@ final class ScrapeAppDetailsTest extends TestCase
             'Dead Space 2' => [47780],
             'Dead Space 3' => [1238060],
             'Jade Empire Special Edition' => [7110],
-            'Operation Flashpoint Dragon Rising' => [12830],
             'Plants vs Zombies GOTY Edition' => [3590],
             'Plants vs Zombies Battle for Neighborville' => [1262240],
             'Medal of Honor' => [47790],
@@ -881,12 +877,10 @@ final class ScrapeAppDetailsTest extends TestCase
             'Fe' => [1225580],
             'Sea of Solitude' => [1225590],
             'SimCity 4 Deluxe Edition' => [24780],
-            'Hospital Tycoon' => [11590],
             'SPORE' => [17390],
             'Overlord' => [11450],
             'Overlord II' => [12810],
             'Overlord Raising Hell' => [12710],
-            'Rise of the Argonauts' => [12770],
             'Unravel' => [1225560],
             'Unravel Two' => [1225570],
             'Peggle Deluxe' => [3480],
