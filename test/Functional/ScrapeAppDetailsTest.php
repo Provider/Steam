@@ -421,9 +421,9 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('publishers', $app);
         self::assertCount(2, $publishers = $app['publishers']);
-        self::assertSame('xseedgames', current($publishers));
+        self::assertSame('marveloususa', current($publishers));
         self::assertSame('XSEED Games', key($publishers));
-        self::assertSame('xseedgames', next($publishers));
+        self::assertSame('marveloususa', next($publishers));
         self::assertSame('Marvelous USA, Inc.', key($publishers));
     }
 
