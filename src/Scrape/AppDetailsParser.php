@@ -394,7 +394,7 @@ final class AppDetailsParser
                 }
 
                 // Use sub if title matches exactly.
-                if (($titles[$subId] = $purchaseArea->filter('h1')->text()) === "Buy $title") {
+                if (($titles[$subId] = $purchaseArea->filter('.title')->text()) === "Buy $title") {
                     return [$purchaseArea, $subId];
                 }
             }
