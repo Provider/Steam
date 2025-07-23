@@ -11,6 +11,7 @@ use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidSessionException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\User\ScrapeUserGames;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\ParserException;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
+use xPaw\Steam\SteamID;
 
 final class ScrapeUserGamesTest extends TestCase
 {
@@ -26,7 +27,7 @@ final class ScrapeUserGamesTest extends TestCase
     {
         $porter = FixtureFactory::createPorter();
         $session = FixtureFactory::createCommunitySession($porter);
-        $results = $porter->import(new Import(new ScrapeUserGames($session, new \SteamID(self::VALID_STEAM_ID))));
+        $results = $porter->import(new Import(new ScrapeUserGames($session, new SteamID(self::VALID_STEAM_ID))));
 
         $counter = 0;
         foreach ($results as $result) {
@@ -54,7 +55,7 @@ final class ScrapeUserGamesTest extends TestCase
 
         $this->expectException(InvalidSessionException::class);
 
-        $results = $porter->import(new Import(new ScrapeUserGames($session, new \SteamID(self::VALID_STEAM_ID))));
+        $results = $porter->import(new Import(new ScrapeUserGames($session, new SteamID(self::VALID_STEAM_ID))));
     }
 
     /**
@@ -70,7 +71,7 @@ final class ScrapeUserGamesTest extends TestCase
         $this->expectException(ParserException::class);
         $this->expectExceptionCode(ParserException::EMPTY_GAMES_LIST);
 
-        $results = $porter->import(new Import(new ScrapeUserGames($session, new \SteamID('76561197989728462'))));
+        $results = $porter->import(new Import(new ScrapeUserGames($session, new SteamID('76561197989728462'))));
     }
 
     /**
@@ -86,6 +87,6 @@ final class ScrapeUserGamesTest extends TestCase
         $this->expectException(ParserException::class);
         $this->expectExceptionCode(ParserException::UNEXPECTED_CONTENT);
 
-        $results = $porter->import(new Import(new ScrapeUserGames($session, new \SteamID('76561197993329385'))));
+        $results = $porter->import(new Import(new ScrapeUserGames($session, new SteamID('76561197993329385'))));
     }
 }

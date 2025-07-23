@@ -10,10 +10,11 @@ use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\NativeCrawler;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\UserProfileParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
+use xPaw\Steam\SteamID;
 
 final class ScrapeUserProfile implements ProviderResource, SingleRecordResource
 {
-    public function __construct(private readonly \SteamID $steamId)
+    public function __construct(private readonly SteamID $steamId)
     {
     }
 

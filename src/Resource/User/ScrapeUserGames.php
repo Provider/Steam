@@ -15,10 +15,11 @@ use ScriptFUSION\Porter\Provider\Steam\Resource\Url;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\NativeCrawler;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\UserGamesParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
+use xPaw\Steam\SteamID;
 
 final class ScrapeUserGames implements ProviderResource, Url
 {
-    public function __construct(private readonly CommunitySession $session, private readonly \SteamID $steamID)
+    public function __construct(private readonly CommunitySession $session, private readonly SteamID $steamID)
     {
     }
 

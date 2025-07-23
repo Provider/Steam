@@ -17,7 +17,7 @@
     "scriptfusion/porter": "^7|^8",
     "symfony/css-selector": "^5.3|^6|^7",
     "symfony/dom-crawler": "^5.4|^6.3|^7",
-    "xpaw/steamid": "^2.0"
+    "xpaw/steamid": "^4"
   },
   "require-dev": {
     "amphp/byte-stream": "^2",
