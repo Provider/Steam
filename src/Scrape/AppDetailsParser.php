@@ -40,6 +40,7 @@ final class AppDetailsParser
         $free = self::parseFree($crawler);
         $adult = self::parseAdult($crawler);
         $capsule_url = self::parseCapsuleUrl($crawler);
+        $main_capsule_url = self::parseMainCapsuleUrl($crawler);
 
         // Title area.
         $app_id = self::parseAppId($crawler);
@@ -118,6 +119,7 @@ final class AppDetailsParser
             'demo_id',
             'bundle_id',
             'capsule_url',
+            'main_capsule_url',
             'DEBUG_primary_sub_id',
         );
     }
@@ -494,6 +496,11 @@ final class AppDetailsParser
     private static function parseCapsuleUrl(Crawler $crawler): string
     {
         return $crawler->filter('meta[itemprop=image]')->attr('content');
+    }
+
+    private static function parseMainCapsuleUrl(Crawler $crawler)
+    {
+        return $crawler->filter('link[rel=image_src]')->attr('href');
     }
 
     /**
