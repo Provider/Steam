@@ -60,7 +60,7 @@ final class AppDetailsParser
         $canonical_id = ($appId = $crawler->filter('[data-appid]'))->count() ? +$appId->attr('data-appid') : null;
 
         // Purchase area.
-        [$purchaseArea, $DEBUG_primary_sub_id] = self::findPrimaryPurchaseArea($crawler, $name);
+        [$purchaseArea, $DEBUG_primary_sub_id] = self::findPrimaryPurchaseArea($crawler, $name, $app_id);
         $bundle_id = self::parseBundleId($purchaseArea);
         $free = self::parseFree($purchaseArea);
         $price = $free ? 0 : ($bundle_id ? self::calculateBundlePrice($purchaseArea) : self::parsePrice($purchaseArea));
@@ -389,8 +389,13 @@ final class AppDetailsParser
      *     Primary sub ID.,
      * ]
      */
-    private static function findPrimaryPurchaseArea(Crawler $crawler, string $title): array
+    private static function findPrimaryPurchaseArea(Crawler $crawler, string $title, int $appId): array
     {
+        // Detect if game is free.
+        if (count($purchaseArea = $crawler->filter("[aria-labelledby=game_area_purchase_section_free_$appId]"))) {
+            return [$purchaseArea, null];
+        }
+
         // Detect if game is multi-sub.
         if (count($purchaseAreas = self::filterPurchaseAreas($crawler))) {
             // Collect purchase area titles.
@@ -430,7 +435,7 @@ final class AppDetailsParser
         return [$purchaseAreas->eq(0), null];
     }
 
-    private static function filterPurchaseAreas(Crawler $crawler, bool $firstOnly = false): Crawler
+    private static function filterPurchaseAreas(Crawler $crawler): Crawler
     {
         // Pick purchase areas with platform icons.
         // TODO: Use :has when supported, since there may be multiple platform_img elements, duplicating work.
@@ -445,12 +450,9 @@ final class AppDetailsParser
             return $purchaseAreas;
         }
 
-        return $firstOnly
-            ? $purchaseAreas->closest('.game_area_purchase_game')
-            : new NativeCrawler($purchaseAreas->each(
-                static fn (Crawler $crawler) => $crawler->closest('.game_area_purchase_game')->getNode(0)
-            ))
-        ;
+        return new NativeCrawler($purchaseAreas->each(
+            static fn (Crawler $crawler) => $crawler->closest('.game_area_purchase_game')->getNode(0)
+        ));
     }
 
     private static function filterNonPackages(Crawler $purchaseAreas): Crawler
