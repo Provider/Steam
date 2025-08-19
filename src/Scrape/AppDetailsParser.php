@@ -60,7 +60,7 @@ final class AppDetailsParser
         $canonical_id = ($appId = $crawler->filter('[data-appid]'))->count() ? +$appId->attr('data-appid') : null;
 
         // Purchase area.
-        [$purchaseArea, $DEBUG_primary_sub_id] = self::findPrimaryPurchaseArea($crawler, $name, $app_id);
+        [$purchaseArea, $DEBUG_primary_sub_id] = self::findPrimaryPurchaseArea($crawler, $name, $canonical_id);
         $bundle_id = self::parseBundleId($purchaseArea);
         $free = self::parseFree($purchaseArea);
         $price = $free ? 0 : ($bundle_id ? self::calculateBundlePrice($purchaseArea) : self::parsePrice($purchaseArea));
@@ -316,7 +316,7 @@ final class AppDetailsParser
         return $crawler->filter('[data-featuretarget=game-notice-vr-required]')->count() > 0;
     }
 
-    private static function parseFree(Crawler $crawler): ?bool
+    private static function parseFree(Crawler $crawler): bool
     {
         if ($crawler->count()) {
             if (str_contains($crawler->attr('aria-labelledby') ?? '', '_free_')) {
@@ -328,7 +328,7 @@ final class AppDetailsParser
             }
         }
 
-        return null;
+        return false;
     }
 
     private static function parseAdult(Crawler $crawler): bool
@@ -383,16 +383,18 @@ final class AppDetailsParser
      *
      * @param Crawler $crawler Crawler instance.
      * @param string $title App title.
+     * @param ?int $appId Optional. App ID. May be null when parsing a hardware app.
      *
      * @return (Crawler|?int)[] [
      *     Crawler containing the primary purchase area node if found, otherwise a crawler with no nodes.,
      *     Primary sub ID.,
      * ]
      */
-    private static function findPrimaryPurchaseArea(Crawler $crawler, string $title, int $appId): array
+    private static function findPrimaryPurchaseArea(Crawler $crawler, string $title, ?int $appId): array
     {
         // Detect if game is free.
-        if (count($purchaseArea = $crawler->filter("[aria-labelledby=game_area_purchase_section_free_$appId]"))) {
+        if ($appId &&
+            count($purchaseArea = $crawler->filter("[aria-labelledby=game_area_purchase_section_free_$appId]"))) {
             return [$purchaseArea, null];
         }
 
