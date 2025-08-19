@@ -37,7 +37,6 @@ final class AppDetailsParser
         $tags = self::parseTags($crawler);
         $languages = self::parseLanguages($crawler);
         $vrx = self::parseVrExclusive($crawler);
-        $free = self::parseFree($crawler);
         $adult = self::parseAdult($crawler);
         $capsule_url = self::parseCapsuleUrl($crawler);
         $main_capsule_url = self::parseMainCapsuleUrl($crawler);
@@ -63,6 +62,7 @@ final class AppDetailsParser
         // Purchase area.
         [$purchaseArea, $DEBUG_primary_sub_id] = self::findPrimaryPurchaseArea($crawler, $name);
         $bundle_id = self::parseBundleId($purchaseArea);
+        $free = self::parseFree($purchaseArea);
         $price = $free ? 0 : ($bundle_id ? self::calculateBundlePrice($purchaseArea) : self::parsePrice($purchaseArea));
         $discount_price = $free ? null : self::parseDiscountPrice($purchaseArea);
         $discount = $free ? 0 : self::parseDiscountPercentage($purchaseArea);
@@ -318,13 +318,17 @@ final class AppDetailsParser
 
     private static function parseFree(Crawler $crawler): ?bool
     {
-        $tooltip = $crawler->filter('#review_histogram_rollup_section .tooltip');
+        if ($crawler->count()) {
+            if (str_contains($crawler->attr('aria-labelledby') ?? '', '_free_')) {
+                return true;
+            }
 
-        if (!$tooltip->count()) {
-            return null;
+            if (($form = $crawler->filter('form'))->count()) {
+                return str_contains($form->attr('action'), '/addfreelicense/');
+            }
         }
 
-        return (bool)preg_match('[\bfree\b]', $tooltip->attr('data-tooltip-text'));
+        return null;
     }
 
     private static function parseAdult(Crawler $crawler): bool

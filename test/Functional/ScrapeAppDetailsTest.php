@@ -640,11 +640,11 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * @see http://store.steampowered.com/app/630/
-     * @see http://store.steampowered.com/app/570/
-     * @see http://store.steampowered.com/app/1840/
-     * @see http://store.steampowered.com/app/323130/
-     * @see http://store.steampowered.com/app/250600/
+     * @see https://store.steampowered.com/app/630/Alien_Swarm/
+     * @see https://store.steampowered.com/app/570/Dota_2/
+     * @see https://store.steampowered.com/app/1840/Source_Filmmaker/
+     * @see https://store.steampowered.com/app/323130/HalfLife_Soundtrack/
+     * @see https://store.steampowered.com/app/250600/The_Plan/
      * @see https://store.steampowered.com/app/206480/Dungeons__Dragons_Online
      */
     public function provideFreeApps(): array
