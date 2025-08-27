@@ -506,9 +506,9 @@ final class AppDetailsParser
         return $crawler->filter('meta[itemprop=image]')->attr('content');
     }
 
-    private static function parseMainCapsuleUrl(Crawler $crawler)
+    private static function parseMainCapsuleUrl(Crawler $crawler): string
     {
-        return $crawler->filter('link[rel=image_src]')->attr('href');
+        return ($src = $crawler->filter('link[rel=image_src]'))->count() ? $src->attr('href') : '';
     }
 
     /**
