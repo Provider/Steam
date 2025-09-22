@@ -11,7 +11,7 @@ use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 final class GetCuratorReviews extends CuratorResource
 {
-    private const COUNT = 1_000;
+    private const COUNT = 800;
 
     private int $start = 0;
 
