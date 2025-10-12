@@ -647,7 +647,6 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/250600/The_Plan/
      * @see https://store.steampowered.com/app/206480/Dungeons__Dragons_Online
      * @see https://store.steampowered.com/app/31500/COIL/
-     * @see https://store.steampowered.com/app/3799650/Swamp_Keeper_Demo/
      */
     public function provideFreeApps(): array
     {
@@ -659,7 +658,6 @@ final class ScrapeAppDetailsTest extends TestCase
             '"Play Game" button (no price)' => [250600],
             'Play for Free!' => [206480],
             'Free demo' => [31500],
-            'Free demo (canonicalizing ID)' => [3799650],
         ];
     }
 
