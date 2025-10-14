@@ -338,8 +338,8 @@ final class AppDetailsParser
 
     private static function parseVideoThumbnails(Crawler $crawler): array
     {
-        return $crawler->filter('#highlight_strip_scroll .movie_thumb')->each(
-            static fn (Crawler $crawler) => $crawler->attr('src')
+        return $crawler->filter('#highlight_player_area .highlight_movie[data-props]')->each(
+            static fn (Crawler $crawler) => json_decode($crawler->attr('data-props'), true, flags: JSON_THROW_ON_ERROR)
         );
     }
 
