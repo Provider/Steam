@@ -17,4 +17,13 @@ enum RecommendationState
             self::NOT_RECOMMENDED => 1,
         };
     }
+
+    public static function fromInt(int $value): self
+    {
+        return match ($value) {
+            0 => self::RECOMMENDED,
+            2 => self::INFORMATIONAL,
+            1 => self::NOT_RECOMMENDED,
+        };
+    }
 }
