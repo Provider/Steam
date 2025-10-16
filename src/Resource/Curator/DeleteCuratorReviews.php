@@ -29,7 +29,7 @@ final class DeleteCuratorReviews extends CuratorResource implements SingleRecord
         $body->addField('sessionid', $this->session->getStoreSessionCookie()->getValue());
 
         foreach ($this->appIds as $appId) {
-            $body->addField('appids', "$appId");
+            $body->addField('appids[]', "$appId");
         }
 
         return (new HttpDataSource($this->getUrl()))

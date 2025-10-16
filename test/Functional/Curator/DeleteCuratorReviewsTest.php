@@ -19,14 +19,8 @@ final class DeleteCuratorReviewsTest extends CuratorTestCase
         self::assertContains($app1, $reviews);
         self::assertContains($app2, $reviews);
 
-        // TODO: We must currently delete one at a time because multiple delete is not working!
         $response = self::$porter->importOne(
-            new Import(new DeleteCuratorReviews(self::$session, self::CURATOR_ID, [$app1]))
-        );
-        self::assertSame(1, $response['success']);
-
-        $response = self::$porter->importOne(
-            new Import(new DeleteCuratorReviews(self::$session, self::CURATOR_ID, [$app2]))
+            new Import(new DeleteCuratorReviews(self::$session, self::CURATOR_ID, [$app1, $app2]))
         );
         self::assertSame(1, $response['success']);
 
@@ -39,7 +33,7 @@ final class DeleteCuratorReviewsTest extends CuratorTestCase
     private function fetchReviews(): array
     {
         return iterator_to_array(\iter\map(
-            fn(array $review) => $review['appid'],
+            fn (array $review) => $review['appid'],
             self::$porter->import((new Import(new GetCuratorReviews(self::$session, self::CURATOR_ID)))->addTransformer(
                 new FilterTransformer(fn(array $review) => $review['recommendation']['recommendation_state'] === 2)
             ))
