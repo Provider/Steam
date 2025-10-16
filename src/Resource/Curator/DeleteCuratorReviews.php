@@ -3,12 +3,13 @@ declare(strict_types=1);
 
 namespace ScriptFUSION\Porter\Provider\Steam\Resource\Curator;
 
-use Amp\Http\Client\Body\FormBody;
+use Amp\Http\Client\Form;
 use ScriptFUSION\Porter\Connector\DataSource;
 use ScriptFUSION\Porter\Net\Http\HttpDataSource;
+use ScriptFUSION\Porter\Provider\Resource\SingleRecordResource;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
-final class DeleteCuratorReviews extends CuratorResource
+final class DeleteCuratorReviews extends CuratorResource implements SingleRecordResource
 {
     public function __construct(CuratorSession $session, int $curatorId, private readonly array $appIds)
     {
@@ -22,15 +23,13 @@ final class DeleteCuratorReviews extends CuratorResource
 
     protected function getSource(): DataSource
     {
-        $body = new FormBody;
+        $body = new Form();
 
-        $body->addFields([
-            'delete' => 1,
-            'sessionid' => $this->session->getStoreSessionCookie()->getValue(),
-        ]);
+        $body->addField('delete', '1');
+        $body->addField('sessionid', $this->session->getStoreSessionCookie()->getValue());
 
         foreach ($this->appIds as $appId) {
-            $body->addField('appids', $appId);
+            $body->addField('appids', "$appId");
         }
 
         return (new HttpDataSource($this->getUrl()))

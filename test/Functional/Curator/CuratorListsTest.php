@@ -12,9 +12,6 @@ use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\GetCuratorLi
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\PatchCuratorListAppOrder;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\PutCuratorList;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorList\PutCuratorListApp;
-use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorReview;
-use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\PutCuratorReview;
-use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\RecommendationState;
 
 /**
  * @see GetCuratorLists
@@ -156,20 +153,6 @@ final class CuratorListsTest extends CuratorTestCase
         } finally {
             self::deleteList($listId);
         }
-    }
-
-    private static function createReview(int $appId): void
-    {
-        $review = self::$porter->importOne(new Import(
-            new PutCuratorReview(
-                self::$session,
-                self::CURATOR_ID,
-                new CuratorReview($appId, 'foo', RecommendationState::INFORMATIONAL)
-            )
-        ));
-
-        self::assertArrayHasKey('success', $review);
-        self::assertSame(1, $review['success']);
     }
 
     private static function fetchOneSync(ProviderResource $resource): array
