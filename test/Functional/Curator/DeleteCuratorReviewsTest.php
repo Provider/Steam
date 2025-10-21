@@ -13,7 +13,7 @@ final class DeleteCuratorReviewsTest extends CuratorTestCase
     public function testDeleteCuratorReviews(): void
     {
         self::createReview($app1 = 583950); // Artifact.
-        self::createReview($app2 = 1269260); // Artifact Foundry.
+        self::createReview($app2 = 546560); // Half-Life: Alyx.
 
         $reviews = $this->fetchReviews();
         self::assertContains($app1, $reviews);
