@@ -697,9 +697,9 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertArrayHasKey('videos', $app);
         self::assertCount(2, $videos = $app['videos']);
 
-        self::assertArrayHasKey('screenshot', $videos[0]);
-        self::assertStringContainsString('/256662547/', $videos[0]['screenshot']);
-        self::assertStringContainsString('/256662555/', $videos[1]['screenshot']);
+        self::assertArrayHasKey('thumbnail', $videos[0]);
+        self::assertStringContainsString('/256662547/', $videos[0]['thumbnail']);
+        self::assertStringContainsString('/256662555/', $videos[1]['thumbnail']);
     }
 
     /**

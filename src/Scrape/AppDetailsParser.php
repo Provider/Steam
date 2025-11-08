@@ -338,9 +338,13 @@ final class AppDetailsParser
 
     private static function parseVideoThumbnails(Crawler $crawler): array
     {
-        return $crawler->filter('#highlight_player_area .highlight_movie[data-props]')->each(
-            static fn (Crawler $crawler) => json_decode($crawler->attr('data-props'), true, flags: JSON_THROW_ON_ERROR)
-        );
+        $reel = $crawler->filter('.gamehighlight_desktopcarousel[data-props]');
+
+        if ($reel->count() === 1) {
+            return json_decode($reel->attr('data-props'), true, flags: JSON_THROW_ON_ERROR)['trailers'];
+        }
+
+        return [];
     }
 
     private static function trimNodeText(Crawler $crawler): string
