@@ -14,4 +14,5 @@ class ParserException extends \RuntimeException
     public const UNEXPECTED_CONTENT = 4;
     public const INVALID_GAMES_LIST = 5;
     public const EMPTY_GAMES_LIST = 6;
+    public const NON_PUBLIC = 7;
 }

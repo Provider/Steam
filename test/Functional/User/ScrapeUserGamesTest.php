@@ -85,7 +85,7 @@ final class ScrapeUserGamesTest extends TestCase
         $session = FixtureFactory::createCommunitySession($porter);
 
         $this->expectException(ParserException::class);
-        $this->expectExceptionCode(ParserException::UNEXPECTED_CONTENT);
+        $this->expectExceptionCode(ParserException::NON_PUBLIC);
 
         $results = $porter->import(new Import(new ScrapeUserGames($session, new SteamID('76561197993329385'))));
     }

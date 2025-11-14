@@ -41,7 +41,7 @@ final class ScrapeUserGames implements ProviderResource, Url
         $response = $connector->fetch(new HttpDataSource($this->getUrl()));
 
         if (($previousResponse = $response->getPrevious())
-            && strpos($previousResponse->getHeader('location')[0], 'msg=loginfirst')
+            && str_starts_with($previousResponse->getHeader('location')[0], '/login/')
         ) {
             throw new InvalidSessionException('Session expired.');
         }
@@ -51,7 +51,7 @@ final class ScrapeUserGames implements ProviderResource, Url
 
     public function getUrl(): string
     {
-        return SteamProvider::buildCommunityUrl("/profiles/{$this->steamID->RenderSteam3()}/games");
+        return SteamProvider::buildCommunityUrl("/profiles/{$this->steamID->ConvertToUInt64()}/games");
     }
 
     private function applySessionCookies(CookieJar $cookieJar): void
