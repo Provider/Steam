@@ -16,11 +16,10 @@ use function ScriptFUSION\Retry\retry;
  */
 final class GetAppList implements ProviderResource, Url
 {
-    private const APP_LIST_PATH = '/ISteamApps/GetAppList/v2/';
     private const PAGINATED_APP_LIST_PATH = '/IStoreService/GetAppList/v1/?max_results=50000&include_dlc=1'
         . '&include_software=1&include_videos=1&include_hardware=1';
 
-    public function __construct(private ?string $apiKey = null)
+    public function __construct(private string $apiKey)
     {
     }
 
@@ -62,8 +61,6 @@ final class GetAppList implements ProviderResource, Url
 
     public function getUrl(): string
     {
-        return SteamProvider::buildSteamworksApiUrl(
-            $this->apiKey ? self::PAGINATED_APP_LIST_PATH . "&key=$this->apiKey" : self::APP_LIST_PATH
-        );
+        return SteamProvider::buildSteamworksApiUrl(self::PAGINATED_APP_LIST_PATH . "&key=$this->apiKey");
     }
 }
