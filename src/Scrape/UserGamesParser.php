@@ -36,7 +36,7 @@ final class UserGamesParser
         )['queries'];
 
         $linkDetails = self::findQuery($queries, 'PlayerLinkDetails');
-        if ($linkDetails['public_data']['privacy_state'] < 3) {
+        if ($linkDetails['public_data']['visibility_state'] < 3) {
             throw new ParserException(
                 'Games list is private or friends-only.',
                 ParserException::NON_PUBLIC,
