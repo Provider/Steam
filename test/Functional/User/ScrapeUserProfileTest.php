@@ -23,6 +23,8 @@ final class ScrapeUserProfileTest extends TestCase
 
     /**
      * Tests that scraping GabeN's user profile returns his username.
+     *
+     * @see https://steamcommunity.com/id/GabeLoganNewell/
      */
     public function testScrapeGabenProfile(): void
     {
@@ -52,7 +54,7 @@ final class ScrapeUserProfileTest extends TestCase
 
         $profile = $porter->importOne(new Import(new ScrapeUserProfile(new SteamID(1))));
 
-        self::assertSame('8cb62010a27329ef8f5bf6d2f8e5dba79d1940ab', $profile['image_hash']);
+        self::assertSame('fdaef0111714471445bb422b8021d3a887c86a99', $profile['image_hash']);
         self::assertNull($profile['image_path_fragment']);
     }
 
