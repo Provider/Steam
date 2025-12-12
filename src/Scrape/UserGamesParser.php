@@ -23,14 +23,17 @@ final class UserGamesParser
 
         if (!preg_match(
             '[window\.SSR\.renderContext=JSON\.parse\((".+(?<!\\\\)(?:\\\\\\\\)*")]',
-            $scripts->text(),
+            $scripts->text(normalizeWhitespace: false),
             $matches
         )) {
             throw new ParserException('Invalid games list.', ParserException::INVALID_GAMES_LIST);
         }
 
         $queries = json_decode(
-            json_decode(json_decode($matches[1], flags: JSON_THROW_ON_ERROR), flags: JSON_THROW_ON_ERROR)->queryData,
+            json_decode(
+                json_decode($matches[1], flags: JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE),
+                flags: JSON_THROW_ON_ERROR
+            )->queryData,
             true,
             flags: JSON_THROW_ON_ERROR
         )['queries'];
