@@ -12,9 +12,9 @@ use ScriptFUSION\Porter\Provider\Resource\ProviderResource;
 use ScriptFUSION\Porter\Provider\Steam\Resource\CommunitySession;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidSessionException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Url;
-use ScriptFUSION\Porter\Provider\Steam\Scrape\NativeCrawler;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\UserGamesParser;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
+use Symfony\Component\DomCrawler\Crawler;
 use xPaw\Steam\SteamID;
 
 final class ScrapeUserGames implements ProviderResource, Url
@@ -35,6 +35,9 @@ final class ScrapeUserGames implements ProviderResource, Url
             throw new \InvalidArgumentException('Unexpected connector type.');
         }
 
+        // Increase max body size to 100MB for huge games lists.
+        $baseConnector->getOptions()->setMaxBodyLength(0x100_000 * 100);
+
         $this->applySessionCookies($baseConnector->getCookieJar());
 
         /** @var HttpResponse $response */
@@ -46,7 +49,7 @@ final class ScrapeUserGames implements ProviderResource, Url
             throw new InvalidSessionException('Session expired.');
         }
 
-        yield from UserGamesParser::parse(new NativeCrawler($response->getBody()));
+        yield from UserGamesParser::parse(new Crawler($response->getBody()));
     }
 
     public function getUrl(): string

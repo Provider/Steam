@@ -15,11 +15,11 @@ use xPaw\Steam\SteamID;
 
 final class ScrapeUserGamesTest extends TestCase
 {
-    // https://steamcommunity.com/id/afarnsworth
-    private const VALID_STEAM_ID = 'STEAM_0:0:84447';
+    // https://steamcommunity.com/id/smeehrrr
+    private const VALID_STEAM_ID = '76561198040900440';
 
     /**
-     * Tests that Al Farnsworth's public games list can be scraped and contains more than 990 games.
+     * Tests that a very large public games list can be scraped.
      *
      * @see ScrapeUserGames
      */
@@ -42,7 +42,7 @@ final class ScrapeUserGamesTest extends TestCase
             self::assertGreaterThanOrEqual(0, $result['playtime_forever']);
         }
 
-        self::assertGreaterThan(990, $counter, 'More than 990 games.');
+        self::assertGreaterThan(4_000, $counter, 'More than 4,000 games.');
     }
 
     /**
