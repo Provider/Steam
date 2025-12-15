@@ -12,6 +12,6 @@ final class NativeCrawler extends Crawler
         ?string $uri = null,
         ?string $baseHref = null,
     ) {
-        parent::__construct($node, $uri, $baseHref, false);
+        parent::__construct($node, $uri, $baseHref, \PHP_VERSION_ID >= 80400);
     }
 }
