@@ -284,12 +284,12 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * @see https://store.steampowered.com/app/609500
-     * @see https://store.steampowered.com/app/735940
+     * @see https://store.steampowered.com/app/539730
+     * @see https://store.steampowered.com/app/413850
      */
     public function provideSeries(): iterable
     {
-        yield 'Single season' => [609500, 'Comedy Dynamics: Coming to The Stage'];
+        yield 'Single season' => [539730, 'True Sight'];
         yield 'Multiple seasons' => [413850, 'CS:GO Player Profiles'];
     }
 
