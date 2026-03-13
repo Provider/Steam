@@ -48,7 +48,7 @@ final class AppDetailsParser
         $videos = self::parseVideoThumbnails($crawler);
 
         // Header area.
-        $blurb = ($snippet = $crawler->filter('.game_description_snippet'))->count() ? trim($snippet->text()) : null;
+        $blurb = self::parseBlurb($crawler);
 
         // Reviews area.
         $reviewsArea = $crawler->filter('.glance_ctn_responsive_left')->first();
@@ -345,6 +345,13 @@ final class AppDetailsParser
         }
 
         return [];
+    }
+
+    private static function parseBlurb(Crawler $crawler): ?string
+    {
+        return ($snippet = $crawler->filter('.game_description_snippet'))->count()
+            ? trim($snippet->text())
+            : $crawler->filter('meta[name=Description]')->attr('content');
     }
 
     private static function trimNodeText(Crawler $crawler): string

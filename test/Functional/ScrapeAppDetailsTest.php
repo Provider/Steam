@@ -202,6 +202,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('The Witcher 3: Wild Hunt - Blood and Wine', $app['name']);
         self::assertSame('dlc', $app['type']);
         self::assertSame('2016-05-30', $app['release_date']->format('Y-m-d'));
+        self::assertNotEmpty($app['blurb']);
     }
 
     /**
