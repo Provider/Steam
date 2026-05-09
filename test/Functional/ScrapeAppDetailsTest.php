@@ -91,6 +91,8 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertNull($app['demo_id']);
         self::assertNull($app['bundle_id'], 'App is not sold exclusively as a bundle.');
 
+        self::assertFalse($app['ai']);
+
         foreach ($app['tags'] as $tag) {
             self::assertArrayHasKey('name', $tag);
             self::assertIsString($tagName = $tag['name']);
@@ -1065,6 +1067,18 @@ final class ScrapeAppDetailsTest extends TestCase
             'Demo area and purchase area (game)' => [3164500, 3205720],
             'Demo button in sidebar only (game)' => [1336490, 1400860],
         ];
+    }
+
+    /**
+     * Tests than an app with AI disclosures is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/4103710/Amazons_vs_Zombies/
+     */
+    public function testAi(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(4103710)));
+
+        self::assertTrue($app['ai']);
     }
 
     /**

@@ -90,6 +90,9 @@ final class AppDetailsParser
         // Demo.
         $demo_id = self::parserDemoId($crawler);
 
+        // Disclosures.
+        $ai = self::parseIsAi($crawler);
+
         return compact(
             'name',
             'type',
@@ -120,6 +123,7 @@ final class AppDetailsParser
             'bundle_id',
             'capsule_url',
             'main_capsule_url',
+            'ai',
             'DEBUG_primary_sub_id',
         );
     }
@@ -520,6 +524,14 @@ final class AppDetailsParser
     private static function parseMainCapsuleUrl(Crawler $crawler): string
     {
         return ($src = $crawler->filter('link[rel=image_src]'))->count() ? $src->attr('href') : '';
+    }
+
+    private static function parseIsAi(NativeCrawler $crawler): bool
+    {
+        return $crawler->filter('#game_area_content_descriptors > h2')
+            ->reduce(fn ($crawler) => str_starts_with($crawler->text(), 'AI'))
+            ->count() > 0
+        ;
     }
 
     /**
