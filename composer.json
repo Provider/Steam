@@ -15,7 +15,7 @@
     "connectors/http": "^7.1|^8",
     "phpseclib/phpseclib": "^3.0.34",
     "scriptfusion/porter": "^7|^8",
-    "symfony/css-selector": "^5.3|^6|^7",
+    "symfony/css-selector": "^5.3|^6|^7|^8",
     "symfony/dom-crawler": "^7.4",
     "xpaw/steamid": "^4"
   },
