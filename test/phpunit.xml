@@ -3,12 +3,16 @@
     executionOrder="random"
     colors="true"
 >
+    <extensions>
+        <bootstrap class="ScriptFUSION\Pip\PipExtension"/>
+    </extensions>
+
     <testsuite name="default">
         <directory>.</directory>
     </testsuite>
-    <coverage processUncoveredFiles="true">
+    <source>
         <include>
             <directory>../src</directory>
         </include>
-    </coverage>
+    </source>
 </phpunit>

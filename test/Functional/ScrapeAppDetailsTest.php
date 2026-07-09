@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Porter;
@@ -33,9 +35,8 @@ final class ScrapeAppDetailsTest extends TestCase
      * Tests that all supported fields can be scraped from a game page bisynchronously.
      *
      * @see http://store.steampowered.com/app/10/
-     *
-     * @group type
      */
+    #[Group('type')]
     public function testGame(): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(10)));
@@ -176,9 +177,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * @see http://store.steampowered.com/app/1840/
-     *
-     * @group type
      */
+    #[Group('type')]
     public function testSoftware(): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1840)));
@@ -194,9 +194,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * @see https://store.steampowered.com/app/378648/The_Witcher_3_Wild_Hunt__Blood_and_Wine
-     *
-     * @group type
      */
+    #[Group('type')]
     public function testDlc(): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(378648)));
@@ -211,9 +210,8 @@ final class ScrapeAppDetailsTest extends TestCase
      * Tests that DLC that is no longer available for purchase is parsed correctly.
      *
      * @see https://store.steampowered.com/app/1258510/DEATH_STRANDING_Digital_Art_Book/
-     *
-     * @group type
      */
+    #[Group('type')]
     public function testRetiredDlc()
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1258510)));
@@ -223,9 +221,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * @see https://store.steampowered.com/app/31500/COIL/
-     *
-     * @group type
      */
+    #[Group('type')]
     public function testDemo(): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(31500)));
@@ -236,9 +233,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * @see https://store.steampowered.com/app/1255980/Portal_Reloaded/
-     *
-     * @group type
      */
+    #[Group('type')]
     public function testMod(): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1255980)));
@@ -249,9 +245,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * @see https://store.steampowered.com/app/598190/Hollow_Knight__Official_Soundtrack/
-     *
-     * @group type
      */
+    #[Group('type')]
     public function testSoundtrack(): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(598190)));
@@ -262,9 +257,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * @see https://store.steampowered.com/app/697440/POSTAL_The_Movie/
-     *
-     * @group type
      */
+    #[Group('type')]
     public function testVideo(): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(697440)));
@@ -273,11 +267,8 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('video', $app['type']);
     }
 
-    /**
-     * @dataProvider provideSeries
-     *
-     * @group type
-     */
+    #[Group('type')]
+    #[DataProvider('provideSeries')]
     public function testSeries(int $appId, string $appName): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
@@ -290,7 +281,7 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/539730
      * @see https://store.steampowered.com/app/413850
      */
-    public function provideSeries(): iterable
+    public static function provideSeries(): iterable
     {
         yield 'Single season' => [539730, 'True Sight'];
         yield 'Multiple seasons' => [413850, 'CS:GO Player Profiles'];
@@ -569,9 +560,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * Tests that games marked as VR exclusive are correctly detected.
-     *
-     * @dataProvider provideVrExclusiveApps
      */
+    #[DataProvider('provideVrExclusiveApps')]
     public function testVrExclusive(int $appId): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
@@ -585,7 +575,7 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see http://store.steampowered.com/app/518580/
      * @see http://store.steampowered.com/app/348250/
      */
-    public function provideVrExclusiveApps(): array
+    public static function provideVrExclusiveApps(): array
     {
         return [
             'Requires a virtual reality headset.' => [450390],
@@ -596,9 +586,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * Tests that discontinued games with and without pricing areas are parsed as having no price instead of 0 price.
-     *
-     * @dataProvider provideDiscontinuedGames
      */
+    #[DataProvider('provideDiscontinuedGames')]
     public function testDiscontinuedGames(int $appId): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
@@ -611,7 +600,7 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/2700/RollerCoaster_Tycoon_3_Platinum/
      * @see https://store.steampowered.com/app/261570/Ori_and_the_Blind_Forest/
      */
-    public function provideDiscontinuedGames(): array
+    public static function provideDiscontinuedGames(): array
     {
         return [
             'No purchase area' => [2700],
@@ -622,9 +611,8 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * Tests that games marked as 'Free', 'Free to Play' or having no price are detected as being cost-free,
      * where cost-free is defined as having a price of 0 and no discount.
-     *
-     * @dataProvider provideFreeApps
      */
+    #[DataProvider('provideFreeApps')]
     public function testFreeGames(int $appId): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
@@ -651,7 +639,7 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/206480/Dungeons__Dragons_Online
      * @see https://store.steampowered.com/app/31500/COIL/
      */
-    public function provideFreeApps(): array
+    public static function provideFreeApps(): array
     {
         return [
             'Free' => [730],
@@ -666,9 +654,8 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * Tests that when a game is sold in "editions", the price is parsed correctly.
-     *
-     * @dataProvider provideEditions
      */
+    #[DataProvider('provideEditions')]
     public function testEditions(int $appId): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
@@ -680,7 +667,7 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/2495100/Hello_Kitty_Island_Adventure
      * @see https://store.steampowered.com/app/690830/Foundation
      */
-    public function provideEditions(): iterable
+    public static function provideEditions(): iterable
     {
         return [
             'Single edition' => [2495100],
@@ -835,9 +822,8 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/1225570/Unravel_Two
      * @see https://store.steampowered.com/app/3480/Peggle_Deluxe
      * @see https://store.steampowered.com/app/3540/Peggle_Nights
-     *
-     * @dataProvider provideEaPlayRegularPurchaseAreas
      */
+    #[DataProvider('provideEaPlayRegularPurchaseAreas')]
     public function testEaPlayRegularPurchase(int $appId): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
@@ -955,9 +941,8 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/274170/Hotline_Miami_2_Wrong_Number
      * @see https://store.steampowered.com/app/345660/RIDE
      * @see https://store.steampowered.com/app/355130/MotoGP15
-     *
-     * @dataProvider provideMultiPurchaseAreas
      */
+    #[DataProvider('provideMultiPurchaseAreas')]
     public function testMultiPurchaseArea(int $appId, int $subId): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
@@ -966,7 +951,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame($subId, $app['DEBUG_primary_sub_id']);
     }
 
-    public function provideMultiPurchaseAreas(): iterable
+    public static function provideMultiPurchaseAreas(): iterable
     {
         return [
             // Purchase area appears first but title does not match.
@@ -999,9 +984,8 @@ final class ScrapeAppDetailsTest extends TestCase
      * This bizarre app page will mostly parse as nulls. Since we are not interested in parsing this, this is fine.
      *
      * @see https://store.steampowered.com/app/1059530/Valve_Index_Headset/
-     *
-     * @group type
      */
+    #[Group('type')]
     public function testValveIndex(): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId = 1059530)));
@@ -1029,9 +1013,8 @@ final class ScrapeAppDetailsTest extends TestCase
      * Tests that an adult game behind a login wall can be accessed and parsed.
      *
      * @see https://store.steampowered.com/app/1296770/Her_New_Memory__Hentai_Simulator/
-     *
-     * @group type
      */
+    #[Group('type')]
     public function testAdultGame(): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId = 1296770)));
@@ -1051,9 +1034,8 @@ final class ScrapeAppDetailsTest extends TestCase
      *
      * @see https://store.steampowered.com/app/3164500/Schedule_I/
      * @see https://store.steampowered.com/app/1336490/Against_the_Storm/
-     *
-     * @dataProvider provideDemoIds
      */
+    #[DataProvider('provideDemoIds')]
     public function testDemoGame(int $appId, int $demoId): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
