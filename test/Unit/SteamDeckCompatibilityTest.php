@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Unit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\SteamDeckCompatibility;
 
@@ -11,16 +12,14 @@ use ScriptFUSION\Porter\Provider\Steam\Scrape\SteamDeckCompatibility;
  */
 final class SteamDeckCompatibilityTest extends TestCase
 {
-    /**
-     * @dataProvider provideIds
-     */
+    #[DataProvider('provideIds')]
     public function testIdRoundTrip(int $id): void
     {
         self::assertInstanceOf(SteamDeckCompatibility::class, $compat = SteamDeckCompatibility::fromId($id));
         self::assertSame($id, $compat->toId());
     }
 
-    public function provideIds(): iterable
+    public static function provideIds(): iterable
     {
         yield from \iter\chunk(range(0, 3), 1);
     }

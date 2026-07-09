@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ScriptFUSIONTest\Porter\Provider\Steam\Functional;
 
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Provider\Steam\Collection\UserReviewsRecords;
@@ -32,9 +33,8 @@ final class GetUserReviewsListTest extends TestCase
 
     /**
      * Tests that when reviews have been downloaded for game #10, essential fields are present for each review.
-     *
-     * @depends testTotals
      */
+    #[Depends('testTotals')]
     public function testReviewFields(UserReviewsRecords $reviews): void
     {
         foreach ($reviews as $review) {

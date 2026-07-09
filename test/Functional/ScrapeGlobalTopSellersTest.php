@@ -34,7 +34,7 @@ final class ScrapeGlobalTopSellersTest extends TestCase
             self::assertArrayHasKey('price', $result);
             self::assertThat(
                 $result['price'],
-                self::logicalOr(self::isType('int'), self::isNull()),
+                self::logicalOr(self::isInt(), self::isNull()),
                 'Price must be an integer or null when unavailable.'
             );
         }
