@@ -44,7 +44,10 @@ final class ScrapeGlobalTopSellers implements ProviderResource, Url
 
     private Throttle $throttle;
 
-    public function __construct()
+    /**
+     * @param positive-int $maxPages Maximum number of pages to retrieve. Defaults to {@see self::MAX_PAGES}.
+     */
+    public function __construct(private readonly int $maxPages = self::MAX_PAGES)
     {
         $this->throttle = new DualThrottle(self::MAX_PER_SECOND, self::MAX_CONCURRENCY);
     }
@@ -85,7 +88,7 @@ final class ScrapeGlobalTopSellers implements ProviderResource, Url
             }
 
             $start += $returned;
-        } while (++$page < self::MAX_PAGES && $returned === self::MAX_RESULTS && $start < $total);
+        } while (++$page < $this->maxPages && $returned === self::MAX_RESULTS && $start < $total);
     }
 
     public function getUrl(int $start = 0): string
