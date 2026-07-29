@@ -720,13 +720,25 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * Tests that DLC with no Steam Deck information presents Steam Deck compatibility as "null".
-     * Note that games will never have null compatibility anymore.
+     * Note that newer games will never have null compatibility any more.
      *
      * @see https://store.steampowered.com/app/836840/Simon_the_Sorcerer__Legacy_Edition_English/
      */
     public function testSteamDeckAbsent(): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(836840)));
+
+        self::assertNull($app['steam_deck']);
+    }
+
+    /**
+     * Tests that a game with Steam Deck compatibility data containing a null resolved_category is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/981880/GrowRilla_VR/
+     */
+    public function testSteamDeckNullResolvedCategory(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(981880)));
 
         self::assertNull($app['steam_deck']);
     }
