@@ -495,10 +495,12 @@ final class AppDetailsParser
     {
         $config = $crawler->filter('#application_config');
 
-        if (count($config) && $deckCompatJson = $config->attr('data-deckcompatibility')) {
+        if (count($config) && $deckCompatJson = $config->attr('data-hardwarecompatibility')) {
             $deckCompat = \json_decode($deckCompatJson, true, 512, JSON_THROW_ON_ERROR);
 
-            return SteamDeckCompatibility::fromId($deckCompat['resolved_category']);
+            if ($deckCompat['resolved_category'] !== null) {
+                return SteamDeckCompatibility::fromId($deckCompat['resolved_category']);
+            }
         }
 
         return null;
