@@ -733,12 +733,12 @@ final class ScrapeAppDetailsTest extends TestCase
 
     /**
      * Tests that a game with Steam Deck "unknown" compatibility is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/551580/Goblin_and_Coins/
      */
     public function testSteamDeckUnknown(): void
     {
-        $app = $this->porter->importOne(new Import(
-            new ScrapeAppFixture('steam deck unknown compatibility.html')
-        ));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(551580)));
 
         self::assertSame(SteamDeckCompatibility::UNKNOWN, $app['steam_deck']);
     }
