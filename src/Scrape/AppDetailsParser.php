@@ -215,7 +215,7 @@ final class AppDetailsParser
 
         $data = \json_decode($reviews->attr('data-props'), true, flags: JSON_THROW_ON_ERROR);
 
-        if (!$options = $data['filter_options']) {
+        if (!$options = $data['filter_options'] ?? null) {
             return [0, 0, 0];
         }
 
