@@ -68,15 +68,7 @@ final class AppDetailsParser
         $discount = $free ? 0 : self::parseDiscountPercentage($purchaseArea);
 
         // Reviews.
-        $positiveReviews = $crawler->filter('[for=review_type_positive] > .user_reviews_count');
-        $hasReviews = $positiveReviews->count() > 0;
-        $positive_reviews = $hasReviews ? self::filterNumbers($positiveReviews->text()) : 0;
-        $negative_reviews = $hasReviews ? self::filterNumbers(
-            $crawler->filter('[for=review_type_negative] > .user_reviews_count')->text()
-        ) : 0;
-        $steam_reviews = $hasReviews ? self::filterNumbers(
-            $crawler->filter('[for=purchase_type_steam] > .user_reviews_count')->text()
-        ) : 0;
+        [$positive_reviews, $negative_reviews, $steam_reviews] = self::parseReviews($crawler);
 
         // Platforms.
         $platforms = $purchaseArea->filter('.game_area_purchase_platform')->first();
@@ -208,6 +200,30 @@ final class AppDetailsParser
 
         // If date includes time portion, assume it was mis-parsed.
         return $release_date && $release_date->format('G') ? null : $release_date;
+    }
+
+    /**
+     * @return int[] [positive, negative, steam]
+     */
+    private static function parseReviews(Crawler $crawler): array
+    {
+        $reviews = $crawler->filter('[data-featuretarget=appreviews]');
+
+        if (!$reviews->count()) {
+            return [0, 0, 0];
+        }
+
+        $data = \json_decode($reviews->attr('data-props'), true, flags: JSON_THROW_ON_ERROR);
+
+        if (!$options = $data['filter_options']) {
+            return [0, 0, 0];
+        }
+
+        return [
+            $options['nReviewsPositive'],
+            $options['nReviewsNegative'],
+            $options['nReviewsSteamPurchase'],
+        ];
     }
 
     /**
