@@ -146,7 +146,7 @@ final class ScrapeAppDetailsTest extends TestCase
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(292030)));
 
-        self::assertSame('The Witcher 3: Wild Hunt', $app['name']);
+        self::assertSame('The Witcher 3: Wild Hunt - Complete Edition', $app['name']);
     }
 
     /**
