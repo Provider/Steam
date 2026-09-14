@@ -165,13 +165,13 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * Tests that an app that is an alias of another app has a different appId and canonicalId to itself.
      *
-     * @see https://store.steampowered.com/app/900883/The_Elder_Scrolls_IV_Oblivion_Game_of_the_Year_Edition_Deluxe/
+     * @see https://store.steampowered.com/app/201270/Total_War_SHOGUN_2/
      */
     public function testAliasedApp(): void
     {
-        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(900883)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(201270)));
 
-        self::assertSame($parentId = 22330, $app['app_id']);
+        self::assertSame($parentId = 34330, $app['app_id']);
         self::assertSame($parentId, $app['canonical_id']);
     }
 
