@@ -45,7 +45,7 @@ final class AppDetailsParser
         $app_id = self::parseAppId($crawler);
 
         // Media area.
-        $videos = self::parseVideoThumbnails($crawler);
+        [$videos, $screenshots] = self::parseMedia($crawler);
 
         // Header area.
         $blurb = self::parseBlurb($crawler);
@@ -104,6 +104,7 @@ final class AppDetailsParser
             'free',
             'adult',
             'videos',
+            'screenshots',
             'positive_reviews',
             'negative_reviews',
             'steam_reviews',
@@ -356,15 +357,22 @@ final class AppDetailsParser
         return $crawler->filter('.mature_content_notice')->count() === 1;
     }
 
-    private static function parseVideoThumbnails(Crawler $crawler): array
+    /**
+     * Parses the media carousel, decoding its payload only once.
+     *
+     * @return array{0: array, 1: array} [videos, screenshots]
+     */
+    private static function parseMedia(Crawler $crawler): array
     {
         $reel = $crawler->filter('.gamehighlight_desktopcarousel[data-props]');
 
         if ($reel->count() === 1) {
-            return json_decode($reel->attr('data-props'), true, flags: JSON_THROW_ON_ERROR)['trailers'];
+            $props = json_decode($reel->attr('data-props'), true, flags: JSON_THROW_ON_ERROR);
+
+            return [$props['trailers'], $props['screenshots']];
         }
 
-        return [];
+        return [[], []];
     }
 
     private static function parseBlurb(Crawler $crawler): ?string

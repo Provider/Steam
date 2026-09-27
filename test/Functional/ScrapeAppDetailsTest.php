@@ -693,6 +693,43 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a game with multiple screenshots has them parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/32400/
+     */
+    public function testScreenshots(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(32400)));
+
+        self::assertArrayHasKey('screenshots', $app);
+        self::assertNotEmpty($screenshots = $app['screenshots']);
+
+        foreach ($screenshots as $screenshot) {
+            self::assertArrayHasKey('name', $screenshot);
+            self::assertMatchesRegularExpression('/^ss_[0-9a-f]{40}\.jpg$/', $screenshot['name']);
+
+            self::assertArrayHasKey('thumbnail', $screenshot);
+            self::assertArrayHasKey('standard', $screenshot);
+            self::assertArrayHasKey('full', $screenshot);
+
+            $hash = substr($screenshot['name'], 3, -4);
+            self::assertStringContainsString("/32400/ss_$hash.", $screenshot['thumbnail']);
+            self::assertStringContainsString("/32400/ss_$hash.", $screenshot['full']);
+        }
+    }
+
+    /**
+     * Tests that a page without the media carousel parses screenshots as an empty array.
+     */
+    public function testNoScreenshots(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppFixture('discounted.html')));
+
+        self::assertArrayHasKey('screenshots', $app);
+        self::assertSame([], $app['screenshots']);
+    }
+
+    /**
      * Tests that a game with a demo area as the first "purchase" area is parsed correctly.
      *
      * @see https://store.steampowered.com/app/766280/
