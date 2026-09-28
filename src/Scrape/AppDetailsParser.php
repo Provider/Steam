@@ -360,6 +360,9 @@ final class AppDetailsParser
     /**
      * Parses the media carousel, decoding its payload only once.
      *
+     * Each video is guaranteed `title` and `category` keys, which are null when Valve omits them (e.g. older
+     * apps), plus a `category_label` key with the display label shown alongside the title in the video player.
+     *
      * @return array{0: array, 1: array} [videos, screenshots]
      */
     private static function parseMedia(Crawler $crawler): array
@@ -369,7 +372,19 @@ final class AppDetailsParser
         if ($reel->count() === 1) {
             $props = json_decode($reel->attr('data-props'), true, flags: JSON_THROW_ON_ERROR);
 
-            return [$props['trailers'], $props['screenshots']];
+            $videos = array_map(
+                static function (array $trailer): array {
+                    $trailer += ['title' => null, 'category' => null];
+                    $trailer['category_label'] = ($category = $trailer['category'])
+                        ? TrailerCategory::tryFrom($category)?->label()
+                        : null;
+
+                    return $trailer;
+                },
+                $props['trailers']
+            );
+
+            return [$videos, $props['screenshots']];
         }
 
         return [[], []];

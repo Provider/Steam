@@ -690,6 +690,67 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertArrayHasKey('thumbnail', $videos[0]);
         self::assertStringContainsString('/256662547/', $videos[0]['thumbnail']);
         self::assertStringContainsString('/256662555/', $videos[1]['thumbnail']);
+
+        // This old app's trailers have neither titles nor categories in the page payload.
+        foreach ($videos as $video) {
+            self::assertArrayHasKey('title', $video);
+            self::assertNull($video['title']);
+
+            self::assertArrayHasKey('category', $video);
+            self::assertNull($video['category']);
+
+            self::assertArrayHasKey('category_label', $video);
+            self::assertNull($video['category_label']);
+        }
+    }
+
+    /**
+     * Tests that video titles and categories are parsed when Valve provides them.
+     *
+     * @see https://store.steampowered.com/app/620/
+     */
+    public function testVideoTitles(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(620)));
+
+        self::assertArrayHasKey('videos', $app);
+        self::assertNotEmpty($videos = $app['videos']);
+
+        foreach ($videos as $video) {
+            self::assertArrayHasKey('title', $video);
+            self::assertNotEmpty($video['title']);
+
+            self::assertArrayHasKey('category_label', $video);
+            self::assertContains($video['category_label'], ['Gameplay', 'Teaser', 'General / Cinematic']);
+        }
+
+        self::assertContains('Portal 2 Teaser', $titles = array_column($videos, 'title'));
+
+        $labels = array_combine($titles, array_column($videos, 'category_label'));
+        self::assertSame('Teaser', $labels['Portal 2 Teaser']);
+        self::assertSame('Gameplay', $labels['Portal 2 E3 Demo (Excursion Funnels)']);
+    }
+
+    /**
+     * Tests that developer diary videos are labelled as interviews.
+     *
+     * @see https://store.steampowered.com/app/820520/
+     */
+    public function testVideoCategoryInterviewDevDiary(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(820520)));
+
+        self::assertArrayHasKey('videos', $app);
+        self::assertNotEmpty($videos = $app['videos']);
+
+        $titles = array_column($videos, 'title');
+        self::assertContains('Deceive Inc. Developer Diary #1: Meet the Sweet Bandits', $titles);
+
+        $labels = array_combine($titles, array_column($videos, 'category_label'));
+        self::assertSame(
+            'Interview / Dev Diary',
+            $labels['Deceive Inc. Developer Diary #1: Meet the Sweet Bandits']
+        );
     }
 
     /**
