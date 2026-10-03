@@ -12,17 +12,17 @@
     "php": "^8.4",
     "ext-dom": "*",
     "ext-json": "*",
-    "connectors/http": "^7.1|^8",
+    "connectors/http": "^8.1",
     "phpseclib/phpseclib": "^3.0.34",
-    "scriptfusion/porter": "^7|^8",
-    "symfony/css-selector": "^5.3|^6|^7|^8",
+    "scriptfusion/porter": "^8.1",
+    "symfony/css-selector": "^8.1",
     "symfony/dom-crawler": "^7.4",
     "xpaw/steamid": "^4"
   },
     "require-dev": {
     "amphp/byte-stream": "^2",
     "amphp/hpack": "^3.1.5",
-    "mockery/mockery": "^1.3.3",
+    "mockery/mockery": "^1.6.12",
     "nikic/iter": "^2.2",
     "phpunit/phpunit": "^11.5",
     "scriptfusion/pip": "^3.1"
