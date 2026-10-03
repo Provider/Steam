@@ -7,13 +7,16 @@ use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Provider\Steam\Collection\UserReviewsRecords;
-use ScriptFUSION\Porter\Provider\Steam\Resource\GetUserReviewsList;
+use ScriptFUSION\Porter\Provider\Steam\Resource\AppReviewFilter;
+use ScriptFUSION\Porter\Provider\Steam\Resource\AppReviewPurchaseType;
+use ScriptFUSION\Porter\Provider\Steam\Resource\AppReviewType;
+use ScriptFUSION\Porter\Provider\Steam\Resource\GetAppReviews;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 /**
- * @see GetUserReviewsList
+ * @see GetAppReviews
  */
-final class GetUserReviewsListTest extends TestCase
+final class GetAppReviewsTest extends TestCase
 {
     /**
      * Tests that when downloading reviews for game #10 (Counter-Strike), review totals add up.
@@ -22,7 +25,7 @@ final class GetUserReviewsListTest extends TestCase
     {
         /** @var UserReviewsRecords $reviews */
         $reviews = FixtureFactory::createPorter()->import(
-            new Import(new GetUserReviewsList(10))
+            new Import(new GetAppReviews(10))
         )->findFirstCollection();
 
         self::assertInstanceOf(UserReviewsRecords::class, $reviews);
@@ -51,10 +54,37 @@ final class GetUserReviewsListTest extends TestCase
     {
         /** @var UserReviewsRecords $reviews */
         $reviews = FixtureFactory::createPorter()->import(
-            new Import(new GetUserReviewsList(698780))
+            new Import(new GetAppReviews(698780))
         )->findFirstCollection();
 
         self::assertInstanceOf(UserReviewsRecords::class, $reviews);
         self::assertGreaterThan(17000, count($reviews));
+    }
+
+    /**
+     * Tests that language, day range and page size parameters are honored.
+     */
+    public function testCustomParameters(): void
+    {
+        /** @var UserReviewsRecords $reviews */
+        $reviews = FixtureFactory::createPorter()->import(
+            new Import(new GetAppReviews(
+                10,
+                AppReviewFilter::Helpful,
+                'english',
+                30,
+                AppReviewType::All,
+                AppReviewPurchaseType::All,
+                5,
+            ))
+        )->findFirstCollection();
+
+        $page = [...$reviews];
+
+        self::assertCount(5, $page);
+
+        foreach ($page as $review) {
+            self::assertSame('english', $review['language']);
+        }
     }
 }

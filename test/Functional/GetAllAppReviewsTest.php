@@ -8,13 +8,14 @@ use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Collection\AsyncGameReviewsRecords;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
-use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppReviews;
+use ScriptFUSION\Porter\Provider\Steam\Resource\GetAllAppReviews;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\ReviewSource;
 use ScriptFUSIONTest\Porter\Provider\Steam\FixtureFactory;
 
 /**
- * @see ScrapeAppReviews
+ * @see GetAllAppReviews
  */
-final class ScrapeAppReviewsTest extends TestCase
+final class GetAllAppReviewsTest extends TestCase
 {
     private const REVIEWS_PER_PAGE = 20;
 
@@ -33,7 +34,7 @@ final class ScrapeAppReviewsTest extends TestCase
     public function testZeroReviews(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->import(new Import(new ScrapeAppReviews(256611)))
+        $reviews = $this->porter->import(new Import(new GetAllAppReviews(256611)))
             ->findFirstCollection();
 
         self::assertSame(0, $reviews->getTotal()->await());
@@ -46,7 +47,7 @@ final class ScrapeAppReviewsTest extends TestCase
     public function testOnePage(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->import(new Import(new ScrapeAppReviews(719070)))
+        $reviews = $this->porter->import(new Import(new GetAllAppReviews(719070)))
             ->findFirstCollection();
         $total = $reviews->getTotal()->await();
         $uids = [];
@@ -72,7 +73,7 @@ final class ScrapeAppReviewsTest extends TestCase
     public function testTwoPages(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->import(new Import(new ScrapeAppReviews(347270)))
+        $reviews = $this->porter->import(new Import(new GetAllAppReviews(347270)))
             ->findFirstCollection();
         $total = $reviews->getTotal()->await();
         $uids = [];
@@ -98,7 +99,7 @@ final class ScrapeAppReviewsTest extends TestCase
     public function testMultiplePages(): void
     {
         /** @var AsyncGameReviewsRecords $reviews */
-        $reviews = $this->porter->import(new Import(new ScrapeAppReviews(302160)))
+        $reviews = $this->porter->import(new Import(new GetAllAppReviews(302160)))
             ->findFirstCollection();
         $uids = [];
 
@@ -121,7 +122,7 @@ final class ScrapeAppReviewsTest extends TestCase
     {
         /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->import(new Import(
-            new ScrapeAppReviews(302160, new \DateTimeImmutable('2014-07-01'), new \DateTimeImmutable('2014-07-02'))
+            new GetAllAppReviews(302160, new \DateTimeImmutable('2014-07-01'), new \DateTimeImmutable('2014-07-02'))
         ))->findFirstCollection();
 
         self::assertSame(1, $reviews->getTotal()->await());
@@ -141,7 +142,7 @@ final class ScrapeAppReviewsTest extends TestCase
     {
         /** @var AsyncGameReviewsRecords $reviews */
         $reviews = $this->porter->import(new Import(
-            new ScrapeAppReviews(730)
+            new GetAllAppReviews(730)
         ))->findFirstCollection();
 
         self::assertGreaterThan(3800000, $reviews->getTotal()->await());
@@ -159,7 +160,7 @@ final class ScrapeAppReviewsTest extends TestCase
     {
         $this->expectException(InvalidAppIdException::class);
 
-        $this->porter->import(new Import(new ScrapeAppReviews(0)));
+        $this->porter->import(new Import(new GetAllAppReviews(0)));
     }
 
     /**
@@ -170,7 +171,7 @@ final class ScrapeAppReviewsTest extends TestCase
     public function testAdultGame(): void
     {
         $reviews = $this->porter->import(new Import(
-            new ScrapeAppReviews(1296770)
+            new GetAllAppReviews(1296770)
         ));
 
         self::assertTrue($reviews->valid(), 'Has results.');
@@ -186,17 +187,23 @@ final class ScrapeAppReviewsTest extends TestCase
         self::assertArrayHasKey('positive', $review);
         self::assertIsBool($review['positive']);
         self::assertArrayHasKey('source', $review);
+        self::assertInstanceOf(ReviewSource::class, $review['source']);
         self::assertArrayHasKey('review_playtime', $review);
 
         self::assertArrayHasKey('date', $review);
         /** @var \DateTimeImmutable $date */
         self::assertInstanceOf(\DateTimeImmutable::class, $date = $review['date']);
-        self::assertSame('000000', $date->format('His'), 'Date has no time component.');
         self::assertLessThan(new \DateTime(), $date, 'Date must be in the past.');
         self::assertGreaterThan(
             new \DateTime('2013-01'),
             $date,
             'Date must be after 2013, when reviews were released.'
         );
+
+        // Raw GetAppReviews API fields.
+        self::assertArrayHasKey('recommendationid', $review);
+        self::assertArrayHasKey('author', $review);
+        self::assertArrayHasKey('review', $review);
+        self::assertArrayHasKey('timestamp_created', $review);
     }
 }
