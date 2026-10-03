@@ -50,7 +50,11 @@ jobs:
           ${{ matrix.dependencies == 'lo' && '--prefer-lowest' || '' }}
 
       - name: Run test suite
+        # Lowest dependencies still trigger PHP deprecation notices from
+        # transitive packages. Don't fail on them here; the `hi` leg still
+        # enforces failOnDeprecation from test/phpunit.xml.
         run: composer test -- --coverage-clover=build/logs/clover.xml
+          ${{ matrix.dependencies == 'lo' && '--do-not-fail-on-deprecation' || '' }}
         env:
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           STEAM_USER: ${{ secrets.STEAM_USER }}
