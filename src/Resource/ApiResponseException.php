@@ -10,7 +10,7 @@ use Throwable;
  */
 final class ApiResponseException extends \RuntimeException
 {
-    public function __construct(string $message, int $code, Throwable $previous = null)
+    public function __construct(string $message, int $code, ?Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
