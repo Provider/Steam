@@ -9,10 +9,7 @@ final class UserGamesParser
 {
     public static function parse(Crawler $crawler): iterable
     {
-        $scripts = $crawler
-            ->filter('script')
-            ->reduce(fn (Crawler $node) => str_starts_with($node->text(), 'window.SSR='))
-        ;
+        $scripts = $crawler->filter('script#valve-ssr-data');
 
         if (count($scripts) !== 1) {
             throw new ParserException(
@@ -21,22 +18,7 @@ final class UserGamesParser
             );
         }
 
-        if (!preg_match(
-            '[window\.SSR\.renderContext=JSON\.parse\((".+(?<!\\\\)(?:\\\\\\\\)*")]',
-            $scripts->text(normalizeWhitespace: false),
-            $matches
-        )) {
-            throw new ParserException('Invalid games list.', ParserException::INVALID_GAMES_LIST);
-        }
-
-        $queries = json_decode(
-            json_decode(
-                json_decode($matches[1], flags: JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE),
-                flags: JSON_THROW_ON_ERROR
-            )->queryData,
-            true,
-            flags: JSON_THROW_ON_ERROR
-        )['queries'];
+        $queries = self::decodeQueries($scripts->text(normalizeWhitespace: false));
 
         $linkDetails = self::findQuery($queries, 'PlayerLinkDetails');
         if ($linkDetails['public_data']['visibility_state'] < 3) {
@@ -54,6 +36,40 @@ final class UserGamesParser
         }
 
         yield from $games;
+    }
+
+    private static function decodeQueries(string $json): array
+    {
+        try {
+            $ssrData = json_decode(
+                $json,
+                flags: JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE,
+            );
+
+            if (
+                !is_object($ssrData)
+                || !isset($ssrData->renderContext)
+                || !is_object($ssrData->renderContext)
+                || !isset($ssrData->renderContext->queryData)
+                || !is_string($ssrData->renderContext->queryData)
+            ) {
+                throw new ParserException('Invalid games list.', ParserException::INVALID_GAMES_LIST);
+            }
+
+            $queryData = json_decode($ssrData->renderContext->queryData, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            throw new ParserException(
+                'Invalid games list.',
+                ParserException::INVALID_GAMES_LIST,
+                $exception,
+            );
+        }
+
+        if (!is_array($queryData) || !isset($queryData['queries']) || !is_array($queryData['queries'])) {
+            throw new ParserException('Invalid games list.', ParserException::INVALID_GAMES_LIST);
+        }
+
+        return $queryData['queries'];
     }
 
     private static function findQuery(array $queries, string $key): ?array
