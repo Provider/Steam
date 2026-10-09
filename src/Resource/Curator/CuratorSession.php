@@ -12,17 +12,15 @@ use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
 use ScriptFUSION\Porter\Provider\Steam\Cookie\StoreSessionCookie;
 use ScriptFUSION\Porter\Provider\Steam\Resource\CreateSteamStoreSession;
 use ScriptFUSION\Porter\Provider\Steam\Resource\SteamLogin;
-use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
+use ScriptFUSION\Porter\Provider\Steam\Resource\StoreSession;
 
-final class CuratorSession
+final class CuratorSession extends StoreSession
 {
     public function __construct(
-        private SecureLoginCookie $secureLoginCookie,
+        SecureLoginCookie $secureLoginCookie,
         private readonly StoreSessionCookie $storeSessionCookie,
     ) {
-        $this->secureLoginCookie =
-            // Ensure cookie has correct domain since it could have been created by CommunitySession.
-            new SecureLoginCookie($secureLoginCookie->getCookie()->withDomain(SteamProvider::STORE_DOMAIN));
+        parent::__construct($secureLoginCookie);
     }
 
     public static function create(Porter $porter, string $username, string $password): self
@@ -47,11 +45,6 @@ final class CuratorSession
         $storeSessionCookie = $storeSession->getSessionCookie()->await();
 
         return new self($secureLoginCookie, $storeSessionCookie);
-    }
-
-    public function getSecureLoginCookie(): ResponseCookie
-    {
-        return $this->secureLoginCookie->getCookie();
     }
 
     public function getStoreSessionCookie(): ResponseCookie

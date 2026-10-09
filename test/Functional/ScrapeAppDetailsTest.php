@@ -1120,14 +1120,34 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that an adult game behind a login wall can be accessed and parsed.
+     * Tests that an adult game behind a login wall cannot be scraped anonymously.
      *
      * @see https://store.steampowered.com/app/1296770/Her_New_Memory__Hentai_Simulator/
      */
     #[Group('type')]
     public function testAdultGame(): void
     {
-        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId = 1296770)));
+        $this->expectException(InvalidAppIdException::class);
+        $this->expectExceptionMessageMatches('[agecheck]');
+
+        $this->porter->importOne(new Import(new ScrapeAppDetails(1296770)));
+    }
+
+    /**
+     * Tests that an adult game behind a login wall can be accessed and parsed with a logged-in user.
+     *
+     * @see https://store.steampowered.com/app/1296770/Her_New_Memory__Hentai_Simulator/
+     */
+    #[Group('type')]
+    public function testAdultGameAuthenticated(): void
+    {
+        isset($_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD']) || isset($_SERVER['STEAM_COOKIE'])
+            || self::markTestSkipped('Adult games require a logged-in Steam user.');
+
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(
+            $appId = 1296770,
+            FixtureFactory::createStoreSession($this->porter),
+        )));
 
         self::assertSame('Her New Memory - Hentai Simulator', $app['name']);
         self::assertSame('game', $app['type']);
@@ -1164,11 +1184,11 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * Tests than an app with AI disclosures is parsed correctly.
      *
-     * @see https://store.steampowered.com/app/4103710/Amazons_vs_Zombies/
+     * @see https://store.steampowered.com/app/2073850/THE_FINALS/
      */
     public function testAi(): void
     {
-        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(4103710)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(2073850)));
 
         self::assertTrue($app['ai']);
     }

@@ -3,6 +3,7 @@
     failOnDeprecation="true"
     failOnWarning="true"
     failOnNotice="true"
+    failOnSkipped="true"
     executionOrder="random"
     colors="true"
 >

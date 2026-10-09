@@ -16,11 +16,17 @@ use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 
 /**
  * Scrapes the Steam store page for App details.
+ *
+ * Anonymous scraping forces USD prices via the undocumented `cc` parameter. However, since 2026/10/09, adult-only
+ * content requires a logged-in user; when a store session is provided, prices reflect the login account's store
+ * currency, ignoring the `cc` parameter.
  */
 final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, Url
 {
-    public function __construct(private readonly int $appId)
-    {
+    public function __construct(
+        private readonly int $appId,
+        private readonly ?StoreSession $storeSession = null,
+    ) {
     }
 
     public function getProviderClassName(): string
@@ -69,5 +75,12 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
         $cookies->store(new ResponseCookie('birthtime', '0', $cookieAttributes));
         // Enable mature content.
         $cookies->store(new ResponseCookie('wants_mature_content', '1', $cookieAttributes));
+
+        if ($this->storeSession !== null) {
+            // Authenticate as the login user, unlocking Adult Only Sexual Content. Note prices will
+            // reflect the login account's store currency instead of USD (the `cc` parameter is ignored).
+            // Only curator pages need the store session cookie, so the login cookie suffices here.
+            $cookies->store($this->storeSession->getSecureLoginCookie());
+        }
     }
 }

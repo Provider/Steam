@@ -11,6 +11,7 @@ use ScriptFUSION\Porter\Provider\StaticDataProvider;
 use ScriptFUSION\Porter\Provider\Steam\Cookie\SecureLoginCookie;
 use ScriptFUSION\Porter\Provider\Steam\Resource\CommunitySession;
 use ScriptFUSION\Porter\Provider\Steam\Resource\Curator\CuratorSession;
+use ScriptFUSION\Porter\Provider\Steam\Resource\StoreSession;
 use ScriptFUSION\Porter\Provider\Steam\SteamProvider;
 use ScriptFUSION\StaticClass;
 
@@ -42,6 +43,10 @@ final class FixtureFactory
         ;
     }
 
+    /**
+     * Creates a curator session, logging in at most once per testsuite run: the login cookie is cached and
+     * reused by every session factory, since logging in is slow and probably rate limited.
+     */
     public static function createCuratorSession(Porter $porter): CuratorSession
     {
         static $session;
@@ -56,7 +61,11 @@ final class FixtureFactory
         }
 
         if (isset($_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD'])) {
-            return $session = CuratorSession::create($porter, $_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD']);
+            $session = CuratorSession::create($porter, $_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD']);
+
+            self::$secureLoginCookie = $session->getSecureLoginCookie();
+
+            return $session;
         }
 
         $session = CuratorSession::createFromCookie(
@@ -82,6 +91,37 @@ final class FixtureFactory
         }
 
         $session = CommunitySession::create($porter, $_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD']);
+
+        self::$secureLoginCookie = $session->getSecureLoginCookie();
+
+        return $session;
+    }
+
+    /**
+     * Creates a store session, logging in at most once per testsuite run: the login cookie is cached and
+     * reused by every session factory, since logging in is slow and probably rate limited.
+     */
+    public static function createStoreSession(Porter $porter): StoreSession
+    {
+        static $session;
+
+        if ($session) {
+            return $session;
+        }
+
+        if (isset(self::$secureLoginCookie)) {
+            return $session = new StoreSession(new SecureLoginCookie(self::$secureLoginCookie));
+        }
+
+        if (isset($_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD'])) {
+            $session = StoreSession::create($porter, $_SERVER['STEAM_USER'], $_SERVER['STEAM_PASSWORD']);
+
+            self::$secureLoginCookie = $session->getSecureLoginCookie();
+
+            return $session;
+        }
+
+        $session = new StoreSession(SecureLoginCookie::create($_SERVER['STEAM_COOKIE']));
 
         self::$secureLoginCookie = $session->getSecureLoginCookie();
 
