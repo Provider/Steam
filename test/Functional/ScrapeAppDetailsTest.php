@@ -46,7 +46,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame(10, $app['canonical_id']);
         self::assertSame('game', $app['type']);
         self::assertStringStartsWith('Play the world\'s number 1 online action game.', $app['blurb']);
-        self::assertSame('2000-11-01T00:00:00+00:00', $app['release_date']->format('c'));
+        self::assertSame('2000-11-01', $app['release_date']->format('Y-m-d'));
         self::assertCount(1, $app['developers']);
         self::assertSame('valve', current($app['developers']));
         self::assertSame('Valve', key($app['developers']));
@@ -189,7 +189,7 @@ final class ScrapeAppDetailsTest extends TestCase
          * In some territories this date is shown as the 11th. Our client always has the default territory (presumably
          * US) because it doesn't save Valve's cookies.
          */
-        self::assertSame('2012-07-10T00:00:00+00:00', $app['release_date']->format('c'));
+        self::assertSame('2012-07-10', $app['release_date']->format('Y-m-d'));
     }
 
     /**
@@ -508,6 +508,89 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertContains('Simplified Chinese', $languages);
         self::assertContains('Traditional Chinese', $languages);
         self::assertNotContains('English', $languages);
+    }
+
+    /**
+     * Tests that a single-player game with no multiplayer modes is parsed correctly.
+     *
+     * @see http://store.steampowered.com/app/219150/
+     */
+    public function testSinglePlayer(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(219150)));
+
+        self::assertTrue($app['single_player']);
+        self::assertSame([], $app['multiplayer']);
+    }
+
+    /**
+     * Tests that a multiplayer-only game with multiple multiplayer types is parsed correctly.
+     *
+     * @see http://store.steampowered.com/app/10/
+     */
+    public function testMultiplayer(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(10)));
+
+        self::assertFalse($app['single_player']);
+        self::assertSame([36 => 'Online PvP', 37 => 'Shared/Split Screen PvP'], $app['multiplayer']);
+    }
+
+    /**
+     * Tests that a game supporting both single-player and multiplayer is parsed correctly.
+     *
+     * @see https://store.steampowered.com/app/620/Portal_2/
+     */
+    public function testSingleAndMultiplayer(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(620)));
+
+        self::assertTrue($app['single_player']);
+        self::assertSame(
+            [
+                38 => 'Online Co-op',
+                39 => 'Shared/Split Screen Co-op',
+                24 => 'Shared/Split Screen',
+                44 => 'Remote Play Together',
+            ],
+            $app['multiplayer']
+        );
+    }
+
+    /**
+     * Tests that the Steam release date and the publisher-declared original release date are parsed
+     * independently for a re-release whose dates differ by decades.
+     *
+     * @see https://store.steampowered.com/app/2280/Ultimate_DOOM/
+     */
+    public function testOriginalReleaseDate(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(2280)));
+
+        self::assertSame('2007-08-03', $app['release_date']->format('Y-m-d'));
+        self::assertSame('1995-04-30', $app['original_release_date']->format('Y-m-d'));
+    }
+
+    /**
+     * Tests that player categories in the legacy page markup are parsed correctly.
+     */
+    public function testPlayersLegacyMarkup(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppFixture('discounted.html')));
+
+        self::assertTrue($app['single_player']);
+        self::assertSame([], $app['multiplayer']);
+        self::assertSame('2012-10-23', $app['original_release_date']->format('Y-m-d'));
+
+        // Star Control: Origins supports single-player and local and online multiplayer.
+        $app = $this->porter->importOne(new Import(new ScrapeAppFixture('invalid date.html')));
+
+        self::assertTrue($app['single_player']);
+        self::assertSame(
+            [1 => 'Multi-player', 36 => 'Online Multi-Player', 37 => 'Local Multi-Player', 24 => 'Shared/Split Screen'],
+            $app['multiplayer']
+        );
+        self::assertNull($app['original_release_date']);
     }
 
     /**
@@ -1116,7 +1199,9 @@ final class ScrapeAppDetailsTest extends TestCase
 
         // Although this information is present on the page, we are currently not parsing it due to its different form.
         self::assertNull($app['price']);
-        self::assertNull($app['release_date']);
+
+        // The release date is not shown on the page but is parsed from the embedded timestamp.
+        self::assertSame('2019-06-28', $app['release_date']->format('Y-m-d'));
     }
 
     /**

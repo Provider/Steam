@@ -10,6 +10,14 @@ final class AppDetailsParser
 {
     use StaticClass;
 
+    private const SINGLE_PLAYER_CATEGORY_ID = 2;
+
+    /**
+     * Multiplayer-related feature category IDs, as enumerated by Steam search ("Narrow by number of
+     * players") plus MMO and Remote Play Together from the features list.
+     */
+    private const MULTIPLAYER_CATEGORY_IDS = [1, 9, 20, 24, 27, 36, 37, 38, 39, 44, 47, 48, 49];
+
     public static function tryParseStorePage(string $html): array
     {
         try {
@@ -36,6 +44,9 @@ final class AppDetailsParser
         $genres = self::parseGenres($crawler);
         $tags = self::parseTags($crawler);
         $languages = self::parseLanguages($crawler);
+        $categories = self::parseCategories($crawler);
+        $single_player = isset($categories[self::SINGLE_PLAYER_CATEGORY_ID]);
+        $multiplayer = array_intersect_key($categories, array_flip(self::MULTIPLAYER_CATEGORY_IDS));
         $vrx = self::parseVrExclusive($crawler);
         $adult = self::parseAdult($crawler);
         $capsule_url = self::parseCapsuleUrl($crawler);
@@ -52,7 +63,8 @@ final class AppDetailsParser
 
         // Reviews area.
         $reviewsArea = $crawler->filter('.glance_ctn_responsive_left')->first();
-        $release_date = self::parseReleaseDate($reviewsArea);
+        $release_date = self::parseReleaseDate($crawler);
+        $original_release_date = self::parseOriginalReleaseDate($reviewsArea);
         $developers = iterator_to_array(self::parseDevelopers($reviewsArea));
         $publishers = iterator_to_array(self::parsePublishers($reviewsArea));
 
@@ -92,11 +104,14 @@ final class AppDetailsParser
             'canonical_id',
             'blurb',
             'release_date',
+            'original_release_date',
             'developers',
             'publishers',
             'genres',
             'tags',
             'languages',
+            'single_player',
+            'multiplayer',
             'price',
             'discount_price',
             'discount',
@@ -189,9 +204,54 @@ final class AppDetailsParser
         return $type;
     }
 
+    /**
+     * Parses the release date from the locale-independent Unix timestamp embedded in the reviews payload.
+     *
+     * This is the moment the app released on Steam, matching the Store API's release date. It can differ
+     * from the publisher-declared date @see parseOriginalReleaseDate(), e.g. for re-releases of older
+     * games, demos and films.
+     *
+     * Full timestamp precision is preserved. A null timestamp, or the absence of the payload, indicates
+     * an unannounced date, such as "Coming soon" or "To be announced".
+     */
     private static function parseReleaseDate(Crawler $crawler): ?\DateTimeImmutable
     {
-        $date = $crawler->filter('.release_date > .date');
+        $reviews = $crawler->filter('[data-featuretarget=appreviews]');
+
+        if (!$reviews->count()) {
+            return null;
+        }
+
+        try {
+            $props = \json_decode($reviews->attr('data-props'), true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException|\InvalidArgumentException) {
+            return null;
+        }
+
+        if (!\is_array($props) || !\array_key_exists('app_release_date', $props)) {
+            return null;
+        }
+
+        if (is_numeric($timestamp = $props['app_release_date'])) {
+            return \DateTimeImmutable::createFromTimestamp((int)$timestamp);
+        }
+
+        return null;
+    }
+
+    /**
+     * Parses the publisher-declared release date shown on the page.
+     *
+     * Unlike the Steam release date (see parseReleaseDate), this is the original release date as entered
+     * by the publisher, e.g. a film's theatrical premiere or an older game's first release. The two dates
+     * coincide for day-and-date launches.
+     *
+     * This is a best-effort, locale-dependent parse: null is returned when the date is absent or cannot
+     * be parsed, such as "Coming soon" or a day-first format the parser misreads.
+     */
+    private static function parseOriginalReleaseDate(Crawler $reviewsArea): ?\DateTimeImmutable
+    {
+        $date = $reviewsArea->filter('.release_date > .date');
 
         try {
             $release_date = $date->count() ? new \DateTimeImmutable($date->text(), new \DateTimeZone('UTC')) : null;
@@ -258,6 +318,35 @@ final class AppDetailsParser
         return $crawler->filter('.details_block a[href*="/genre/"]')->each(
             self::trimNodeText(...)
         );
+    }
+
+    /**
+     * Parses all feature categories in the page sidebar as an ID to label map.
+     *
+     * IDs are locale-independent, unlike labels, which Valve occasionally renames (e.g. "Online
+     * Multi-Player" became "Online PvP"). Supports both the current markup and the legacy markup where
+     * each category has separate icon and name links.
+     *
+     * @return string[] [id => label]
+     */
+    private static function parseCategories(Crawler $crawler): array
+    {
+        $categories = [];
+
+        foreach ($crawler->filter('#category_block a[href*="category2="]') as $anchor) {
+            if (!preg_match('[category2=(\d+)]', $anchor->getAttribute('href'), $matches)) {
+                continue;
+            }
+
+            // Icon-only links have no text; the name link that follows carries the label.
+            if (($label = trim($anchor->textContent)) === '') {
+                continue;
+            }
+
+            $categories[+$matches[1]] ??= $label;
+        }
+
+        return $categories;
     }
 
     private static function parseLanguages(Crawler $crawler): array
