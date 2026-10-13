@@ -33,6 +33,9 @@ final class SteamLogin implements ProviderResource
     public function fetch(ImportConnector $connector): \Iterator
     {
         $loginCookie = new DeferredFuture();
+        // Failures are rethrown synchronously to whoever iterates, so a failed login would otherwise leave
+        // this future unobserved, crashing the event loop when it is garbage collected.
+        $loginCookie->getFuture()->ignore();
 
         return new AsyncLoginRecord(
             (function () use ($connector, $loginCookie): \Generator {

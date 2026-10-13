@@ -23,6 +23,9 @@ final class CreateSteamStoreSession implements ProviderResource
     public function fetch(ImportConnector $connector): \Iterator
     {
         $sessionCookie = new DeferredFuture();
+        // Failures are rethrown synchronously to whoever iterates, so a failed fetch would otherwise leave
+        // this future unobserved, crashing the event loop when it is garbage collected.
+        $sessionCookie->getFuture()->ignore();
 
         return new AsyncSteamStoreSessionRecord(
             (static function () use ($connector, $sessionCookie): \Generator {
