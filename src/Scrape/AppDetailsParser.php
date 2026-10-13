@@ -67,6 +67,7 @@ final class AppDetailsParser
         $original_release_date = self::parseOriginalReleaseDate($reviewsArea);
         $developers = iterator_to_array(self::parseDevelopers($reviewsArea));
         $publishers = iterator_to_array(self::parsePublishers($reviewsArea));
+        $franchises = iterator_to_array(self::parseFranchises($crawler));
 
         // Tags area.
         $canonical_id = ($appId = $crawler->filter('[data-appid]'))->count() ? +$appId->attr('data-appid') : null;
@@ -107,6 +108,7 @@ final class AppDetailsParser
             'original_release_date',
             'developers',
             'publishers',
+            'franchises',
             'genres',
             'tags',
             'languages',
@@ -301,6 +303,26 @@ final class AppDetailsParser
     {
         foreach ($crawler->filter('.dev_row > .summary.column:not([id]) > a') as $a) {
             yield trim($a->nodeValue) => self::filterDevlisherUrl($a->attributes['href']->value);
+        }
+    }
+
+    /**
+     * @return \Traversable<string, string> Homepage ID to franchise name.
+     */
+    private static function parseFranchises(Crawler $crawler): \Traversable
+    {
+        $links = $crawler->filterXPath(
+            '//*[@id="genresAndManufacturer"]//div[normalize-space(b)="Franchise:"]/a[contains(@href,"/franchise/")]'
+        );
+
+        foreach ($links as $a) {
+            if (preg_match(
+                '[^(?:https?://store\.steampowered\.com)?/franchise/([^/?#]+)]',
+                $a->attributes['href']->value,
+                $matches
+            )) {
+                yield $matches[1] => trim($a->nodeValue);
+            }
         }
     }
 

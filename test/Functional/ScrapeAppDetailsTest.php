@@ -67,7 +67,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertContains('Traditional Chinese', $languages);
         self::assertContains('Korean', $languages);
 
-        self::assertSame($app['price'], 999);
+        self::assertSame(999, $app['price']);
         self::assertFalse($app['vrx']);
         self::assertFalse($app['free']);
         self::assertFalse($app['adult']);
@@ -212,7 +212,7 @@ final class ScrapeAppDetailsTest extends TestCase
      * @see https://store.steampowered.com/app/1258510/DEATH_STRANDING_Digital_Art_Book/
      */
     #[Group('type')]
-    public function testRetiredDlc()
+    public function testRetiredDlc(): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1258510)));
 
@@ -438,6 +438,24 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertArrayHasKey('publishers', $app);
         self::assertCount(0, $app['publishers']);
+    }
+
+    /**
+     * Tests that when a franchise is scraped, franchise IDs map to names, but search declarations are ignored.
+     */
+    #[DataProvider('provideFranchises')]
+    public function testFranchises(int $appId, array $franchises): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId)));
+
+        self::assertSame($franchises, $app['franchises']);
+    }
+
+    public static function provideFranchises(): iterable
+    {
+        yield 'Franchise' => [289070, ['civilization' => "Sid Meier's Civilization"]];
+        yield 'Franchise and search declaration' => [594570, ['TotalWar-Official' => 'Total War']];
+        yield 'Search declaration only' => [620, []];
     }
 
     /**
