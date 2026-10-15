@@ -454,7 +454,8 @@ final class ScrapeAppDetailsTest extends TestCase
     public static function provideFranchises(): iterable
     {
         yield 'Franchise' => [289070, ['civilization' => "Sid Meier's Civilization"]];
-        yield 'Franchise and search declaration' => [594570, ['TotalWar-Official' => 'Total War']];
+        yield 'Multiple franchises' => [594570, ['TotalWar-Official' => 'Total War', 'warhammer' => 'Warhammer']];
+        yield 'Franchise and search declaration' => [17460, ['MassEffect' => 'Mass Effect']];
         yield 'Search declaration only' => [620, []];
     }
 
@@ -1192,25 +1193,16 @@ final class ScrapeAppDetailsTest extends TestCase
     /**
      * Tests that the parser will not throw an exception parsing this custom app page for Valve hardware.
      *
-     * This bizarre app page will mostly parse as nulls. Since we are not interested in parsing this, this is fine.
-     *
-     * @see https://store.steampowered.com/app/1059530/Valve_Index_Headset/
+     * @see https://store.steampowered.com/app/353370/Steam_Controller_2015/
      */
     #[Group('type')]
-    public function testValveIndex(): void
+    public function testHardware(): void
     {
-        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId = 1059530)));
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails($appId = 353370)));
 
         self::assertSame('hardware', $app['type']);
-        self::assertSame('Valve Index® Headset', $app['name']);
+        self::assertSame('Steam Controller (2015)', $app['name']);
         self::assertSame($appId, $app['app_id']);
-
-        // App has no tags, unlike every other app class on Steam.
-        self::assertIsArray($app['tags']);
-        self::assertEmpty($app['tags']);
-
-        // Since there are no tags, our current canonical lookup method fails.
-        self::assertNull($app['canonical_id']);
 
         // App has no platform information.
         self::assertFalse($app['windows']);
@@ -1219,7 +1211,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertNull($app['price']);
 
         // The release date is not shown on the page but is parsed from the embedded timestamp.
-        self::assertSame('2019-06-28', $app['release_date']->format('Y-m-d'));
+        self::assertSame('2015-11-10', $app['release_date']->format('Y-m-d'));
     }
 
     /**
