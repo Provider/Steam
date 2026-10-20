@@ -530,11 +530,11 @@ final class AppDetailsParser
      *
      * @param string $url Developer/publisher URL.
      *
-     * @return string Devlisher ID.
+     * @return string|null Devlisher ID.
      */
     private static function filterDevlisherUrl(string $url): ?string
     {
-        if (preg_match('[er/([^?]+)]', $url, $matches)) {
+        if (preg_match('[(?:developer|publisher|curator)/([^?]+)]', $url, $matches)) {
             return $matches[1];
         }
 

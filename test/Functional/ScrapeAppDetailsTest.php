@@ -441,6 +441,24 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a game whose developer/publisher credits link to curator pages are parsed with their curator ID.
+     *
+     * @see https://store.steampowered.com/app/1630/Disciples_II_Rise_of_the_Elves/
+     */
+    public function testCuratorDevlisher(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(1630)));
+
+        self::assertCount(1, $app['developers']);
+        self::assertSame('32949234', current($app['developers']));
+        self::assertSame('Strategy First', key($app['developers']));
+
+        self::assertCount(1, $app['publishers']);
+        self::assertSame('32949234', current($app['publishers']));
+        self::assertSame('Strategy First', key($app['publishers']));
+    }
+
+    /**
      * Tests that when a franchise is scraped, franchise IDs map to names, but search declarations are ignored.
      */
     #[DataProvider('provideFranchises')]
