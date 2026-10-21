@@ -214,7 +214,8 @@ final class AppDetailsParser
      * games, demos and films.
      *
      * Full timestamp precision is preserved. A null timestamp, or the absence of the payload, indicates
-     * an unannounced date, such as "Coming soon" or "To be announced".
+     * an unannounced date, such as "Coming soon" or "To be announced". Steam also emits non-positive
+     * timestamps for unannounced dates, so those are treated as absent rather than mapped to the epoch.
      */
     private static function parseReleaseDate(Crawler $crawler): ?\DateTimeImmutable
     {
@@ -234,7 +235,8 @@ final class AppDetailsParser
             return null;
         }
 
-        if (is_numeric($timestamp = $props['app_release_date'])) {
+        // A timestamp at or before the epoch denotes an absent date.
+        if (is_numeric($timestamp = $props['app_release_date']) && $timestamp > 0) {
             return \DateTimeImmutable::createFromTimestamp((int)$timestamp);
         }
 

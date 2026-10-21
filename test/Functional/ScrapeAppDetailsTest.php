@@ -609,6 +609,32 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a zero release timestamp, denoting an absent date, is parsed as null.
+     *
+     * @see https://store.steampowered.com/app/242050/Assassins_Creed_IV_Black_Flag/
+     */
+    public function testZeroReleaseDate(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(242050)));
+
+        self::assertArrayHasKey('release_date', $app);
+        self::assertNull($app['release_date']);
+    }
+
+    /**
+     * Tests that a negative release timestamp, denoting an absent date, is parsed as null.
+     *
+     * @see https://store.steampowered.com/app/354480/Stars_Beyond_Reach/
+     */
+    public function testNegativeReleaseDate(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(354480)));
+
+        self::assertArrayHasKey('release_date', $app);
+        self::assertNull($app['release_date']);
+    }
+
+    /**
      * Tests that player categories in the legacy page markup are parsed correctly.
      */
     public function testPlayersLegacyMarkup(): void
