@@ -595,21 +595,38 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that the Steam release date and the publisher-declared original release date are parsed
-     * independently for a re-release whose dates differ by decades.
+     * Tests that the declared release date and the Steam availability date are parsed independently for a
+     * re-release of an older game, whose dates differ by decades.
      *
      * @see https://store.steampowered.com/app/2280/Ultimate_DOOM/
      */
-    public function testOriginalReleaseDate(): void
+    public function testSteamReleaseDate(): void
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(2280)));
 
-        self::assertSame('2007-08-03', $app['release_date']->format('Y-m-d'));
-        self::assertSame('1995-04-30', $app['original_release_date']->format('Y-m-d'));
+        self::assertSame('1995-04-30', $app['release_date']->format('Y-m-d'));
+        self::assertSame('2007-08-03', $app['steam_release_date']->format('Y-m-d'));
     }
 
     /**
-     * Tests that a zero release timestamp, denoting an absent date, is parsed as null.
+     * Tests that an early access graduate's declared release date is its full release date, not its early
+     * access launch date, which is exposed separately as the Steam release date.
+     *
+     * Valve does not reliably move the embedded timestamp forward when an app leaves early access, so
+     * parsing it as the release date regresses every early access graduate.
+     *
+     * @see https://store.steampowered.com/app/2085540/Stick_It_to_the_Stickman/
+     */
+    public function testEarlyAccessGraduate(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(2085540)));
+
+        self::assertSame('2026-09-23', $app['release_date']->format('Y-m-d'));
+        self::assertSame('2025-08-18', $app['steam_release_date']->format('Y-m-d'));
+    }
+
+    /**
+     * Tests that a zero release timestamp, denoting an absent Steam release date, is parsed as null.
      *
      * @see https://store.steampowered.com/app/242050/Assassins_Creed_IV_Black_Flag/
      */
@@ -617,12 +634,12 @@ final class ScrapeAppDetailsTest extends TestCase
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(242050)));
 
-        self::assertArrayHasKey('release_date', $app);
         self::assertNull($app['release_date']);
+        self::assertNull($app['steam_release_date']);
     }
 
     /**
-     * Tests that a negative release timestamp, denoting an absent date, is parsed as null.
+     * Tests that a negative release timestamp, denoting an absent Steam release date, is parsed as null.
      *
      * @see https://store.steampowered.com/app/354480/Stars_Beyond_Reach/
      */
@@ -630,8 +647,8 @@ final class ScrapeAppDetailsTest extends TestCase
     {
         $app = $this->porter->importOne(new Import(new ScrapeAppDetails(354480)));
 
-        self::assertArrayHasKey('release_date', $app);
         self::assertNull($app['release_date']);
+        self::assertNull($app['steam_release_date']);
     }
 
     /**
@@ -643,7 +660,7 @@ final class ScrapeAppDetailsTest extends TestCase
 
         self::assertTrue($app['single_player']);
         self::assertSame([], $app['multiplayer']);
-        self::assertSame('2012-10-23', $app['original_release_date']->format('Y-m-d'));
+        self::assertSame('2012-10-23', $app['release_date']->format('Y-m-d'));
 
         // Star Control: Origins supports single-player and local and online multiplayer.
         $app = $this->porter->importOne(new Import(new ScrapeAppFixture('invalid date.html')));
@@ -653,7 +670,7 @@ final class ScrapeAppDetailsTest extends TestCase
             [1 => 'Multi-player', 36 => 'Online Multi-Player', 37 => 'Local Multi-Player', 24 => 'Shared/Split Screen'],
             $app['multiplayer']
         );
-        self::assertNull($app['original_release_date']);
+        self::assertNull($app['release_date']);
     }
 
     /**

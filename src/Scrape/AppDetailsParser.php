@@ -63,8 +63,8 @@ final class AppDetailsParser
 
         // Reviews area.
         $reviewsArea = $crawler->filter('.glance_ctn_responsive_left')->first();
-        $release_date = self::parseReleaseDate($crawler);
-        $original_release_date = self::parseOriginalReleaseDate($reviewsArea);
+        $release_date = self::parseReleaseDate($reviewsArea);
+        $steam_release_date = self::parseSteamReleaseDate($crawler);
         $developers = iterator_to_array(self::parseDevelopers($reviewsArea));
         $publishers = iterator_to_array(self::parsePublishers($reviewsArea));
         $franchises = iterator_to_array(self::parseFranchises($crawler));
@@ -105,7 +105,7 @@ final class AppDetailsParser
             'canonical_id',
             'blurb',
             'release_date',
-            'original_release_date',
+            'steam_release_date',
             'developers',
             'publishers',
             'franchises',
@@ -207,17 +207,43 @@ final class AppDetailsParser
     }
 
     /**
-     * Parses the release date from the locale-independent Unix timestamp embedded in the reviews payload.
+     * Parses the release date shown on the page, as declared by the publisher.
      *
-     * This is the moment the app released on Steam, matching the Store API's release date. It can differ
-     * from the publisher-declared date @see parseOriginalReleaseDate(), e.g. for re-releases of older
-     * games, demos and films.
+     * This is the date Steam itself presents as the app's release date, matching the Store API. For early
+     * access graduates it is the full release date, not the early access launch, and for re-releases of
+     * older games it can predate the app's arrival on Steam.
+     *
+     * This is a best-effort, locale-dependent parse: null is returned when the date is absent or cannot
+     * be parsed, such as "Coming soon" or a day-first format the parser misreads.
+     */
+    private static function parseReleaseDate(Crawler $reviewsArea): ?\DateTimeImmutable
+    {
+        $date = $reviewsArea->filter('.release_date > .date');
+
+        try {
+            $release_date = $date->count() ? new \DateTimeImmutable($date->text(), new \DateTimeZone('UTC')) : null;
+        } catch (\Exception $exception) {
+            $release_date = null;
+        }
+
+        // If date includes time portion, assume it was mis-parsed.
+        return $release_date && $release_date->format('G') ? null : $release_date;
+    }
+
+    /**
+     * Parses the date the app first became available on Steam, from the locale-independent Unix timestamp
+     * embedded in the reviews payload.
+     *
+     * This is when reviews began accruing: the early access launch for EA games and the Steam arrival for
+     * re-releases of older games, which is why it differs from the declared release date
+     * @see parseReleaseDate() in both directions. Valve also embeds planned dates for some unreleased
+     * apps whose page declares only "Coming soon".
      *
      * Full timestamp precision is preserved. A null timestamp, or the absence of the payload, indicates
-     * an unannounced date, such as "Coming soon" or "To be announced". Steam also emits non-positive
-     * timestamps for unannounced dates, so those are treated as absent rather than mapped to the epoch.
+     * an unannounced date. Steam also emits non-positive timestamps for unannounced dates, so those are
+     * treated as absent rather than mapped to the epoch.
      */
-    private static function parseReleaseDate(Crawler $crawler): ?\DateTimeImmutable
+    private static function parseSteamReleaseDate(Crawler $crawler): ?\DateTimeImmutable
     {
         $reviews = $crawler->filter('[data-featuretarget=appreviews]');
 
@@ -241,30 +267,6 @@ final class AppDetailsParser
         }
 
         return null;
-    }
-
-    /**
-     * Parses the publisher-declared release date shown on the page.
-     *
-     * Unlike the Steam release date (see parseReleaseDate), this is the original release date as entered
-     * by the publisher, e.g. a film's theatrical premiere or an older game's first release. The two dates
-     * coincide for day-and-date launches.
-     *
-     * This is a best-effort, locale-dependent parse: null is returned when the date is absent or cannot
-     * be parsed, such as "Coming soon" or a day-first format the parser misreads.
-     */
-    private static function parseOriginalReleaseDate(Crawler $reviewsArea): ?\DateTimeImmutable
-    {
-        $date = $reviewsArea->filter('.release_date > .date');
-
-        try {
-            $release_date = $date->count() ? new \DateTimeImmutable($date->text(), new \DateTimeZone('UTC')) : null;
-        } catch (\Exception $exception) {
-            $release_date = null;
-        }
-
-        // If date includes time portion, assume it was mis-parsed.
-        return $release_date && $release_date->format('G') ? null : $release_date;
     }
 
     /**
