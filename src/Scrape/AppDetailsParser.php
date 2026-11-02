@@ -89,6 +89,9 @@ final class AppDetailsParser
         $linux = $platforms->filter('.linux')->count() > 0;
         $mac = $platforms->filter('.mac')->count() > 0;
 
+        // System requirements (Windows, macOS and Linux).
+        $system_requirements = SystemRequirementsParser::parseRequirements($crawler);
+
         // Steam Deck.
         $steam_deck = self::parseSteamDeckCompatibility($crawler);
 
@@ -128,6 +131,7 @@ final class AppDetailsParser
             'windows',
             'linux',
             'mac',
+            'system_requirements',
             'steam_deck',
             'demo_id',
             'bundle_id',

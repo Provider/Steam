@@ -1350,6 +1350,41 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that system requirements are parsed into a consistent canonical format for every platform.
+     *
+     * @see https://store.steampowered.com/app/620/Portal_2/
+     */
+    public function testSystemRequirements(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(620)));
+
+        self::assertArrayHasKey('system_requirements', $app);
+
+        $requirements = $app['system_requirements'];
+
+        self::assertSame(['platforms'], array_keys($requirements));
+        self::assertArrayHasKey('windows', $requirements['platforms']);
+
+        $minimum = $requirements['platforms']['windows']['minimum'];
+
+        self::assertNotNull($minimum, 'Portal 2 lists minimum requirements.');
+        self::assertNull(
+            $requirements['platforms']['windows']['recommended'],
+            'Portal 2 lists minimum requirements only.'
+        );
+
+        self::assertSame(['XP', 'Vista', '7'], $minimum['os']['windows']);
+        self::assertSame('XP', $minimum['os']['minimum_windows']);
+        self::assertFalse($minimum['os']['requires_64bit']);
+
+        self::assertSame(2048, $minimum['memory']['mb']);
+
+        self::assertNotEmpty($minimum['processor']['models']);
+        self::assertNotEmpty($minimum['graphics']['models']);
+        self::assertGreaterThan(0, $minimum['graphics']['vram_mb']);
+    }
+
+    /**
      * Tests that when non-HTML markup is returned, InvalidMarkupException is thrown.
      */
     public function testInvalidMarkup(): void
