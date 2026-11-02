@@ -99,6 +99,9 @@ final class SystemRequirementsParser
     private const GPU_FAMILY_PATTERN = '/geforce|radeon|\bati\b|\barc\b|iris|\buhd\b|vega|\brdna\b'
         . '|powervr|\bmali\b|\badreno\b|turing|ampere|lovelace|apple/i';
 
+    /** Maximum safe integer in a float, in mebibytes. */
+    private const MAX_SIZE_MB = 9_007_199_254_740_991;
+
     public static function parseRequirements(Crawler $crawler): ?array
     {
         $platforms = [];
@@ -779,24 +782,29 @@ final class SystemRequirementsParser
             return null;
         }
 
-        $sizes = array_map(
-            static fn (array $match): int => self::convertToMb($match[1], mb_strtoupper($match[2])),
-            $matches
+        $sizes = array_filter(
+            array_map(
+                static fn (array $match): ?int => self::convertToMb($match[1], mb_strtoupper($match[2])),
+                $matches
+            ),
+            static fn (?int $size): bool => $size !== null
         );
 
-        return min($sizes);
+        return $sizes === [] ? null : min($sizes);
     }
 
-    private static function convertToMb(string $number, string $unit): int
+    private static function convertToMb(string $number, string $unit): ?int
     {
         $number = (float)str_replace(',', '', $number);
 
-        return (int)round(match ($unit) {
+        $mb = match ($unit) {
             'KB' => $number / 1024,
             'MB' => $number,
             'GB' => $number * 1024,
             'TB' => $number * 1024 * 1024,
-        });
+        };
+
+        return $mb > self::MAX_SIZE_MB ? null : (int)round($mb);
     }
 
     /** Maps a normalized list label to a requirement group, notes bucket or null (ignored). */

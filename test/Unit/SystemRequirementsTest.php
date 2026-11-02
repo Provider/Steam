@@ -210,6 +210,36 @@ final class SystemRequirementsTest extends TestCase
     }
 
     /**
+     * Tests that when a requirement states a size beyond the exact integer range, the raw value is preserved
+     * without a parsed size.
+     */
+    public function testOversizedMemory(): void
+    {
+        $app = AppDetailsParser::tryParseStorePage(self::createPage(<<<HTML
+            <div class="game_area_sys_req sysreq_content active" data-os="win">
+            <div class="game_area_sys_req_leftCol"><ul>
+            <strong>Minimum:</strong><br><ul class="bb_ul">
+            <li><strong>Memory:</strong> 256 MB RAM<br></li>
+            </ul>
+            </ul></div>
+            <div class="game_area_sys_req_rightCol"><ul>
+            <strong>Recommended:</strong><br><ul class="bb_ul">
+            <li><strong>Memory:</strong> 99999999999999999999 GB RAM<br></li>
+            <li><strong>Graphics:</strong> 99999999999999999999 GB VRAM<br></li>
+            </ul>
+            </ul></div>
+            </div>
+            HTML));
+
+        $requirements = $app['system_requirements']['platforms']['windows'];
+
+        self::assertSame(256, $requirements['minimum']['memory']['mb']);
+        self::assertSame('99999999999999999999 GB RAM', $requirements['recommended']['memory']['raw']);
+        self::assertNull($requirements['recommended']['memory']['mb']);
+        self::assertNull($requirements['recommended']['graphics']['vram_mb']);
+    }
+
+    /**
      * Tests a single-column layout with only a minimum tier.
      */
     public function testSingleColumnMinimumOnly(): void
