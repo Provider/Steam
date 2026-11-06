@@ -73,7 +73,7 @@ final class SystemRequirementsParser
     ];
 
     /** Fragment classifiers for legacy flat requirements text. */
-    private const OS_FRAGMENT_PATTERN = '/windows|\bXP\b|\bVista\b|\bmac\s*os\b|\bos\s*x\b|\bmacos\b'
+    private const OS_FRAGMENT_PATTERN = '/windows|\bwin|\bXP\b|\bVista\b|\bmac\s*os\b|\bos\s*x\b|\bmacos\b'
         . '|\blinux\b|\bubuntu\b|\bsteamos\b|\bsteam\s*os\b|\bfedora\b|\bdebian\b|\bmint\b/i';
     private const PROCESSOR_FRAGMENT_PATTERN = '/\bmhz\b|\bghz\b|processor|\bcpu\b|\bcore\b|threads?'
         . '|apple\s+m\d/i';
@@ -432,14 +432,15 @@ final class SystemRequirementsParser
     /** Extracts mentioned Windows versions, oldest first. */
     private static function parseWindowsVersions(string $raw): array
     {
-        if (!preg_match('/windows/i', $raw)) {
+        if (!preg_match('/(?:windows|\bwin)/i', $raw)) {
             return [];
         }
 
         $found = [];
 
-        // Explicit "Windows <version>", tolerating encoding artifacts between the words.
-        if (preg_match_all('/windows\W*(11|10|8\.1|8|7|vista|xp|2000|me|98)\b/i', $raw, $matches)) {
+        // Explicit "Windows <version>" or the common "Win <version>" abbreviation, tolerating
+        // encoding artifacts between the words.
+        if (preg_match_all('/(?:windows|\bwin)\W*(11|10|8\.1|8|7|vista|xp|2000|me|98)\b/i', $raw, $matches)) {
             foreach ($matches[1] as $version) {
                 $normalized = self::normalizeWindowsVersion($version);
 
@@ -640,7 +641,7 @@ final class SystemRequirementsParser
             $part = trim(preg_replace('/\([^()]*\)/', '', $part));
             $part = trim(preg_replace('/^(amd|nvidia|intel)\s*:\s*/i', '', $part));
             $part = trim(preg_replace('/\b\d+(?:[.,]\d+)?\s*(GB|MB)\b/i', '', $part));
-            $part = trim(preg_replace('/\s+or\s+(higher|better|faster|equivalent|similar|greater)\b.*/i', '', $part));
+            $part = trim(preg_replace('/\b(' . self::QUALIFIERS . ')\b.*/i', '', $part));
             $part = trim(preg_replace('/\s+with\s+.*$/i', '', $part));
             $part = trim(preg_replace('/\bdirectx\b.*/i', '', $part));
             $part = trim(preg_replace('/\b3d\b/i', '', $part));

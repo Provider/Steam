@@ -671,6 +671,35 @@ final class SystemRequirementsTest extends TestCase
     }
 
     /**
+     * Tests that the common "Win" abbreviation still yields canonical Windows versions instead of
+     * leaving the OS line unparsed.
+     */
+    public function testWindowsAbbreviation(): void
+    {
+        $app = AppDetailsParser::tryParseStorePage(self::createPage(<<<HTML
+            <div class="game_area_sys_req sysreq_content active" data-os="win">
+            <div class="game_area_sys_req_leftCol"><ul>
+            <strong>Minimum:</strong><br><ul class="bb_ul">
+            <li>Requires a 64-bit processor and operating system<br></li>
+            <li><strong>OS:</strong> Win 10, x64<br></li>
+            <li><strong>Processor:</strong> Intel Core i3<br></li>
+            <li><strong>Memory:</strong> 8 GB RAM<br></li>
+            <li><strong>Graphics:</strong> GTX 650ti equivalent or higher<br></li>
+            </ul>
+            </ul></div>
+            </div>
+            HTML));
+
+        $requirements = $app['system_requirements']['platforms']['windows'];
+
+        self::assertSame('Win 10, x64', $requirements['minimum']['os']['raw']);
+        self::assertSame(['10'], $requirements['minimum']['os']['windows']);
+        self::assertSame('10', $requirements['minimum']['os']['minimum_windows']);
+        self::assertTrue($requirements['minimum']['os']['requires_64bit']);
+        self::assertSame(['GTX 650ti'], $requirements['minimum']['graphics']['models']);
+    }
+
+    /**
      * Tests that Windows 98 is the oldest version when a flat list mentions 98, ME and 2000.
      */
     public function testWindows98Rank(): void
