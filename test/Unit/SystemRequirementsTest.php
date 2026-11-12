@@ -700,6 +700,37 @@ final class SystemRequirementsTest extends TestCase
     }
 
     /**
+     * Tests that pipe-separated alternatives produce separate model names without leaking the
+     * separator into the following name.
+     */
+    public function testPipeSeparatedAlternatives(): void
+    {
+        $app = AppDetailsParser::tryParseStorePage(self::createPage(<<<HTML
+            <div class="game_area_sys_req sysreq_content active" data-os="win">
+            <div class="game_area_sys_req_leftCol"><ul>
+            <strong>Minimum:</strong><br><ul class="bb_ul">
+            <li><strong>OS:</strong> Windows 10 (64 bit)<br></li>
+            <li><strong>Processor:</strong> Intel Core i7-4790, 3.4 GHz | AMD Ryzen 5 1500X, 3.5 GHz<br></li>
+            <li><strong>Memory:</strong> 8 GB RAM<br></li>
+            <li><strong>Graphics:</strong> Nvidia GeForce GTX 650 Ti, 2 GB | AMD Radeon R7 360, 2 GB<br></li>
+            </ul>
+            </ul></div>
+            </div>
+            HTML));
+
+        $requirements = $app['system_requirements']['platforms']['windows'];
+
+        self::assertSame(
+            ['Intel Core i7-4790', 'AMD Ryzen 5 1500X'],
+            $requirements['minimum']['processor']['models']
+        );
+        self::assertSame(
+            ['Nvidia GeForce GTX 650 Ti', 'AMD Radeon R7 360'],
+            $requirements['minimum']['graphics']['models']
+        );
+    }
+
+    /**
      * Tests that Windows 98 is the oldest version when a flat list mentions 98, ME and 2000.
      */
     public function testWindows98Rank(): void

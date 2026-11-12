@@ -692,9 +692,9 @@ final class SystemRequirementsParser
     }
 
     /**
-     * Splits requirement text on "/", ";", "," and the word "or" outside parentheses, so qualifiers
-     * like "(or higher)" are never split apart. With `$alternatives` disabled only commas and
-     * semicolons split, keeping version lists inside a fragment ("Windows 7 / Vista / XP").
+     * Splits requirement text on "/", ";", ",", "|" and the word "or" outside parentheses, so
+     * qualifiers like "(or higher)" are never split apart. With `$alternatives` disabled only
+     * commas and semicolons split, keeping version lists inside a fragment ("Windows 7 / Vista / XP").
      *
      * @return string[]
      */
@@ -725,7 +725,9 @@ final class SystemRequirementsParser
                 continue;
             }
 
-            if ($depth === 0 && ($char === ';' || $char === ',' || ($alternatives && $char === '/'))) {
+            if ($depth === 0
+                && ($char === ';' || $char === ',' || ($alternatives && ($char === '/' || $char === '|')))
+            ) {
                 $parts[] = $current;
                 $current = '';
                 $offset++;
