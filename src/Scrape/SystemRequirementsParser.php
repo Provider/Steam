@@ -389,11 +389,33 @@ final class SystemRequirementsParser
         array $notes
     ): array {
         return [
-            'os' => self::parseOs($os, $notes),
-            'processor' => self::parseProcessor($processor),
-            'memory' => ['raw' => $memory, 'mb' => $memory === null ? null : self::parseFirstSizeMb($memory)],
-            'graphics' => self::parseGraphics($graphics, $notes),
+            'os' => self::normalizeGroup(self::parseOs($os, $notes)),
+            'processor' => self::normalizeGroup(self::parseProcessor($processor)),
+            'memory' => self::normalizeGroup([
+                'raw' => $memory,
+                'mb' => $memory === null ? null : self::parseFirstSizeMb($memory),
+            ]),
+            'graphics' => self::normalizeGroup(self::parseGraphics($graphics, $notes)),
         ];
+    }
+
+    /** Removes sentence punctuation from specification fragments and model names. */
+    private static function normalizeGroup(array $group): array
+    {
+        if (is_string($group['raw'] ?? null)) {
+            $group['raw'] = self::removeTerminalFullStops($group['raw']);
+        }
+
+        if (is_array($group['models'] ?? null)) {
+            $group['models'] = array_map(self::removeTerminalFullStops(...), $group['models']);
+        }
+
+        return $group;
+    }
+
+    private static function removeTerminalFullStops(string $value): string
+    {
+        return preg_replace('/[.\s]+$/', '', $value);
     }
 
     private static function parseOs(?string $raw, array $notes): array

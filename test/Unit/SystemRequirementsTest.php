@@ -410,6 +410,34 @@ final class SystemRequirementsTest extends TestCase
     }
 
     /**
+     * Tests that when requirement values end with full stops, raw values and model names lose the terminal
+     * punctuation because requirements are specification fragments rather than sentences.
+     */
+    public function testTerminalFullStops(): void
+    {
+        $app = AppDetailsParser::tryParseStorePage(self::createPage(<<<HTML
+            <div class="game_area_sys_req sysreq_content active" data-os="win">
+            <div class="game_area_sys_req_leftCol"><ul>
+            <strong>Minimum:</strong><br><ul class="bb_ul">
+            <li><strong>OS:</strong> Windows 10 64-bit 21H1+.<br></li>
+            <li><strong>Processor:</strong> Intel Core i5-8400. or AMD Ryzen 5 1600 .<br></li>
+            <li><strong>Memory:</strong> 4 GB RAM.<br></li>
+            <li><strong>Graphics:</strong> NVIDIA GeForce GTX 1060.<br></li>
+            </ul></div>
+            </div>
+            HTML));
+
+        $requirements = $app['system_requirements']['platforms']['windows']['minimum'];
+
+        self::assertSame('Windows 10 64-bit 21H1+', $requirements['os']['raw']);
+        self::assertSame('Intel Core i5-8400. or AMD Ryzen 5 1600', $requirements['processor']['raw']);
+        self::assertSame(['Intel Core i5-8400', 'AMD Ryzen 5 1600'], $requirements['processor']['models']);
+        self::assertSame('4 GB RAM', $requirements['memory']['raw']);
+        self::assertSame('NVIDIA GeForce GTX 1060', $requirements['graphics']['raw']);
+        self::assertSame(['NVIDIA GeForce GTX 1060'], $requirements['graphics']['models']);
+    }
+
+    /**
      * Tests a list without a tier header, which is read as the minimum tier.
      */
     public function testHeaderlessList(): void
