@@ -646,6 +646,7 @@ final class SystemRequirementsParser
             $part = trim(preg_replace('/\bdirectx\b.*/i', '', $part));
             $part = trim(preg_replace('/\b3d\b/i', '', $part));
             $part = trim(preg_replace('/^(video|graphics|display)\s+cards?\b/i', '', $part));
+            $part = trim(preg_replace('/^&\s*/', '', $part));
             $part = self::cleanModel($part);
             $part = self::canonicalizeModel($part);
 

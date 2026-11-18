@@ -383,6 +383,33 @@ final class SystemRequirementsTest extends TestCase
     }
 
     /**
+     * Tests that a graphics requirement qualifying alternatives with one VRAM size ("1 GB & AMD 5570
+     * or nVidia 450") yields one model per alternative, without the size or the joining separator.
+     */
+    public function testSizeQualifiedGraphicsAlternatives(): void
+    {
+        $app = AppDetailsParser::tryParseStorePage(self::createPage(<<<HTML
+            <div class="game_area_sys_req sysreq_content active" data-os="win">
+            <div class="game_area_sys_req_leftCol"><ul>
+            <strong>Minimum:</strong><br><ul class="bb_ul">
+            <li><strong>Graphics:</strong> 1 GB &amp; AMD 5570 or nVidia 450 or Intel Integrated Graphics 530<br></li>
+            </ul></div>
+            <div class="game_area_sys_req_rightCol"><ul>
+            <strong>Recommended:</strong><br><ul class="bb_ul">
+            <li><strong>Graphics:</strong> 2GB &amp; AMD 7970 or nVidia 770 or greater<br></li>
+            </ul></div>
+            </div>
+            HTML));
+
+        $requirements = $app['system_requirements']['platforms']['windows'];
+
+        self::assertSame(['AMD 5570', 'nVidia 450', 'Intel Integrated Graphics 530'],
+            $requirements['minimum']['graphics']['models']);
+        self::assertSame(1024, $requirements['minimum']['graphics']['vram_mb']);
+        self::assertSame(['AMD 7970', 'nVidia 770'], $requirements['recommended']['graphics']['models']);
+    }
+
+    /**
      * Tests a list without a tier header, which is read as the minimum tier.
      */
     public function testHeaderlessList(): void
