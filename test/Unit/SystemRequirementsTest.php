@@ -726,6 +726,31 @@ final class SystemRequirementsTest extends TestCase
     }
 
     /**
+     * Tests that when a clock speed carries a plus qualifier, the whole speed token is removed instead of
+     * leaving a fictitious processor model.
+     *
+     * @see https://store.steampowered.com/app/322170/Geometry_Dash/
+     */
+    public function testPlusQualifiedClockSpeed(): void
+    {
+        $app = AppDetailsParser::tryParseStorePage(self::createPage(<<<HTML
+            <div class="game_area_sys_req sysreq_content active" data-os="win">
+            <div class="game_area_sys_req_full"><ul>
+            <strong>Minimum:</strong><br><ul class="bb_ul">
+            <li><strong>Processor:</strong> 2.0+ GHz<br></li>
+            </ul>
+            </ul></div>
+            </div>
+            HTML));
+
+        $processor = $app['system_requirements']['platforms']['windows']['minimum']['processor'];
+
+        self::assertSame('2.0+ GHz', $processor['raw']);
+        self::assertSame(2.0, $processor['speed_ghz']);
+        self::assertSame([], $processor['models']);
+    }
+
+    /**
      * Tests that the common "Win" abbreviation still yields canonical Windows versions instead of
      * leaving the OS line unparsed.
      */

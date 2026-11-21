@@ -509,8 +509,13 @@ final class SystemRequirementsParser
         $speeds = [];
         $speedTokens = [];
 
-        // Speeds with explicit units ("1.2GHz", "500 mhz").
-        if (preg_match_all('/(\d+(?:[.,]\d+)?)\s*(GHZ|MHZ)/i', $raw, $matches, PREG_SET_ORDER)) {
+        // Speeds with explicit units and optional plus qualifiers ("1.2GHz", "2.0+ GHz", "500 mhz").
+        if (preg_match_all(
+            '/(\d+(?:[.,]\d+)?)(?:\s*\+)?\s*(GHZ|MHZ)\b(?:\s*\+)?/i',
+            $raw,
+            $matches,
+            PREG_SET_ORDER
+        )) {
             foreach ($matches as $match) {
                 $number = (float)str_replace(',', '.', $match[1]);
                 $speeds[] = mb_strtoupper($match[2]) === 'MHZ' ? $number / 1000 : $number;
