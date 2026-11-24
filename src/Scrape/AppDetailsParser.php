@@ -65,6 +65,7 @@ final class AppDetailsParser
         $reviewsArea = $crawler->filter('.glance_ctn_responsive_left')->first();
         $release_date = self::parseReleaseDate($reviewsArea);
         $steam_release_date = self::parseSteamReleaseDate($crawler);
+        $ea_date = self::parseEaDate($crawler);
         $developers = iterator_to_array(self::parseDevelopers($reviewsArea));
         $publishers = iterator_to_array(self::parsePublishers($reviewsArea));
         $franchises = iterator_to_array(self::parseFranchises($crawler));
@@ -109,6 +110,7 @@ final class AppDetailsParser
             'blurb',
             'release_date',
             'steam_release_date',
+            'ea_date',
             'developers',
             'publishers',
             'franchises',
@@ -225,13 +227,24 @@ final class AppDetailsParser
         $date = $reviewsArea->filter('.release_date > .date');
 
         try {
-            $release_date = $date->count() ? new \DateTimeImmutable($date->text(), new \DateTimeZone('UTC')) : null;
+            $release_date = $date->count()
+                ? new \DateTimeImmutable(self::normalizeDate($date->text()), new \DateTimeZone('UTC'))
+                : null;
         } catch (\Exception $exception) {
             $release_date = null;
         }
 
         // If date includes time portion, assume it was mis-parsed.
         return $release_date && $release_date->format('G') ? null : $release_date;
+    }
+
+    /**
+     * Normalises the comma in dates like "14 Aug, 2020", which Steam serves to sessions in some regions, to the
+     * form PHP parses correctly. Read as-is, PHP mistakes such a date for a time on a day of the current month.
+     */
+    private static function normalizeDate(string $date): string
+    {
+        return trim(str_replace(',', '', $date));
     }
 
     /**
@@ -271,6 +284,34 @@ final class AppDetailsParser
         }
 
         return null;
+    }
+
+    /**
+     * Parses the date the app was released into early access.
+     *
+     * The line exists only for apps that entered early access from about 2021, otherwise absent; therefore null does
+     * not necessarily imply the app was never in early access. Unlike the timestamp parsed from
+     * {@see parseSteamReleaseDate()}, Valve does not move this date forward when an app leaves early access.
+     *
+     * The line has no class or attribute of its own, so it is located by its English label, which the store page
+     * request pins with the 'l=english' parameter ({@see ScrapeAppDetails::getUrl()}).
+     */
+    private static function parseEaDate(Crawler $crawler): ?\DateTimeImmutable
+    {
+        $date = $crawler->filterXPath(
+            '//b[normalize-space(.) = "Early Access Release Date:"]/following-sibling::text()[1]'
+        );
+
+        try {
+            $ea_date = $date->count()
+                ? new \DateTimeImmutable(self::normalizeDate($date->text()), new \DateTimeZone('UTC'))
+                : null;
+        } catch (\Exception $exception) {
+            $ea_date = null;
+        }
+
+        // If date includes time portion, assume it was mis-parsed.
+        return $ea_date && $ea_date->format('G') ? null : $ea_date;
     }
 
     /**

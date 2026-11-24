@@ -58,8 +58,8 @@ final class ScrapeAppDetails implements ProviderResource, SingleRecordResource, 
 
     public function getUrl(): string
     {
-        // Force the country to US, for consistency and easier date parsing, with the undocumented 'cc' parameter.
-        return SteamProvider::buildStoreApiUrl("/app/$this->appId/?cc=us");
+        // Force the country to US and the language to English.
+        return SteamProvider::buildStoreApiUrl("/app/$this->appId/?cc=us&l=english");
     }
 
     private function configureAsyncOptions(HttpConnector $connector): void

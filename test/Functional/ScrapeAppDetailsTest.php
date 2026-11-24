@@ -11,6 +11,7 @@ use ScriptFUSION\Porter\Import\Import;
 use ScriptFUSION\Porter\Porter;
 use ScriptFUSION\Porter\Provider\Steam\Resource\InvalidAppIdException;
 use ScriptFUSION\Porter\Provider\Steam\Resource\ScrapeAppDetails;
+use ScriptFUSION\Porter\Provider\Steam\Scrape\AppDetailsParser;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\InvalidMarkupException;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\SteamDeckCompatibility;
 use ScriptFUSION\Porter\Provider\Steam\Scrape\SteamStoreException;
@@ -47,6 +48,7 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertSame('game', $app['type']);
         self::assertStringStartsWith('Play the world\'s number 1 online action game.', $app['blurb']);
         self::assertSame('2000-11-01', $app['release_date']->format('Y-m-d'));
+        self::assertNull($app['ea_date']);
         self::assertCount(1, $app['developers']);
         self::assertSame('valve', current($app['developers']));
         self::assertSame('Valve', key($app['developers']));
@@ -356,6 +358,39 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
+     * Tests that a day-first release date, as Steam serves to sessions in some regions, is parsed as the date it
+     * declares rather than being mistaken for a time on a day of the current month and rejected.
+     */
+    public function testDayFirstReleaseDate(): void
+    {
+        $html = str_replace('Oct 23, 2012', '23 Oct, 2012', ScrapeAppFixture::getFixture('discounted.html'));
+
+        $app = AppDetailsParser::tryParseStorePage($html);
+
+        self::assertSame('2012-10-23', $app['release_date']->format('Y-m-d'));
+    }
+
+    /**
+     * Tests that a day-first Early Access release date is parsed the same way as a day-first release date.
+     */
+    public function testDayFirstEaDate(): void
+    {
+        $html = str_replace(
+            'Oct 23, 2012',
+            '23 Oct, 2012',
+            str_replace(
+                '</a>',
+                '</a><br><b>Early Access Release Date:</b> 12 Oct, 2012<br>',
+                ScrapeAppFixture::getFixture('discounted.html'),
+            ),
+        );
+
+        $app = AppDetailsParser::tryParseStorePage($html);
+
+        self::assertSame('2012-10-12', $app['ea_date']->format('Y-m-d'));
+    }
+
+    /**
      * Tests that a game with an invalid date, like "2021", is treated as null.
      *
      * @see https://store.steampowered.com/app/1468600/Matias_Candia_LORD_DOOMER/
@@ -609,23 +644,6 @@ final class ScrapeAppDetailsTest extends TestCase
     }
 
     /**
-     * Tests that an early access graduate's declared release date is its full release date, not its early
-     * access launch date, which is exposed separately as the Steam release date.
-     *
-     * Valve does not reliably move the embedded timestamp forward when an app leaves early access, so
-     * parsing it as the release date regresses every early access graduate.
-     *
-     * @see https://store.steampowered.com/app/2085540/Stick_It_to_the_Stickman/
-     */
-    public function testEarlyAccessGraduate(): void
-    {
-        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(2085540)));
-
-        self::assertSame('2026-09-23', $app['release_date']->format('Y-m-d'));
-        self::assertSame('2025-08-18', $app['steam_release_date']->format('Y-m-d'));
-    }
-
-    /**
      * Tests that a zero release timestamp, denoting an absent Steam release date, is parsed as null.
      *
      * @see https://store.steampowered.com/app/242050/Assassins_Creed_IV_Black_Flag/
@@ -719,6 +737,25 @@ final class ScrapeAppDetailsTest extends TestCase
         self::assertNotEmpty($genres = $app['genres']);
 
         self::assertContains('Early Access', $genres);
+    }
+
+    /**
+     * Tests that an early access graduate's declared release date is its full release date, not its early
+     * access launch date, which is exposed separately as the Early Access date and the Steam release date.
+     *
+     * Valve does not reliably move the embedded timestamp forward when an app leaves early access, so
+     * parsing it as the release date regresses every early access graduate. The labelled Early Access
+     * release date persists after the app leaves early access, and remains the early access launch date.
+     *
+     * @see https://store.steampowered.com/app/2085540/Stick_It_to_the_Stickman/
+     */
+    public function testEarlyAccessGraduate(): void
+    {
+        $app = $this->porter->importOne(new Import(new ScrapeAppDetails(2085540)));
+
+        self::assertSame('2026-09-23', $app['release_date']->format('Y-m-d'));
+        self::assertSame('2025-08-18', $app['ea_date']->format('Y-m-d'));
+        self::assertSame('2025-08-18', $app['steam_release_date']->format('Y-m-d'));
     }
 
     /**
